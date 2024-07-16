@@ -164,8 +164,7 @@
             document.getElementById('adCount').innerText = `Total Advertisements: ${adCount}`;
 
             const countryCounts = {};
-            const paragraphs = outputContainer.querySelector
-All('p');
+            const paragraphs = outputContainer.querySelectorAll('p');
             paragraphs.forEach(paragraph => {
                 const text = paragraph.innerText.split(/\n/);
                 for (let i = 0; i < text.length; i++) {
