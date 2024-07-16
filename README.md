@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -15,6 +14,7 @@
             margin-bottom: 20px;
             display: flex;
             align-items: center;
+            flex-direction: column;
         }
         .text-container {
             margin: 20px 0;
@@ -23,18 +23,54 @@
             background-color: #fff;
             cursor: text;
             white-space: pre-wrap; /* Maintain text format */
+            position: relative;
         }
         .text-container p {
             margin: 10px 0;
         }
+        .copy-button, .clear-button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            transition-duration: 0.4s;
+            margin: 5px;
+        }
+        .copy-button:hover, .clear-button:hover {
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
+        }
+        .clear-button {
+            background-color: #f44336; /* Red */
+        }
+        .clear-button:hover {
+            border: 2px solid #f44336;
+        }
         #adCount {
-            margin-left: 20px;
+            margin-top: 20px;
             font-size: 18px;
             font-weight: bold;
         }
-        #dailyAdCount, #countryCount, #remainingTime {
+        #dailyAdCount {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #remainingTime {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #countryCount {
             margin-top: 10px;
             font-size: 16px;
+            font-weight: bold;
         }
         .font-controls {
             margin-bottom: 10px;
@@ -74,28 +110,63 @@
         #credits a:hover {
             text-decoration: underline;
         }
-        .country-name {
+        .error {
+            color: red;
             font-weight: bold;
         }
-        .hourglass {
-            font-size: 24px;
-            margin-right: 10px;
+        .login-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .login-container input {
+            margin: 5px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #loginButton {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
             display: inline-block;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition-duration: 0.4s;
         }
-        .hourglass::before {
-            content: '⌛';
-            animation: rotateHourglass 2s linear infinite;
+        #loginButton:hover {
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
         }
-        @keyframes rotateHourglass {
+        @keyframes hourglass {
             0% { transform: rotate(0deg); }
-            50% { transform: rotate(180deg); }
             100% { transform: rotate(360deg); }
+        }
+        .hourglass {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 2px solid #000;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: hourglass 1s linear infinite;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
     <h1>Text Selector and Copier</h1>
-    <div class="font-controls">
+    <div class="login-container">
+        <input type="text" id="username" placeholder="Enter your name">
+        <input type="password" id="password" placeholder="Enter your password">
+        <button id="loginButton" onclick="login()">Login</button>
+    </div>
+    <div class="font-controls" style="display:none;">
         <label for="fontStyle">Font Style:</label>
         <select id="fontStyle" onchange="updateFont()">
             <option value="Arial">Arial</option>
@@ -107,20 +178,17 @@
         <label for="fontSize">Font Size:</label>
         <input type="number" id="fontSize" value="16" onchange="updateFont()">px
     </div>
-    <div class="input-container">
+    <div class="input-container" style="display:none;">
         <textarea id="inputText" rows="10" cols="50" placeholder="Paste your text here..."></textarea>
         <button id="okButton" onclick="processText()">OK</button>
-        <div id="adCount">Total Advertisements: 0</div>
     </div>
-    <div id="output" class="text-container" contenteditable="true">
-        <p id="cursorStart"><b>Place your cursor here</b></p>
-    </div>
-    <div id="dailyAdCount">Total Advertisements Today: 0</div>
-    <div id="remainingTime">
-        <span class="hourglass"></span>
-        Remaining Time: Calculating...
-    </div>
-    <div id="countryCount"></div>
+    <div id="adCount" style="display:none;">Total Advertisements: 0</div>
+    <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
+    <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
+    <div id="countryCount" style="display:none;">Country Counts:</div>
+    <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
+    <button class="clear-button" style="display:none;" onclick="clearAllText()">Clear All</button>
+    <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
     <div id="credits">
         This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
     </div>
@@ -149,12 +217,68 @@
             "Vietnam", "Yemen", "Zambia", "Zimbabwe"
         ];
 
-        let startTime;
+        let currentUser = null;
+        let dailyAdCount = 0;
+        let startTime = Date.now();
         let cutCount = 0;
+
+        // Function to save text to localStorage for the current user
+        function saveText() {
+            const inputText = document.getElementById('inputText').value;
+            const outputText = document.getElementById('output').innerHTML;
+            if (currentUser) {
+                localStorage.setItem(`savedInput_${currentUser}`, inputText);
+                localStorage.setItem(`savedOutput_${currentUser}`, outputText);
+                localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
+                localStorage.setItem(`lastCutTime_${currentUser}`, Date.now());
+            }
+        }
+
+        // Function to load text from localStorage for the current user
+        function loadText() {
+            if (currentUser) {
+                const savedInput = localStorage.getItem(`savedInput_${currentUser}`);
+                const savedOutput = localStorage.getItem(`savedOutput_${currentUser}`);
+                const savedDailyAdCount = localStorage.getItem(`dailyAdCount_${currentUser}`);
+                if (savedInput) {
+                    document.getElementById('inputText').value = savedInput;
+                }
+                if (savedOutput) {
+                    document.getElementById('output').innerHTML = savedOutput;
+                }
+                if (savedDailyAdCount) {
+                    dailyAdCount = parseInt(savedDailyAdCount, 10);
+                }
+                updateCounts();
+            }
+        }
 
         function countOccurrences(text, word) {
             const regex = new RegExp(`\\b${word}\\b`, 'gi');
             return (text.match(regex) || []).length;
+        }
+
+        function countCountryOccurrences(text) {
+            const lines = text.split('\n');
+            const countryCounts = {};
+
+            for (let i = 0; i < lines.length - 1; i++) {
+                const line = lines[i].trim();
+                const nextLine = lines[i + 1].trim();
+
+                if (nextLine.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) { // Check if next line is an email
+                    countryList.forEach(country => {
+                        if (line.includes(country)) {
+                            countryCounts[country] = (countryCounts[country] || 0) + 1;
+                        }
+                    });
+                }
+            }
+            return countryCounts;
+        }
+
+        function highlightErrors(text) {
+            return text.replace(/(\w+\?\w+)/g, '<span class="error">$1</span>');
         }
 
         function updateCounts() {
@@ -162,50 +286,124 @@
             const text = outputContainer.innerText;
             const adCount = countOccurrences(text, 'professor');
             document.getElementById('adCount').innerText = `Total Advertisements: ${adCount}`;
+            document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
 
-            const countryCounts = {};
-            const paragraphs = outputContainer.querySelectorAll('p');
-            paragraphs.forEach(paragraph => {
-                const text = paragraph.innerText.split(/\n/);
-                for (let i = 0; i < text.length; i++) {
-                    if (text[i].includes('@')) {
-                        break;
-                    }
-                    countryList.forEach(country => {
-                        if (text[i].toLowerCase().includes(country.toLowerCase())) {
-                            countryCounts[country] = (countryCounts[country] || 0) + 1;
-                        }
-                    });
-                }
-            });
-
-            let countryCountText = '';
+            const countryCounts = countCountryOccurrences(text);
+            let countryCountText = 'Country Counts:<br>';
             for (const country in countryCounts) {
-                countryCountText += `<span class="country-name">${country}:</span> ${countryCounts[country]}; `;
+                countryCountText += `<b>${country}</b>: ${countryCounts[country]}; `;
             }
-            document.getElementById('countryCount').innerHTML = countryCountText;
+            document.getElementById('countryCount').innerHTML = countryCountText.trim();
+
+            updateRemainingTime(adCount);
+        }
+
+        function updateRemainingTime(adCount) {
+            const currentTime = Date.now();
+            const elapsedTime = (currentTime - startTime) / 1000; // in seconds
+            const averageTimePerCut = elapsedTime / cutCount;
+            const remainingAds = adCount - dailyAdCount;
+            const remainingTimeInSeconds = remainingAds * averageTimePerCut;
+
+            const hours = Math.floor(remainingTimeInSeconds / 3600);
+            const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
+            const seconds = Math.floor(remainingTimeInSeconds % 60);
+
+            document.getElementById('time').innerText = `${hours}h ${minutes}m ${seconds}s`;
         }
 
         function processText() {
             const inputText = document.getElementById('inputText').value;
-            const outputContainer = document.getElementById('output');
-            outputContainer.innerHTML = '<p id="cursorStart"><b>Place your cursor here</b></p>'; // Clear previous content
-
             const paragraphs = inputText.split('\n\n');
-            paragraphs.forEach(paragraphText => {
-                const paragraph = document.createElement('p');
-                paragraph.innerHTML = paragraphText.replace(/\n/g, '<br>');
-                outputContainer.appendChild(paragraph);
+            const outputContainer = document.getElementById('output');
+            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+
+            paragraphs.forEach(paragraph => {
+                if (paragraph.trim() !== '') {
+                    const p = document.createElement('p');
+                    p.innerHTML = highlightErrors(paragraph.replace(/\n/g, '<br>'));
+                    outputContainer.appendChild(p);
+
+                    // Add a gap after each paragraph for smooth cursor movement
+                    const gap = document.createElement('div');
+                    gap.innerHTML = '<br><br>'; // Add larger gap
+                    outputContainer.appendChild(gap);
+                }
             });
 
             updateCounts();
-            document.getElementById('output').focus();
+            saveText(); // Save text to localStorage for the current user
+        }
+
+        function cutParagraph(paragraph) {
+            const textToCopy = paragraph.innerText;
+            const selection = window.getSelection();
             const range = document.createRange();
-            const sel = window.getSelection();
-            range.setStart(outputContainer.childNodes[1], 0);
-            range.collapse(true);
-            sel.removeAllRanges();
-            sel.addRange(range);
+            range.selectNodeContents(paragraph);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            // Copy the text without formatting
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.style.position = 'fixed';
+            tempTextarea.style.opacity = '0';
+            tempTextarea.value = textToCopy;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
+
+            // Remove the paragraph and cleanup
+            paragraph.remove();
+            cleanupSpaces();
+
+            // Update the input textarea
+            const inputText = document.getElementById('inputText').value;
+            const updatedText = inputText.replace(new RegExp(`(?:\\n)?${textToCopy}(?:\\n)?`), '');
+            document.getElementById('inputText').value = updatedText;
+
+            // Update the daily ad count
+            dailyAdCount++;
+            cutCount++;
+
+            // Update the count and save changes
+            updateCounts();
+            saveText();
+        }
+
+        function cleanupSpaces() {
+            const outputContainer = document.getElementById('output');
+            const paragraphs = outputContainer.querySelectorAll('p, div');
+            paragraphs.forEach(paragraph => {
+                if (!paragraph.innerText.trim()) {
+                    paragraph.remove();
+                }
+            });
+        }
+
+        function handleCursorMovement(event) {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const container = range.commonAncestorContainer;
+
+                // Check if the cursor is inside a paragraph containing "Professor"
+                let paragraph = container;
+                while (paragraph && paragraph.nodeName !== 'P') {
+                    paragraph = paragraph.parentNode;
+                }
+
+                if (paragraph && paragraph.textContent.includes('Professor')) {
+                    cutParagraph(paragraph);
+
+                    // Set focus back to the text container after cutting
+                    document.getElementById('output').focus();
+                }
+            }
+        }
+
+        function startMonitoring() {
+            document.addEventListener('keyup', handleCursorMovement);
         }
 
         function updateFont() {
@@ -215,113 +413,79 @@
             document.getElementById('output').style.fontSize = `${fontSize}px`;
         }
 
-        document.getElementById('output').addEventListener('click', function(event) {
-            if (event.target.id === 'cursorStart') {
-                startMonitoring();
-            }
-        });
-
-        function startMonitoring() {
-            document.addEventListener('keyup', handleCursorMovement);
-        }
-
-        function handleCursorMovement(event) {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                const container = range.commonAncestorContainer;
-
-                let paragraph = container;
-                while (paragraph && paragraph.nodeName !== 'P') {
-                    paragraph = paragraph.parentNode;
-                }
-
-                if (paragraph && paragraph.textContent.toLowerCase().includes('professor')) {
-                    cutParagraph(paragraph);
-                    document.getElementById('output').focus();
-                }
-            }
-        }
-
-        function cutParagraph(paragraph) {
-            if (!startTime) {
-                startTime = new Date();
-            }
-
-            const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNodeContents(paragraph);
-            selection.removeAllRanges();
-            selection.addRange(range);
-
-            const tempDiv = document.createElement('div');
-            tempDiv.appendChild(range.cloneContents());
-            const textToCopy = tempDiv.innerHTML;
-            document.body.appendChild(tempDiv);
-
+        function copyRemainingText() {
+            const outputContainer = document.getElementById('output');
+            const remainingText = outputContainer.innerText;
             const tempTextarea = document.createElement('textarea');
             tempTextarea.style.position = 'fixed';
             tempTextarea.style.opacity = '0';
-            tempTextarea.value = paragraph.innerHTML.replace(/<br>/g, '\n');
-
+            tempTextarea.value = remainingText;
             document.body.appendChild(tempTextarea);
             tempTextarea.select();
             document.execCommand('copy');
             document.body.removeChild(tempTextarea);
-            document.body.removeChild(tempDiv);
-
-            paragraph.remove();
-            cleanupSpaces();
-            updateCounts();
-            updateDailyCount();
-            updateRemainingTime();
         }
 
-        function cleanupSpaces() {
-            const outputContainer = document.getElementById('output');
-            const paragraphs = outputContainer.querySelectorAll('p');
-            paragraphs.forEach(paragraph => {
-                if (!paragraph.innerText.trim()) {
-                    paragraph.remove();
-                }
-            });
-        }
-
-        function updateDailyCount() {
-            const today = new Date().toISOString().split('T')[0];
-            const dailyCount = JSON.parse(localStorage.getItem('dailyAdCount')) || {};
-            if (dailyCount.date !== today) {
-                dailyCount.date = today;
-                dailyCount.count = 0;
+        function clearAllText() {
+            document.getElementById('inputText').value = '';
+            document.getElementById('output').innerHTML = '';
+            document.getElementById('adCount').innerText = 'Total Advertisements: 0';
+            document.getElementById('dailyAdCount').innerText = 'Total Ads Today: 0';
+            document.getElementById('countryCount').innerText = 'Country Counts:';
+            if (currentUser) {
+                localStorage.removeItem(`savedInput_${currentUser}`);
+                localStorage.removeItem(`savedOutput_${currentUser}`);
+                localStorage.removeItem(`dailyAdCount_${currentUser}`);
             }
-            dailyCount.count += 1;
-            localStorage.setItem('dailyAdCount', JSON.stringify(dailyCount));
-            document.getElementById('dailyAdCount').innerText = `Total Advertisements Today: ${dailyCount.count}`;
+            dailyAdCount = 0;
+            cutCount = 0;
         }
 
-        function updateRemainingTime() {
-            cutCount += 1;
-            const elapsedTime = (new Date() - startTime) / 1000;
-            const remainingAds = document.querySelectorAll('#output p').length;
-            const speed = cutCount / elapsedTime; // ads per second
-            const remainingTime = remainingAds / speed; // seconds
-            const hours = Math.floor(remainingTime / 3600);
-            const minutes = Math.floor((remainingTime % 3600) / 60);
-            const seconds = Math.floor(remainingTime % 60);
-            document.getElementById('remainingTime').innerHTML = `<span class="hourglass"></span>Remaining Time: ${hours}h ${minutes}m ${seconds}s`;
-        }
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-        // Initialize daily count on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            const dailyCount = JSON.parse(localStorage.getItem('dailyAdCount')) || { date: '', count: 0 };
-            const today = new Date().toISOString().split('T')[0];
-            if (dailyCount.date !== today) {
-                dailyCount.date = today;
-                dailyCount.count = 0;
-                localStorage.setItem('dailyAdCount', JSON.stringify(dailyCount));
+            if (username && password) {
+                currentUser = `${username}_${password}`;
+                document.querySelector('.login-container').style.display = 'none';
+                document.querySelector('.font-controls').style.display = 'block';
+                document.querySelector('.input-container').style.display = 'block';
+                document.getElementById('adCount').style.display = 'block';
+                document.getElementById('dailyAdCount').style.display = 'block';
+                document.getElementById('remainingTime').style.display = 'block';
+                document.getElementById('countryCount').style.display = 'block';
+                document.querySelector('.copy-button').style.display = 'block';
+                document.querySelector('.clear-button').style.display = 'block';
+                document.getElementById('output').style.display = 'block';
+                loadText();
+            } else {
+                alert('Please enter both username and password.');
             }
-            document.getElementById('dailyAdCount').innerText = `Total Advertisements Today: ${dailyCount.count}`;
+        }
+
+        document.getElementById('output').addEventListener('click', function(event) {
+            if (event.target.id === 'cursorStart') {
+                // Start monitoring cursor after clicking in the text container
+                startMonitoring();
+            }
         });
+
+        // Check for daily reset of ad count
+        function checkDailyReset() {
+            const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
+            if (lastCutTime) {
+                const lastCutDate = new Date(parseInt(lastCutTime, 10));
+                const currentDate = new Date();
+                if (lastCutDate.toDateString() !== currentDate.toDateString()) {
+                    dailyAdCount = 0;
+                    localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
+                }
+            }
+        }
+
+        setInterval(checkDailyReset, 60000); // Check every minute
+
+        // No need to loadText on page load since it will be handled on login
     </script>
 </body>
 </html>
