@@ -32,6 +32,14 @@
         .mybutton:hover {
             background-color: #45a049;
         }
+
+        #results {
+            padding: 20px;
+            text-align: left;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            white-space: pre-wrap; /* Preserves whitespace formatting */
+        }
     </style>
 </head>
 
@@ -58,28 +66,32 @@
     </div>
 
     <script>
-        document.getElementById('referenceForm').addEventListener('submit', function (event) {
+        document.getElementById('referenceForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
             const freetext = document.getElementById('freetext').value;
-            const includePM = document.getElementById('includePM').checked;
-            const multihit = document.getElementById('multihit').checked;
+            const includePM = document.getElementById('includePM').checked ? 'true' : 'false';
+            const multihit = document.getElementById('multihit').checked ? 'true' : 'false';
 
-            const formData = new FormData();
+            const formData = new URLSearchParams();
             formData.append('freetext', freetext);
-            formData.append('includePM', includePM ? 'true' : 'false');
-            formData.append('multihit', multihit ? 'true' : 'false');
+            formData.append('includePM', includePM);
+            formData.append('multihit', multihit);
 
             fetch('https://doi.crossref.org/simpleTextQuery', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
             })
             .then(response => response.text())
             .then(data => {
-                document.getElementById('results').innerHTML = `<pre>${data}</pre>`;
+                document.getElementById('results').textContent = data;
             })
             .catch(error => {
                 console.error('Error:', error);
+                document.getElementById('results').textContent = 'An error occurred: ' + error;
             });
         });
     </script>
