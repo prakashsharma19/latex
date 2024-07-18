@@ -203,6 +203,7 @@
 
         let currentUser = null;
         let dailyAdCount = 0;
+        let totalTimeInSeconds = 0;
 
         // Function to save text to localStorage for the current user
         function saveText() {
@@ -283,14 +284,13 @@
             });
             document.getElementById('countryCount').innerHTML = countryCountText.trim();
 
-            updateRemainingTime(adCount);
+            updateRemainingTime();
         }
 
-        function updateRemainingTime(adCount) {
-            const totalAds = adCount - dailyAdCount;
-            const totalTimeInSeconds = totalAds * 8;
-            const hours = Math.floor(totalTimeInSeconds / 3600);
-            const minutes = Math.floor((totalTimeInSeconds % 3600) / 60);
+        function updateRemainingTime() {
+            const remainingTimeInSeconds = totalTimeInSeconds - (dailyAdCount * 8);
+            const hours = Math.floor(remainingTimeInSeconds / 3600);
+            const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
 
             document.getElementById('time').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
         }
@@ -300,6 +300,10 @@
             const paragraphs = inputText.split('\n\n');
             const outputContainer = document.getElementById('output');
             outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+
+            // Calculate total time for all ads
+            const totalAds = countOccurrences(inputText, 'professor');
+            totalTimeInSeconds = totalAds * 8;
 
             let index = 0;
             function processChunk() {
