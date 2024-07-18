@@ -3,40 +3,86 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="CACHE-CONTROL" content="NO-CACHE" />
-    <meta http-equiv="PRAGMA" content="NO-CACHE" />
-    <meta http-equiv="EXPIRES" content="-1" />
-    <meta name="ROBOTS" content="NONE" />
     <title>Reference DOI Finder</title>
-    <link type="text/css" href="styles.css" rel="stylesheet" />
-    <script type="text/javascript" src="scripts.js"></script>
+    <style>
+        body {
+            text-align: center;
+            margin: 0px;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background-color: #ffc72c;
+            padding: 10px;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .mybutton {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .mybutton:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 
-<body style="text-align: center; margin: 0px;">
-    <header style="background-color: #ffc72c; padding: 10px;">
+<body>
+    <header>
         <h1>Reference DOI Finder</h1>
     </header>
 
-    <div style="padding: 20px;">
-        <form enctype="application/x-www-form-urlencoded" method="POST" name="freeTextQuery" accept-charset="UTF-8">
+    <div class="container">
+        <form id="referenceForm">
             <div>
                 <label for="freetext">Enter text in the box below:</label><br>
-                <textarea rows="10" cols="100" title="Paste your reference section here" class="input" id="freetext" name="freetext" maxlength="10000000" wrap="off"></textarea>
+                <textarea rows="10" cols="100" title="Paste your reference section here" id="freetext" name="freetext" maxlength="10000000" wrap="off"></textarea>
             </div>
             <div>
-                <input type="checkbox" name="includePM" /> Include PubMed IDs in results.<br>
-                <input type="checkbox" name="multihit" /> List all possible DOIs per reference.
+                <input type="checkbox" id="includePM" name="includePM"> Include PubMed IDs in results.<br>
+                <input type="checkbox" id="multihit" name="multihit"> List all possible DOIs per reference.
             </div>
             <div>
-                <input class="mybutton" type="submit" name="submitButton" value="Submit" onclick="setAction('submit');" />
+                <button class="mybutton" type="submit">Submit</button>
             </div>
-            <p>We now provide space to match 1,000 references per submission.</p>
         </form>
+        <div id="results"></div>
     </div>
 
-    <footer style="background-color: #ffc72c; padding: 10px;">
-        <p>Contact us if you have any questions.</p>
-    </footer>
+    <script>
+        document.getElementById('referenceForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const freetext = document.getElementById('freetext').value;
+            const includePM = document.getElementById('includePM').checked;
+            const multihit = document.getElementById('multihit').checked;
+
+            const formData = new FormData();
+            formData.append('freetext', freetext);
+            formData.append('includePM', includePM ? 'true' : 'false');
+            formData.append('multihit', multihit ? 'true' : 'false');
+
+            fetch('https://doi.crossref.org/simpleTextQuery', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('results').innerHTML = `<pre>${data}</pre>`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
 </body>
 
 </html>
