@@ -242,7 +242,6 @@
         let dailyAdCount = 0;
         let totalTimeInSeconds = 0;
         let errorIndex = 0;
-        let errorElements = [];
 
         // Function to save text to localStorage for the current user
         function saveText() {
@@ -305,12 +304,9 @@
         }
 
         function highlightErrors(text) {
-            const spellingErrors = text.replace(/(\w+[\?\&\*\!]|(?:Departmet|Institut|Univeristy))/g, '<span class="spelling-error">$1</span>');
-            const emailErrors = spellingErrors.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+(\.[a-zA-Z]{2,})?)|([a-zA-Z0-9._%+-]+[^@])(\s|$)/g, (match, p1, p2, p3, p4) => {
-                if (!p1 && p3) return `<span class="email-error">${match}</span>`;
-                return match;
-            });
-            return emailErrors;
+            const emailErrors = text.replace(/([a-zA-Z0-9._%+-]+(?!@)[a-zA-Z0-9._%+-]*\s|$)/g, '<span class="email-error">$1</span>');
+            const specialCharErrors = emailErrors.replace(/(\w+[\&\$\@])/g, '<span class="spelling-error">$1</span>');
+            return specialCharErrors;
         }
 
         function updateCounts() {
