@@ -47,7 +47,7 @@
             color: black;
             border: 2px solid #4CAF50;
         }
-        #adCount, #dailyAdCount, #remainingTime, #countryCount {
+        #adCount, #dailyAdCount, #remainingTime, #countryCount, #errorCount {
             margin-top: 10px;
             font-size: 18px;
             font-weight: bold;
@@ -61,6 +61,9 @@
             line-height: 1.5;
         }
         #remainingTime {
+            margin-top: 10px;
+        }
+        #errorCount {
             margin-top: 10px;
         }
         .font-controls {
@@ -105,6 +108,12 @@
             color: red;
             font-weight: bold;
         }
+        .spelling-error {
+            background-color: yellow;
+        }
+        .email-error {
+            background-color: orange;
+        }
         .login-container {
             margin-bottom: 20px;
             display: flex;
@@ -142,6 +151,29 @@
             display: inline-block;
             margin-left: 10px;
         }
+        .error-nav-buttons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .error-nav-buttons button {
+            background-color: #f44336; /* Red */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            transition-duration: 0.4s;
+            margin: 5px;
+        }
+        .error-nav-buttons button:hover {
+            background-color: white;
+            color: black;
+            border: 2px solid #f44336;
+        }
     </style>
 </head>
 <body>
@@ -171,6 +203,11 @@
     <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
     <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
     <div id="countryCount" style="display:none;"></div>
+    <div id="errorCount" style="display:none;">Spelling & email errors: 0</div>
+    <div class="error-nav-buttons" style="display:none;">
+        <button id="prevError" onclick="jumpToError(-1)">&lt;</button>
+        <button id="nextError" onclick="jumpToError(1)">&gt;</button>
+    </div>
     <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
     <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
     <div id="credits">
@@ -204,6 +241,8 @@
         let currentUser = null;
         let dailyAdCount = 0;
         let totalTimeInSeconds = 0;
+        let errorIndex = 0;
+        let errorElements = [];
 
         // Function to save text to localStorage for the current user
         function saveText() {
@@ -266,7 +305,12 @@
         }
 
         function highlightErrors(text) {
-            return text.replace(/(\w+\?\w+)/g, '<span class="error">$1</span>');
+            const spellingErrors = text.replace(/(\w+[\?\&\*\!]|(?:Departmet|Institut|Univeristy))/g, '<span class="spelling-error">$1</span>');
+            const emailErrors = spellingErrors.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+(\.[a-zA-Z]{2,})?)|([a-zA-Z0-9._%+-]+[^@])(\s|$)/g, (match, p1, p2, p3, p4) => {
+                if (!p1 && p3) return `<span class="email-error">${match}</span>`;
+                return match;
+            });
+            return emailErrors;
         }
 
         function updateCounts() {
@@ -285,6 +329,7 @@
             document.getElementById('countryCount').innerHTML = countryCountText.trim();
 
             updateRemainingTime();
+            updateErrorCount();
         }
 
         function updateRemainingTime() {
@@ -293,6 +338,33 @@
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
 
             document.getElementById('time').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+        }
+
+        function updateErrorCount() {
+            const outputContainer = document.getElementById('output');
+            const errorElements = outputContainer.querySelectorAll('.spelling-error, .email-error');
+            const errorCount = errorElements.length;
+            document.getElementById('errorCount').innerText = `Spelling & email errors: ${errorCount}`;
+            if (errorCount > 0) {
+                document.querySelector('.error-nav-buttons').style.display = 'block';
+            } else {
+                document.querySelector('.error-nav-buttons').style.display = 'none';
+            }
+        }
+
+        function jumpToError(direction) {
+            const errors = document.querySelectorAll('.spelling-error, .email-error');
+            if (errors.length === 0) return;
+
+            errorIndex += direction;
+            if (errorIndex < 0) errorIndex = errors.length - 1;
+            if (errorIndex >= errors.length) errorIndex = 0;
+
+            errors[errorIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            errors[errorIndex].style.backgroundColor = 'lightblue'; // Highlight the current error
+            setTimeout(() => {
+                errors[errorIndex].style.backgroundColor = ''; // Remove highlight after a short period
+            }, 2000);
         }
 
         function processText() {
@@ -435,7 +507,9 @@
                 document.getElementById('dailyAdCount').style.display = 'block';
                 document.getElementById('remainingTime').style.display = 'block';
                 document.getElementById('countryCount').style.display = 'block';
+                document.getElementById('errorCount').style.display = 'block';
                 document.querySelector('.copy-button').style.display = 'block';
+                document.querySelector('.error-nav-buttons').style.display = 'block';
                 document.getElementById('output').style.display = 'block';
                 loadText();
             } else {
