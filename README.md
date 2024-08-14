@@ -491,7 +491,7 @@
                 // Get the last cut paragraph
                 const lastCutParagraph = cutParagraphs.pop();
 
-                // Insert it back into the output container
+                // Insert it back into the output container after the cursorStart element
                 const outputContainer = document.getElementById('output');
                 const cursorStart = document.getElementById('cursorStart');
                 cursorStart.insertAdjacentHTML('afterend', lastCutParagraph);
