@@ -171,7 +171,7 @@
     <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
     <div id="countryCount" style="display:none;"></div>
     <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
-    <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
+    <div id="output" class="text-container" contenteditable="true" style="display:none;"></div>
 
     <!-- Option to choose cut method -->
     <div style="margin-top: 20px;">
@@ -203,7 +203,7 @@
             "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
             "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
             "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
-            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
+            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
             "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia",
             "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia",
             "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan",
@@ -276,7 +276,7 @@
 
         function processText() {
             const text = document.getElementById('inputText').value;
-            document.getElementById('output').innerText = text;
+            document.getElementById('output').innerText = text; // Show the text in the output container
             highlightErrors(text);
             updateCounts();
             saveText();
@@ -294,7 +294,7 @@
         function cleanupSpaces() {
             const outputContainer = document.getElementById('output');
             let content = outputContainer.innerHTML;
-            content = content.replace(/(\r\n|\n|\r)/gm, "");
+            content = content.replace(/(\r\n|\n|\r)/gm, ""); // Remove newline characters
             outputContainer.innerHTML = content;
         }
 
@@ -304,7 +304,7 @@
             const beforeCursor = text.slice(0, cursorPos);
             const afterCursor = text.slice(cursorPos);
             if (beforeCursor.includes('Professor')) {
-                // Do something with the text containing "Professor"
+                // Handle cursor movement when "Professor" is present
             }
         }
 
@@ -336,6 +336,9 @@
                 document.querySelector('.font-controls').style.display = 'block';
             }
         }
+
+        // Additional functionalities and event listeners
+        document.getElementById('inputText').addEventListener('keyup', handleCursorMovement);
     </script>
 </body>
 </html>
