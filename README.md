@@ -177,11 +177,11 @@
     <div style="margin-top: 20px;">
         <label>
             <input type="radio" name="cutOption" value="keyboard" checked>
-            Cut by Keyboard
+            Operate by Keyboard (Down Arrow)
         </label>
         <label>
             <input type="radio" name="cutOption" value="mouse">
-            Cut by Mouse
+            Operate by Mouse (Left Button)
         </label>
     </div>
 
