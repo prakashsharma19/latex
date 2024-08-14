@@ -28,7 +28,7 @@
         .text-container p {
             margin: 10px 0;
         }
-        .copy-button {
+        .copy-button, .undo-button {
             background-color: #4CAF50; /* Green */
             border: none;
             color: white;
@@ -41,7 +41,7 @@
             transition-duration: 0.4s;
             margin: 5px;
         }
-        .copy-button:hover {
+        .copy-button:hover, .undo-button:hover {
             background-color: white;
             color: black;
             border: 2px solid #4CAF50;
@@ -141,6 +141,12 @@
             display: inline-block;
             margin-left: 10px;
         }
+        .control-buttons {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -170,18 +176,36 @@
     <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
     <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
     <div id="countryCount" style="display:none;"></div>
-    <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
+
+    <div class="control-buttons">
+        <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
+        <button class="undo-button" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
+        <label for="undoCount">Undo Count:</label>
+        <select id="undoCount" style="margin-left: 10px;">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+    </div>
+
     <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
 
     <!-- Option to choose cut method -->
     <div style="margin-top: 20px;">
         <label>
             <input type="radio" name="cutOption" value="keyboard" checked>
-            Operate by Keyboard (Down Arrow)
+            Cut by Keyboard
         </label>
         <label>
             <input type="radio" name="cutOption" value="mouse">
-            Operate by Mouse (Left Button)
+            Cut by Mouse
         </label>
     </div>
 
@@ -216,6 +240,7 @@
         let currentUser = null;
         let dailyAdCount = 0;
         let totalTimeInSeconds = 0;
+        let undoStack = []; // To track up to 10 cut entries
 
         // Function to save text to localStorage for the current user
         function saveText() {
@@ -346,6 +371,13 @@
 
         function cutParagraph(paragraph) {
             const textToCopy = paragraph.innerText;
+
+            // Add the cut entry to the undo stack
+            undoStack.push(textToCopy);
+            if (undoStack.length > 10) {
+                undoStack.shift(); // Keep only the last 10 entries
+            }
+
             const selection = window.getSelection();
             const range = document.createRange();
             range.selectNodeContents(paragraph);
@@ -366,9 +398,9 @@
             paragraph.remove();
             cleanupSpaces();
 
-            // Update the input textarea
+            // Update the input textarea by removing the corresponding text
             const inputText = document.getElementById('inputText').value;
-            const updatedText = inputText.replace(new RegExp(`(?:\\n)?${textToCopy}(?:\\n)?`), '');
+            const updatedText = inputText.replace(textToCopy, '').trim();
             document.getElementById('inputText').value = updatedText;
 
             // Update the daily ad count
@@ -377,6 +409,11 @@
             // Update the count and save changes
             updateCounts();
             saveText();
+
+            // Show the Undo button if there are entries in the undo stack
+            if (undoStack.length > 0) {
+                document.querySelector('.undo-button').style.display = 'block';
+            }
         }
 
         function cleanupSpaces() {
@@ -446,6 +483,38 @@
             document.body.removeChild(tempTextarea);
         }
 
+        function undoLastCut() {
+            const undoCount = parseInt(document.getElementById('undoCount').value, 10);
+
+            if (undoStack.length === 0 || undoCount <= 0) return;
+
+            const restoredCuts = undoStack.splice(-undoCount, undoCount);
+
+            restoredCuts.reverse().forEach((lastCut) => {
+                // Restore the text to the input textarea
+                const inputText = document.getElementById('inputText').value;
+                document.getElementById('inputText').value = `${lastCut}\n\n${inputText}`.trim();
+
+                // Restore the text to the output container
+                const outputContainer = document.getElementById('output');
+                const p = document.createElement('p');
+                p.innerHTML = lastCut.replace(/\n/g, '<br>');
+                outputContainer.insertBefore(p, outputContainer.firstChild);
+
+                // Update daily ad count
+                dailyAdCount--;
+            });
+
+            // Update the counts and save changes
+            updateCounts();
+            saveText();
+
+            // Hide the Undo button if there are no entries left in the undo stack
+            if (undoStack.length === 0) {
+                document.querySelector('.undo-button').style.display = 'none';
+            }
+        }
+
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -461,6 +530,7 @@
                 document.getElementById('countryCount').style.display = 'block';
                 document.querySelector('.copy-button').style.display = 'block';
                 document.getElementById('output').style.display = 'block';
+                document.querySelector('.undo-button').style.display = 'block';
                 loadText();
             } else {
                 alert('Please enter both username and password.');
