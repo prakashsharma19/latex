@@ -171,7 +171,6 @@
     <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
     <div id="countryCount" style="display:none;"></div>
     <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
-    <button class="copy-button" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button> <!-- Undo Button -->
     <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
 
     <!-- Option to choose cut method -->
@@ -522,6 +521,14 @@
         }
 
         setInterval(checkDailyReset, 60000); // Check every minute
+
+        // Listen for Ctrl + Z for undo functionality
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'z') {
+                event.preventDefault();
+                undoLastCut();
+            }
+        });
 
         // No need to loadText on page load since it will be handled on login
     </script>
