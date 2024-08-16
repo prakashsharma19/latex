@@ -447,6 +447,7 @@
 
             document.getElementById('undoButton').style.display = 'block';
         }
+
         function undoLastCut() {
             if (cutHistory.length > 0) {
                 const lastCut = cutHistory.pop();
