@@ -47,8 +47,8 @@
 
         .lock-icon {
             position: absolute;
-            top: -10px;
-            right: -40px;
+            top: 10px;
+            right: -30px;
             cursor: pointer;
             font-size: 24px;
             color: #2980b9;
@@ -87,16 +87,32 @@
         }
 
         .input-container textarea {
-            width: 48%;
+            width: 100%;
             border-radius: 5px;
             padding: 10px;
             font-size: 16px;
             border: 1px solid #e0e0e0;
+            margin-top: 10px;
+        }
+
+        .input-container .container-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
         }
 
         .rough-container {
             width: 30%;
             margin-left: 2%;
+        }
+
+        .input-boxes {
+            display: none;
         }
 
         #okButton {
@@ -229,10 +245,23 @@
     </div>
 
     <div class="input-container" style="display:none;">
-        <textarea id="inputText" rows="10" cols="50" placeholder="Paste your text here..."></textarea>
-        <button id="okButton" onclick="processText()">OK</button>
-        <div class="rough-container">
-            <textarea id="roughText" rows="10" cols="30" placeholder="Rough Work..."></textarea>
+        <div class="container-header" onclick="toggleBox('pasteBox')">
+            Paste your text here
+            <span id="pasteBoxToggle">[+]</span>
+        </div>
+        <div id="pasteBox" class="input-boxes">
+            <textarea id="inputText" rows="5" placeholder="Paste your text here..."></textarea>
+            <button id="okButton" onclick="processText()">OK</button>
+        </div>
+    </div>
+
+    <div class="input-container" style="display:none;">
+        <div class="container-header" onclick="toggleBox('roughBox')">
+            Rough Work
+            <span id="roughBoxToggle">[+]</span>
+        </div>
+        <div id="roughBox" class="input-boxes rough-container">
+            <textarea id="roughText" rows="5" placeholder="Rough Work..."></textarea>
         </div>
     </div>
 
@@ -531,6 +560,19 @@
             }
         }
 
+        function toggleBox(boxId) {
+            const box = document.getElementById(boxId);
+            const toggleSymbol = document.getElementById(boxId + 'Toggle');
+
+            if (box.style.display === 'none' || box.style.display === '') {
+                box.style.display = 'block';
+                toggleSymbol.innerText = '[-]';
+            } else {
+                box.style.display = 'none';
+                toggleSymbol.innerText = '[+]';
+            }
+        }
+
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
@@ -539,7 +581,7 @@
                 currentUser = `${username}_${password}`;
                 document.querySelector('.login-container').style.display = 'none';
                 document.querySelector('.font-controls').style.display = 'block';
-                document.querySelector('.input-container').style.display = 'flex';
+                document.querySelectorAll('.input-container').forEach(container => container.style.display = 'block');
                 document.querySelector('.top-controls').style.display = 'flex';
                 document.getElementById('adCount').style.display = 'block';
                 document.getElementById('dailyAdCount').style.display = 'block';
