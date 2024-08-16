@@ -296,13 +296,14 @@
             });
         }
 
+        // Updated Undo Functionality
         function undoLastEntry() {
-            const lastCutEntry = cutHistoryStack.pop();
-            if (lastCutEntry !== undefined) {
-                const outputContainer = document.getElementById('output');
-                const newParagraph = document.createElement('p');
-                newParagraph.textContent = lastCutEntry;
-                outputContainer.appendChild(newParagraph);
+            const outputContainer = document.getElementById('output');
+            const lastParagraph = outputContainer.lastChild;
+
+            if (lastParagraph && lastParagraph.textContent !== 'Place your cursor here') {
+                cutHistoryStack.push(lastParagraph.textContent);
+                outputContainer.removeChild(lastParagraph);
             } else {
                 alert('No entries to undo');
             }
