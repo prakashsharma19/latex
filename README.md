@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -8,7 +7,7 @@
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #ADD8E6;
             padding: 20px;
             margin: 0;
             color: #333;
