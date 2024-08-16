@@ -216,7 +216,7 @@
         let currentUser = null;
         let dailyAdCount = 0;
         let totalTimeInSeconds = 0;
-        let cutHistory = []; // Array to store cut paragraphs
+        let historyStack = [];
 
         // Function to save text to localStorage for the current user
         function saveText() {
@@ -333,6 +333,9 @@
                         const gap = document.createElement('div');
                         gap.innerHTML = '<br><br>'; // Add larger gap
                         outputContainer.appendChild(gap);
+
+                        // Save the current state in the history stack
+                        historyStack.push(outputContainer.innerHTML);
                     }
                 }
                 if (index < paragraphs.length) {
@@ -345,12 +348,27 @@
             requestAnimationFrame(processChunk);
         }
 
+        // Undo functionality
+        function undoLastEntry() {
+            if (historyStack.length > 1) {
+                historyStack.pop(); // Remove the most recent state
+                const lastState = historyStack[historyStack.length - 1];
+                document.getElementById('output').innerHTML = lastState;
+                updateCounts();
+                saveText();
+            }
+        }
+
+        // Listen for Ctrl+Z key combination
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'z') {
+                event.preventDefault();
+                undoLastEntry();
+            }
+        });
+
         function cutParagraph(paragraph) {
             const textToCopy = paragraph.innerText;
-
-            // Store the paragraph in cutHistory before cutting it
-            cutHistory.push(paragraph.outerHTML);
-
             const selection = window.getSelection();
             const range = document.createRange();
             range.selectNodeContents(paragraph);
@@ -392,28 +410,6 @@
                     paragraph.remove();
                 }
             });
-        }
-
-        function undoLastCut() {
-            if (cutHistory.length > 0) {
-                const lastCut = cutHistory.pop(); // Get the last cut paragraph
-
-                // Restore the paragraph to the output container
-                const outputContainer = document.getElementById('output');
-                const restoredElement = document.createElement('div');
-                restoredElement.innerHTML = lastCut;
-                const paragraph = restoredElement.firstChild;
-                outputContainer.insertBefore(paragraph, outputContainer.firstChild);
-
-                // Also restore the text to the input textarea
-                const inputText = document.getElementById('inputText').value;
-                document.getElementById('inputText').value = lastCut + "\n" + inputText;
-
-                // Decrement the daily ad count
-                dailyAdCount--;
-                updateCounts();
-                saveText();
-            }
         }
 
         function handleCursorMovement(event) {
@@ -521,14 +517,6 @@
         }
 
         setInterval(checkDailyReset, 60000); // Check every minute
-
-        // Listen for Ctrl + Z for undo functionality
-        document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'z') {
-                event.preventDefault();
-                undoLastCut();
-            }
-        });
 
         // No need to loadText on page load since it will be handled on login
     </script>
