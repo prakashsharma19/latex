@@ -336,7 +336,7 @@
                         outputContainer.appendChild(gap);
 
                         // Save the current state in the history stack
-                        historyStack.push(outputContainer.innerHTML);
+                        historyStack.push(p);
                     }
                 }
                 if (index < paragraphs.length) {
@@ -351,10 +351,9 @@
 
         // Undo functionality
         function undoLastEntry() {
-            if (historyStack.length > 1) {
-                historyStack.pop(); // Remove the most recent state
-                const lastState = historyStack[historyStack.length - 1];
-                document.getElementById('output').innerHTML = lastState;
+            if (historyStack.length > 0) {
+                const lastElement = historyStack.pop(); // Remove the most recent element
+                lastElement.remove();
                 updateCounts();
                 saveText();
             }
