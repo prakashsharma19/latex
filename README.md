@@ -613,4 +613,3 @@
         setInterval(checkDailyReset, 60000);
     </script>
 </body>
-</html>
