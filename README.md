@@ -6,102 +6,51 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #F5F5F5; /* Light gray background color */
+            background-color: #ADD8E6; /* Light blue background color */
             padding: 20px;
             position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            height: 100vh;
-            color: #333;
         }
-
-        h1 {
-            text-align: center;
-            color: #004A7F;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-width: 1200px;
-            width: 100%;
-        }
-
-        .input-section {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 1200px;
+        .input-container {
             margin-bottom: 20px;
-            visibility: hidden;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
         }
-
-        .input-container, .extra-container {
-            width: 48%;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
         .text-container {
             margin: 20px 0;
             padding: 10px;
             border: 1px solid #ccc;
             background-color: #fff;
             cursor: text;
-            white-space: pre-wrap;
+            white-space: pre-wrap; /* Maintain text format */
             position: relative;
-            width: 100%;
-            max-width: 1200px;
-            box-sizing: border-box;
-            visibility: hidden;
         }
-
         .text-container p {
             margin: 10px 0;
         }
-
-        .buttons {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            visibility: hidden;
-        }
-
-        .copy-button, #okButton, #undoButton {
-            background-color: #007BFF; /* Light blue */
+        .copy-button {
+            background-color: #4CAF50; /* Green */
             border: none;
             color: white;
             padding: 10px 20px;
             text-align: center;
             text-decoration: none;
+            display: inline-block;
             font-size: 16px;
             cursor: pointer;
             transition-duration: 0.4s;
             margin: 5px;
-            border-radius: 4px;
         }
-
-        .copy-button:hover, #okButton:hover, #undoButton:hover {
-            background-color: #0056b3;
+        .copy-button:hover {
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
         }
-
         #adCount, #dailyAdCount, #remainingTime, #countryCount {
             margin-top: 10px;
             font-size: 18px;
             font-weight: bold;
-            color: #004A7F;
-            visibility: hidden;
         }
-
         #countryCount {
             position: absolute;
             left: 20px;
@@ -110,60 +59,64 @@
             font-weight: bold;
             line-height: 1.5;
         }
-
         #remainingTime {
             margin-top: 10px;
         }
-
         .font-controls {
             margin-bottom: 10px;
-            visibility: hidden;
         }
-
+        #okButton {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            transition-duration: 0.4s;
+        }
+        #okButton:hover {
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
+        }
         #cursorStart {
             font-weight: bold;
             color: red;
         }
-
         #credits {
             position: absolute;
             top: 20px;
             right: 20px;
             font-size: 16px;
         }
-
         #credits a {
-            color: #007BFF;
+            color: #0000EE;
             text-decoration: none;
         }
-
         #credits a:hover {
             text-decoration: underline;
         }
-
         .error {
             color: red;
             font-weight: bold;
         }
-
         .login-container {
             margin-bottom: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
         .login-container input {
             margin: 5px 0;
             padding: 10px;
             font-size: 16px;
-            width: 100%;
-            max-width: 300px;
-            box-sizing: border-box;
         }
-
         #loginButton {
-            background-color: #007BFF;
+            background-color: #4CAF50; /* Green */
             border: none;
             color: white;
             padding: 10px 20px;
@@ -174,13 +127,12 @@
             margin: 10px 0;
             cursor: pointer;
             transition-duration: 0.4s;
-            border-radius: 4px;
         }
-
         #loginButton:hover {
-            background-color: #0056b3;
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
         }
-
         .hourglass {
             width: 24px;
             height: 24px;
@@ -192,34 +144,50 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Advertisements-PPH</h1>
-        <div class="login-container">
-            <input type="text" id="username" placeholder="Enter your name">
-            <input type="password" id="password" placeholder="Enter your password">
-            <button id="loginButton" onclick="login()">Login</button>
-        </div>
-        <div class="input-section">
-            <div class="input-container">
-                <textarea id="inputText" rows="10" cols="50" placeholder="Paste your text here..."></textarea>
-                <button id="okButton" onclick="processText()">OK</button>
-            </div>
-            <div class="extra-container">
-                <textarea id="extraText" rows="10" cols="50" placeholder="Paste additional text here..."></textarea>
-            </div>
-        </div>
-        <div id="adCount">Total Advertisements: 0</div>
-        <div id="dailyAdCount">Total Ads Today: 0</div>
-        <div id="remainingTime">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
-        <div id="countryCount"></div>
-        <div class="buttons">
-            <button class="copy-button" onclick="copyRemainingText()">Copy Remaining Text</button>
-            <button class="copy-button" id="undoButton" onclick="undoLastCut()">Undo Last Cut</button>
-        </div>
-        <div id="output" class="text-container" contenteditable="true"></div>
-        <div id="credits">
-            This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
-        </div>
+    <h1>Advertisements-PPH</h1>
+    <div class="login-container">
+        <input type="text" id="username" placeholder="Enter your name">
+        <input type="password" id="password" placeholder="Enter your password">
+        <button id="loginButton" onclick="login()">Login</button>
+    </div>
+    <div class="font-controls" style="display:none;">
+        <label for="fontStyle">Font Style:</label>
+        <select id="fontStyle" onchange="updateFont()">
+            <option value="Arial">Arial</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Calibri Light">Calibri Light</option>
+        </select>
+        <label for="fontSize">Font Size:</label>
+        <input type="number" id="fontSize" value="16" onchange="updateFont()">px
+    </div>
+    <div class="input-container" style="display:none;">
+        <textarea id="inputText" rows="10" cols="50" placeholder="Paste your text here..."></textarea>
+        <button id="okButton" onclick="processText()">OK</button>
+    </div>
+    <div id="adCount" style="display:none;">Total Advertisements: 0</div>
+    <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
+    <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
+    <div id="countryCount" style="display:none;"></div>
+    <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
+    <button class="copy-button" id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
+    <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
+
+    <!-- Option to choose cut method -->
+    <div style="margin-top: 20px;">
+        <label>
+            <input type="radio" name="cutOption" value="keyboard" checked>
+            Operate by Keyboard (Down Arrow Key)
+        </label>
+        <label>
+            <input type="radio" name="cutOption" value="mouse">
+            Operate by Mouse (Left Button)
+        </label>
+    </div>
+
+    <div id="credits">
+        This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
     </div>
 
     <script>
@@ -251,6 +219,7 @@
         let totalTimeInSeconds = 0;
         let cutHistory = [];
 
+        // Function to save text to localStorage for the current user
         function saveText() {
             const inputText = document.getElementById('inputText').value;
             const outputText = document.getElementById('output').innerHTML;
@@ -262,6 +231,7 @@
             }
         }
 
+        // Function to load text from localStorage for the current user
         function loadText() {
             if (currentUser) {
                 const savedInput = localStorage.getItem(`savedInput_${currentUser}`);
@@ -298,7 +268,7 @@
                 const line = lines[i].trim();
                 const nextLine = lines[i + 1].trim();
 
-                if (nextLine.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) {
+                if (nextLine.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) { // Check if next line is an email
                     countryList.forEach(country => {
                         if (line.includes(country)) {
                             countryCounts[country] = (countryCounts[country] || 0) + 1;
@@ -345,12 +315,13 @@
             const outputContainer = document.getElementById('output');
             outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
 
+            // Calculate total time for all ads
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
 
             let index = 0;
             function processChunk() {
-                const chunkSize = 100;
+                const chunkSize = 100; // Number of paragraphs to process in one go
                 const end = Math.min(index + chunkSize, paragraphs.length);
                 for (; index < end; index++) {
                     const paragraph = paragraphs[index];
@@ -359,8 +330,9 @@
                         p.innerHTML = highlightErrors(paragraph.replace(/\n/g, '<br>'));
                         outputContainer.appendChild(p);
 
+                        // Add a gap after each paragraph for smooth cursor movement
                         const gap = document.createElement('div');
-                        gap.innerHTML = '<br><br>';
+                        gap.innerHTML = '<br><br>'; // Add larger gap
                         outputContainer.appendChild(gap);
                     }
                 }
@@ -368,7 +340,7 @@
                     requestAnimationFrame(processChunk);
                 } else {
                     updateCounts();
-                    saveText();
+                    saveText(); // Save text to localStorage for the current user
                 }
             }
             requestAnimationFrame(processChunk);
@@ -376,7 +348,7 @@
 
         function cutParagraph(paragraph) {
             const textToCopy = paragraph.innerText;
-            cutHistory.push(textToCopy);
+            cutHistory.push(textToCopy); // Save the cut text to the history stack
 
             const selection = window.getSelection();
             const range = document.createRange();
@@ -384,6 +356,7 @@
             selection.removeAllRanges();
             selection.addRange(range);
 
+            // Copy the text without formatting
             const tempTextarea = document.createElement('textarea');
             tempTextarea.style.position = 'fixed';
             tempTextarea.style.opacity = '0';
@@ -393,37 +366,49 @@
             document.execCommand('copy');
             document.body.removeChild(tempTextarea);
 
+            // Remove the paragraph and cleanup
             paragraph.remove();
             cleanupSpaces();
 
+            // Update the input textarea by removing the corresponding text
             const inputText = document.getElementById('inputText').value;
             const updatedText = inputText.replace(textToCopy, '').trim();
             document.getElementById('inputText').value = updatedText;
 
+            // Update the daily ad count
             dailyAdCount++;
+
+            // Update the count and save changes
             updateCounts();
             saveText();
 
+            // Show the undo button
             document.getElementById('undoButton').style.display = 'block';
         }
 
+        // Function to undo the last cut
         function undoLastCut() {
             if (cutHistory.length > 0) {
-                const lastCutText = cutHistory.pop();
+                const lastCutText = cutHistory.pop(); // Get the last cut text
 
+                // Restore the text in the output container
                 const outputContainer = document.getElementById('output');
                 const p = document.createElement('p');
                 p.innerText = lastCutText;
                 outputContainer.insertBefore(p, outputContainer.firstChild);
 
+                // Update the input textarea by adding back the restored text
                 const inputText = document.getElementById('inputText').value;
                 document.getElementById('inputText').value = `${lastCutText}\n${inputText}`.trim();
 
+                // Update the daily ad count
                 dailyAdCount--;
 
+                // Update the count and save changes
                 updateCounts();
                 saveText();
 
+                // Hide the undo button if there's nothing to undo
                 if (cutHistory.length === 0) {
                     document.getElementById('undoButton').style.display = 'none';
                 }
@@ -446,6 +431,7 @@
                 const range = selection.getRangeAt(0);
                 const container = range.commonAncestorContainer;
 
+                // Check if the cursor is inside a paragraph containing "Professor"
                 let paragraph = container;
                 while (paragraph && paragraph.nodeName !== 'P') {
                     paragraph = paragraph.parentNode;
@@ -453,6 +439,8 @@
 
                 if (paragraph && paragraph.textContent.includes('Professor')) {
                     cutParagraph(paragraph);
+
+                    // Set focus back to the text container after cutting
                     document.getElementById('output').focus();
                 }
             }
@@ -501,17 +489,14 @@
             if (username && password) {
                 currentUser = `${username}_${password}`;
                 document.querySelector('.login-container').style.display = 'none';
-
-                // Show the hidden elements after successful login
-                document.querySelector('.font-controls').style.visibility = 'visible';
-                document.querySelector('.input-section').style.visibility = 'visible';
-                document.getElementById('adCount').style.visibility = 'visible';
-                document.getElementById('dailyAdCount').style.visibility = 'visible';
-                document.getElementById('remainingTime').style.visibility = 'visible';
-                document.getElementById('countryCount').style.visibility = 'visible';
-                document.querySelector('.buttons').style.visibility = 'visible';
-                document.getElementById('output').style.visibility = 'visible';
-
+                document.querySelector('.font-controls').style.display = 'block';
+                document.querySelector('.input-container').style.display = 'block';
+                document.getElementById('adCount').style.display = 'block';
+                document.getElementById('dailyAdCount').style.display = 'block';
+                document.getElementById('remainingTime').style.display = 'block';
+                document.getElementById('countryCount').style.display = 'block';
+                document.querySelector('.copy-button').style.display = 'block';
+                document.getElementById('output').style.display = 'block';
                 loadText();
             } else {
                 alert('Please enter both username and password.');
@@ -520,6 +505,7 @@
 
         document.getElementById('output').addEventListener('click', function(event) {
             if (event.target.id === 'cursorStart') {
+                // Start monitoring cursor after clicking in the text container
                 startMonitoring();
             } else {
                 handleMouseClick(event);
@@ -530,6 +516,7 @@
             option.addEventListener('change', startMonitoring);
         });
 
+        // Check for daily reset of ad count
         function checkDailyReset() {
             const now = new Date();
             const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
@@ -542,8 +529,9 @@
             }
         }
 
-        setInterval(checkDailyReset, 60000);
+        setInterval(checkDailyReset, 60000); // Check every minute
 
+        // No need to loadText on page load since it will be handled on login
     </script>
 </body>
 </html>
