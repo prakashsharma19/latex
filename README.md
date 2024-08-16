@@ -14,21 +14,9 @@
         }
 
         h1 {
-            color: #1171ba;
-            display: inline-block;
-            margin-right: 20px;
-            font-size: 28px;
-        }
-
-        .header-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            text-align: center;
+            color: #2c3e50;
             margin-bottom: 30px;
-        }
-
-        .header-container img {
-            height: 50px;
         }
 
         .font-controls,
@@ -63,8 +51,8 @@
             right: -30px;
             cursor: pointer;
             font-size: 24px;
-            color: #ffffff;
-            background-color: #1171ba;
+            color: #2980b9;
+            background-color: #ffffff;
             padding: 5px;
             border-radius: 50%;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -74,7 +62,7 @@
         #okButton,
         #loginButton,
         #undoButton {
-            background-color: #1171ba;
+            background-color: #2c3e50;
             border: none;
             color: white;
             padding: 10px 20px;
@@ -89,7 +77,7 @@
         #okButton:hover,
         #loginButton:hover,
         #undoButton:hover {
-            background-color: #0e619f;
+            background-color: #34495e;
         }
 
         .input-container {
@@ -112,7 +100,7 @@
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            background-color: #1171ba;
+            background-color: #2c3e50;
             color: white;
             padding: 10px;
             border-radius: 5px;
@@ -170,7 +158,7 @@
         }
 
         #credits a {
-            color: #1171ba;
+            color: #2980b9;
             text-decoration: none;
         }
 
@@ -223,10 +211,7 @@
 </head>
 
 <body>
-    <div class="header-container">
-        <h1>Advertisements-PPH</h1>
-        <img src="https://pphmjopenaccess.com/public/journals/16/pageHeaderLogoImage_en_US.png" alt="PPH Logo">
-    </div>
+    <h1>Advertisements-PPH</h1>
 
     <!-- Option to choose cut method -->
     <div class="option-buttons">
