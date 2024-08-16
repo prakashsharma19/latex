@@ -35,6 +35,7 @@
             width: 100%;
             max-width: 1200px;
             margin-bottom: 20px;
+            visibility: hidden;
         }
 
         .input-container, .extra-container {
@@ -61,6 +62,7 @@
             width: 100%;
             max-width: 1200px;
             box-sizing: border-box;
+            visibility: hidden;
         }
 
         .text-container p {
@@ -71,6 +73,7 @@
             display: flex;
             justify-content: center;
             margin-top: 20px;
+            visibility: hidden;
         }
 
         .copy-button, #okButton, #undoButton {
@@ -96,6 +99,7 @@
             font-size: 18px;
             font-weight: bold;
             color: #004A7F;
+            visibility: hidden;
         }
 
         #countryCount {
@@ -113,6 +117,7 @@
 
         .font-controls {
             margin-bottom: 10px;
+            visibility: hidden;
         }
 
         #cursorStart {
@@ -194,7 +199,7 @@
             <input type="password" id="password" placeholder="Enter your password">
             <button id="loginButton" onclick="login()">Login</button>
         </div>
-        <div class="input-section" style="display:none;">
+        <div class="input-section">
             <div class="input-container">
                 <textarea id="inputText" rows="10" cols="50" placeholder="Paste your text here..."></textarea>
                 <button id="okButton" onclick="processText()">OK</button>
@@ -203,15 +208,15 @@
                 <textarea id="extraText" rows="10" cols="50" placeholder="Paste additional text here..."></textarea>
             </div>
         </div>
-        <div id="adCount" style="display:none;">Total Advertisements: 0</div>
-        <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
-        <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
-        <div id="countryCount" style="display:none;"></div>
+        <div id="adCount">Total Advertisements: 0</div>
+        <div id="dailyAdCount">Total Ads Today: 0</div>
+        <div id="remainingTime">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
+        <div id="countryCount"></div>
         <div class="buttons">
-            <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
-            <button class="copy-button" id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
+            <button class="copy-button" onclick="copyRemainingText()">Copy Remaining Text</button>
+            <button class="copy-button" id="undoButton" onclick="undoLastCut()">Undo Last Cut</button>
         </div>
-        <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
+        <div id="output" class="text-container" contenteditable="true"></div>
         <div id="credits">
             This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
         </div>
@@ -496,14 +501,17 @@
             if (username && password) {
                 currentUser = `${username}_${password}`;
                 document.querySelector('.login-container').style.display = 'none';
-                document.querySelector('.font-controls').style.display = 'block';
-                document.querySelector('.input-section').style.display = 'flex';
-                document.getElementById('adCount').style.display = 'block';
-                document.getElementById('dailyAdCount').style.display = 'block';
-                document.getElementById('remainingTime').style.display = 'block';
-                document.getElementById('countryCount').style.display = 'block';
-                document.querySelector('.copy-button').style.display = 'block';
-                document.getElementById('output').style.display = 'block';
+
+                // Show the hidden elements after successful login
+                document.querySelector('.font-controls').style.visibility = 'visible';
+                document.querySelector('.input-section').style.visibility = 'visible';
+                document.getElementById('adCount').style.visibility = 'visible';
+                document.getElementById('dailyAdCount').style.visibility = 'visible';
+                document.getElementById('remainingTime').style.visibility = 'visible';
+                document.getElementById('countryCount').style.visibility = 'visible';
+                document.querySelector('.buttons').style.visibility = 'visible';
+                document.getElementById('output').style.visibility = 'visible';
+
                 loadText();
             } else {
                 alert('Please enter both username and password.');
