@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -147,11 +146,10 @@
 <body>
     <h1>Advertisements-PPH</h1>
     <div class="login-container">
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button id="loginButton">Login</button>
+        <input type="text" id="username" placeholder="Enter your name">
+        <input type="password" id="password" placeholder="Enter your password">
+        <button id="loginButton" onclick="login()">Login</button>
     </div>
-    
     <div class="font-controls" style="display:none;">
         <label for="fontStyle">Font Style:</label>
         <select id="fontStyle" onchange="updateFont()">
@@ -159,36 +157,39 @@
             <option value="Times New Roman">Times New Roman</option>
             <option value="Courier New">Courier New</option>
             <option value="Georgia">Georgia</option>
-            <option value="Calibri">Calibri</option>
-            <option value="Light">Light</option>
+            <option value="Calibri Light">Calibri Light</option>
         </select>
-        
         <label for="fontSize">Font Size:</label>
-        <input type="number" id="fontSize" value="16" onchange="updateFont()"> px
+        <input type="number" id="fontSize" value="16" onchange="updateFont()">px
     </div>
-    
     <div class="input-container" style="display:none;">
         <textarea id="inputText" rows="10" cols="50" placeholder="Paste your text here..."></textarea>
         <button id="okButton" onclick="processText()">OK</button>
     </div>
-    
     <div id="adCount" style="display:none;">Total Advertisements: 0</div>
     <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
-    <div id="remainingTime" style="display:none;">Remaining Time:</div>
-    
+    <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
     <div id="countryCount" style="display:none;"></div>
-    
-    <div id="output" class="text-container" style="display:none;">
-        <p id="cursorStart">Place your cursor here</p>
-    </div>
+    <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
+    <button class="copy-button" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button> <!-- Undo Button -->
+    <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
 
-    <button id="copyButton" class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
-    <button id="undoButton" class="copy-button" style="display:none;">Undo</button>
+    <!-- Option to choose cut method -->
+    <div style="margin-top: 20px;">
+        <label>
+            <input type="radio" name="cutOption" value="keyboard" checked>
+            Operate by Keyboard (Down Arrow Key)
+        </label>
+        <label>
+            <input type="radio" name="cutOption" value="mouse">
+            Operate by Mouse (Left Button)
+        </label>
+    </div>
 
     <div id="credits">
         This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
     </div>
-    
+
     <script>
         const countryList = [
             "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
@@ -216,7 +217,7 @@
         let currentUser = null;
         let dailyAdCount = 0;
         let totalTimeInSeconds = 0;
-        let cutParagraphs = []; // Array to store cut paragraphs
+        let cutHistory = []; // Array to store cut paragraphs
 
         // Function to save text to localStorage for the current user
         function saveText() {
@@ -348,8 +349,8 @@
         function cutParagraph(paragraph) {
             const textToCopy = paragraph.innerText;
 
-            // Store the cut paragraph for undo functionality
-            cutParagraphs.push(paragraph.outerHTML);
+            // Store the paragraph in cutHistory before cutting it
+            cutHistory.push(paragraph.outerHTML);
 
             const selection = window.getSelection();
             const range = document.createRange();
@@ -392,6 +393,28 @@
                     paragraph.remove();
                 }
             });
+        }
+
+        function undoLastCut() {
+            if (cutHistory.length > 0) {
+                const lastCut = cutHistory.pop(); // Get the last cut paragraph
+
+                // Restore the paragraph to the output container
+                const outputContainer = document.getElementById('output');
+                const restoredElement = document.createElement('div');
+                restoredElement.innerHTML = lastCut;
+                const paragraph = restoredElement.firstChild;
+                outputContainer.insertBefore(paragraph, outputContainer.firstChild);
+
+                // Also restore the text to the input textarea
+                const inputText = document.getElementById('inputText').value;
+                document.getElementById('inputText').value = lastCut + "\n" + inputText;
+
+                // Decrement the daily ad count
+                dailyAdCount--;
+                updateCounts();
+                saveText();
+            }
         }
 
         function handleCursorMovement(event) {
@@ -464,8 +487,7 @@
                 document.getElementById('dailyAdCount').style.display = 'block';
                 document.getElementById('remainingTime').style.display = 'block';
                 document.getElementById('countryCount').style.display = 'block';
-                document.querySelector('#copyButton').style.display = 'block';
-                document.querySelector('#undoButton').style.display = 'block';
+                document.querySelector('.copy-button').style.display = 'block';
                 document.getElementById('output').style.display = 'block';
                 loadText();
             } else {
@@ -484,32 +506,6 @@
 
         document.querySelectorAll('input[name="cutOption"]').forEach(option => {
             option.addEventListener('change', startMonitoring);
-        });
-
-        document.getElementById('undoButton').addEventListener('click', function() {
-            if (cutParagraphs.length > 0) {
-                // Get the last cut paragraph
-                const lastCutParagraph = cutParagraphs.pop();
-
-                // Insert it back into the output container
-                const outputContainer = document.getElementById('output');
-                const cursorStart = document.getElementById('cursorStart');
-                cursorStart.insertAdjacentHTML('afterend', lastCutParagraph);
-
-                // Optionally, add the paragraph back to the input text
-                const paragraphText = lastCutParagraph.replace(/<[^>]+>/g, '').trim();
-                const inputText = document.getElementById('inputText').value;
-                document.getElementById('inputText').value = paragraphText + '\n\n' + inputText;
-
-                // Decrease the daily ad count
-                dailyAdCount--;
-
-                // Update counts and save the state
-                updateCounts();
-                saveText();
-            } else {
-                alert('No more actions to undo.');
-            }
         });
 
         // Check for daily reset of ad count
