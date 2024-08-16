@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #ADD8E6;
+            background-color: #f4f4f4;
             padding: 20px;
             margin: 0;
             color: #333;
@@ -19,9 +19,9 @@
             margin-bottom: 30px;
         }
 
+        .font-controls,
         .input-container,
-        .login-container,
-        .font-controls {
+        .login-container {
             background-color: #ffffff;
             padding: 20px;
             border-radius: 8px;
@@ -36,11 +36,28 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             white-space: pre-wrap;
+            position: relative;
+        }
+
+        .text-container p {
+            margin: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .lock-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #2980b9;
         }
 
         .copy-button,
         #okButton,
-        #loginButton {
+        #loginButton,
+        #undoButton {
             background-color: #2c3e50;
             border: none;
             color: white;
@@ -54,8 +71,31 @@
 
         .copy-button:hover,
         #okButton:hover,
-        #loginButton:hover {
+        #loginButton:hover,
+        #undoButton:hover {
             background-color: #34495e;
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .input-container textarea {
+            width: 48%;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .rough-container {
+            width: 48%;
+        }
+
+        #okButton {
+            align-self: flex-end;
+            margin-top: 0;
         }
 
         #adCount,
@@ -126,16 +166,43 @@
             display: inline-block;
             margin-left: 10px;
         }
+
+        .option-buttons {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .option-buttons label {
+            margin-right: 20px;
+        }
+
+        #undoButton {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
 <body>
     <h1>Advertisements-PPH</h1>
+
+    <!-- Option to choose cut method -->
+    <div class="option-buttons">
+        <label>
+            <input type="radio" name="cutOption" value="keyboard" checked>
+            Operate by Keyboard (Down Arrow Key)
+        </label>
+        <label>
+            <input type="radio" name="cutOption" value="mouse">
+            Operate by Mouse (Left Button)
+        </label>
+    </div>
+
     <div class="login-container">
         <input type="text" id="username" placeholder="Enter your name">
         <input type="password" id="password" placeholder="Enter your password">
         <button id="loginButton" onclick="login()">Login</button>
     </div>
+
     <div class="font-controls" style="display:none;">
         <label for="fontStyle">Font Style:</label>
         <select id="fontStyle" onchange="updateFont()">
@@ -148,31 +215,27 @@
         <label for="fontSize">Font Size:</label>
         <input type="number" id="fontSize" value="16" onchange="updateFont()">px
     </div>
+
     <div class="input-container" style="display:none;">
         <textarea id="inputText" rows="10" cols="50" placeholder="Paste your text here..."></textarea>
-        <button id="okButton" onclick="processText()">OK</button>
+        <div class="rough-container">
+            <textarea id="roughText" rows="10" cols="50" placeholder="Rough Work..."></textarea>
+            <button id="okButton" onclick="processText()">OK</button>
+        </div>
     </div>
+
     <div id="adCount" style="display:none;">Total Advertisements: 0</div>
     <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
     <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span>
         <div class="hourglass"></div>
     </div>
     <div id="countryCount" style="display:none;"></div>
-    <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
-    <button class="copy-button" id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
-    <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
 
-    <!-- Option to choose cut method -->
-    <div style="margin-top: 20px;">
-        <label>
-            <input type="radio" name="cutOption" value="keyboard" checked>
-            Operate by Keyboard (Down Arrow Key)
-        </label>
-        <label>
-            <input type="radio" name="cutOption" value="mouse">
-            Operate by Mouse (Left Button)
-        </label>
+    <div id="output" class="text-container" style="display:none;" contenteditable="true">
+        <span class="lock-icon" onclick="toggleLock()">🔒</span>
     </div>
+
+    <button class="copy-button" id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
 
     <div id="credits">
         This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
@@ -206,6 +269,7 @@
         let dailyAdCount = 0;
         let totalTimeInSeconds = 0;
         let cutHistory = [];
+        let isLocked = false;
 
         function saveText() {
             const inputText = document.getElementById('inputText').value;
@@ -466,11 +530,25 @@
                 document.getElementById('dailyAdCount').style.display = 'block';
                 document.getElementById('remainingTime').style.display = 'block';
                 document.getElementById('countryCount').style.display = 'block';
-                document.querySelector('.copy-button').style.display = 'block';
+                document.getElementById('undoButton').style.display = 'block';
                 document.getElementById('output').style.display = 'block';
                 loadText();
             } else {
                 alert('Please enter both username and password.');
+            }
+        }
+
+        function toggleLock() {
+            const lockIcon = document.querySelector('.lock-icon');
+            isLocked = !isLocked;
+
+            if (isLocked) {
+                lockIcon.innerText = '🔓';
+                document.body.style.pointerEvents = 'none';
+                document.getElementById('output').style.pointerEvents = 'auto';
+            } else {
+                lockIcon.innerText = '🔒';
+                document.body.style.pointerEvents = 'auto';
             }
         }
 
