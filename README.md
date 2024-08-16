@@ -1,5 +1,3 @@
-<html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,7 +49,7 @@
             right: -30px;
             cursor: pointer;
             font-size: 24px;
-            color: #2980b9;
+            color: #1171ba;
             background-color: #ffffff;
             padding: 5px;
             border-radius: 50%;
@@ -61,8 +59,9 @@
         .copy-button,
         #okButton,
         #loginButton,
-        #undoButton {
-            background-color: #2c3e50;
+        #undoButton,
+        .container-header {
+            background-color: #1171ba;
             border: none;
             color: white;
             padding: 10px 20px;
@@ -76,8 +75,9 @@
         .copy-button:hover,
         #okButton:hover,
         #loginButton:hover,
-        #undoButton:hover {
-            background-color: #34495e;
+        #undoButton:hover,
+        .container-header:hover {
+            background-color: #0f5d9d;
         }
 
         .input-container {
@@ -93,17 +93,6 @@
             font-size: 16px;
             border: 1px solid #e0e0e0;
             margin-top: 10px;
-        }
-
-        .input-container .container-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            background-color: #2c3e50;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
         }
 
         .rough-container {
@@ -127,7 +116,7 @@
             margin-top: 15px;
             font-size: 18px;
             font-weight: bold;
-            color: #2c3e50;
+            color: #1171ba;
         }
 
         #remainingTime .hourglass {
@@ -141,7 +130,7 @@
             font-size: 16px;
             font-weight: bold;
             line-height: 1.5;
-            color: #34495e;
+            color: #1171ba;
         }
 
         #cursorStart {
@@ -270,6 +259,8 @@
             <div class="hourglass"></div>
         </div>
         <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
+        <!-- Move lock button here -->
+        <div class="lock-icon" style="display:none;" onclick="toggleLock()">🔒</div>
     </div>
 
     <div id="adCount" style="display:none;">Total Advertisements: 0</div>
@@ -277,7 +268,6 @@
     <div id="countryCount" style="display:none;"></div>
 
     <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
-    <div class="lock-icon" style="display:none;" onclick="toggleLock()">🔒</div>
 
     <div id="credits">
         This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
@@ -439,37 +429,39 @@
         }
 
         function cutParagraph(paragraph) {
-            const textToCopy = paragraph.innerText;
-            cutHistory.push(textToCopy);
+            if (!isLocked) {  // Only allow cutting when not locked
+                const textToCopy = paragraph.innerText;
+                cutHistory.push(textToCopy);
 
-            const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNodeContents(paragraph);
-            selection.removeAllRanges();
-            selection.addRange(range);
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.selectNodeContents(paragraph);
+                selection.removeAllRanges();
+                selection.addRange(range);
 
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.style.position = 'fixed';
-            tempTextarea.style.opacity = '0';
-            tempTextarea.value = textToCopy;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
+                const tempTextarea = document.createElement('textarea');
+                tempTextarea.style.position = 'fixed';
+                tempTextarea.style.opacity = '0';
+                tempTextarea.value = textToCopy;
+                document.body.appendChild(tempTextarea);
+                tempTextarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTextarea);
 
-            paragraph.remove();
-            cleanupSpaces();
+                paragraph.remove();
+                cleanupSpaces();
 
-            const inputText = document.getElementById('inputText').value;
-            const updatedText = inputText.replace(textToCopy, '').trim();
-            document.getElementById('inputText').value = updatedText;
+                const inputText = document.getElementById('inputText').value;
+                const updatedText = inputText.replace(textToCopy, '').trim();
+                document.getElementById('inputText').value = updatedText;
 
-            dailyAdCount++;
+                dailyAdCount++;
 
-            updateCounts();
-            saveText();
+                updateCounts();
+                saveText();
 
-            document.getElementById('undoButton').style.display = 'block';
+                document.getElementById('undoButton').style.display = 'block';
+            }
         }
 
         function undoLastCut() {
@@ -621,5 +613,4 @@
         setInterval(checkDailyReset, 60000);
     </script>
 </body>
-
 </html>
