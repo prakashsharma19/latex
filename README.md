@@ -9,16 +9,13 @@
             font-family: Arial, sans-serif;
             background-color: #ADD8E6; /* Light blue background color */
             padding: 20px;
-            position: relative;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
         }
-        .input-container {
+        .input-container, .font-controls, .boxes-container {
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            flex-direction: column;
+            display: none; /* Hidden initially */
         }
         .text-container {
             margin: 20px 0;
@@ -113,7 +110,6 @@
             border: 1px solid #ccc;
             background-color: #fff;
             width: 30%;
-            position: relative;
         }
         #right-box {
             position: absolute;
@@ -131,6 +127,12 @@
             height: 150px;
             overflow-y: auto;
         }
+        #cursorStart {
+            display: block;
+            margin: 10px 0;
+            font-weight: bold;
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -140,7 +142,7 @@
         <input type="password" id="password" placeholder="Enter your password">
         <button id="loginButton" onclick="login()">Login</button>
     </div>
-    <div class="font-controls" style="display:none;">
+    <div class="font-controls">
         <label for="fontStyle">Font Style:</label>
         <select id="fontStyle" onchange="updateFont()">
             <option value="Arial">Arial</option>
@@ -152,17 +154,19 @@
         <label for="fontSize">Font Size:</label>
         <input type="number" id="fontSize" value="16" onchange="updateFont()">px
     </div>
-    <div class="input-container" style="display:none;">
+    <div class="input-container">
         <textarea id="inputText" rows="10" cols="50" placeholder="Paste your text here..."></textarea>
         <button id="okButton" onclick="processText()">OK</button>
     </div>
-    <div id="adCount" style="display:none;">Total Advertisements: 0</div>
-    <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
-    <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
-    <div id="countryCount" style="display:none;"></div>
+    <div id="adCount" class="boxes-container">Total Advertisements: 0</div>
+    <div id="dailyAdCount" class="boxes-container">Total Ads Today: 0</div>
+    <div id="remainingTime" class="boxes-container">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
+    <div id="countryCount" class="boxes-container"></div>
     <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
     <button class="copy-button" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button> <!-- Undo Button -->
-    <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
+    <div id="output" class="text-container" contenteditable="true">
+        <div id="cursorStart">Place your cursor here</div>
+    </div>
 
     <!-- Option to choose cut method -->
     <div style="margin-top: 20px;">
@@ -228,9 +232,12 @@
                 if (savedOutput) {
                     document.getElementById('output').innerHTML = savedOutput;
                 }
-                if (savedDailyAdCount && lastCutTime) {
-                    const lastCutDate = new Date(parseInt(lastCutTime, 10));
+                if (savedDailyAdCount) {
+                    dailyAdCount = parseInt(savedDailyAdCount, 10);
+                }
+                if (lastCutTime) {
                     const currentDate = new Date();
+                    const lastCutDate = new Date(parseInt(lastCutTime, 10));
                     const diffDays = Math.floor((currentDate - lastCutDate) / (1000 * 60 * 60 * 24));
                     if (diffDays === 0) {
                         dailyAdCount = parseInt(savedDailyAdCount, 10);
@@ -324,7 +331,7 @@
         });
 
         document.addEventListener('mousedown', function(event) {
-            if (event.button === 0) { // Left mouse button
+            if (event.button === 0 && document.querySelector('input[name="cutOption"]:checked').value === 'mouse') { // Left mouse button
                 const outputText = document.getElementById('output').innerHTML;
                 const paragraphEnd = outputText.indexOf('</p>', 0);
                 if (paragraphEnd !== -1) {
