@@ -6,86 +6,140 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
+            background-color: #ADD8E6; /* Light blue background color */
+            padding: 20px;
+            position: relative;
         }
-        h1 {
-            text-align: center;
-        }
-        .login-container,
-        .font-controls,
         .input-container {
-            margin: 20px auto;
-            max-width: 300px;
+            margin-bottom: 20px;
             display: flex;
+            align-items: center;
             flex-direction: column;
         }
-        .login-container input,
-        .font-controls input,
-        .input-container textarea {
-            margin-bottom: 10px;
-            padding: 8px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        .login-container button,
-        .input-container button,
-        .copy-button,
-        .undo-button {
-            padding: 8px;
-            border: none;
-            border-radius: 4px;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-        .login-container button:hover,
-        .input-container button:hover,
-        .copy-button:hover,
-        .undo-button:hover {
-            background-color: #0056b3;
-        }
-        #adCount,
-        #dailyAdCount,
-        #remainingTime,
-        #countryCount,
-        #output {
-            margin-top: 20px;
-            text-align: center;
-        }
-        #output {
+        .text-container {
+            margin: 20px 0;
             padding: 10px;
-            background-color: white;
-            border-radius: 4px;
             border: 1px solid #ccc;
-            max-width: 600px;
-            margin: 20px auto;
-            word-wrap: break-word;
-            white-space: pre-wrap;
+            background-color: #fff;
+            cursor: text;
+            white-space: pre-wrap; /* Maintain text format */
+            position: relative;
         }
-        .hourglass {
+        .text-container p {
+            margin: 10px 0;
+        }
+        .copy-button, .undo-button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
             display: inline-block;
-            margin-left: 10px;
-            border: 5px solid #ccc;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
+            font-size: 16px;
+            cursor: pointer;
+            transition-duration: 0.4s;
+            margin: 5px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .copy-button:hover, .undo-button:hover {
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
+        }
+        #adCount, #dailyAdCount, #remainingTime, #countryCount {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        #countryCount {
+            position: absolute;
+            left: 20px;
+            top: 150px;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+        #remainingTime {
+            margin-top: 10px;
+        }
+        .font-controls {
+            margin-bottom: 10px;
+        }
+        #okButton {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            transition-duration: 0.4s;
+        }
+        #okButton:hover {
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
+        }
+        #cursorStart {
+            font-weight: bold;
+            color: red;
         }
         #credits {
-            text-align: center;
-            margin-top: 50px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 16px;
         }
         #credits a {
-            color: #007bff;
+            color: #0000EE;
             text-decoration: none;
         }
         #credits a:hover {
             text-decoration: underline;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .login-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .login-container input {
+            margin: 5px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #loginButton {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition-duration: 0.4s;
+        }
+        #loginButton:hover {
+            background-color: white;
+            color: black;
+            border: 2px solid #4CAF50;
+        }
+        .hourglass {
+            width: 24px;
+            height: 24px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/4/4e/Simpleicons_Interface_hourglass.svg');
+            background-size: cover;
+            display: inline-block;
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -157,161 +211,108 @@
             "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
             "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
             "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
-            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "Korea", "UAE"
+            "Vietnam", "Yemen", "Zambia", "Zimbabwe"
         ];
 
         let currentUser = null;
         let dailyAdCount = 0;
         let totalTimeInSeconds = 0;
         let historyStack = [];
-
-        function saveText() {
-            localStorage.setItem('outputText', document.getElementById('output').innerHTML);
-        }
-
-        function loadText() {
-            const savedText = localStorage.getItem('outputText');
-            if (savedText) {
-                document.getElementById('output').innerHTML = savedText;
-            }
-        }
-
-        function countOccurrences(text, word) {
-            return (text.match(new RegExp(word, 'gi')) || []).length;
-        }
-
-        function countCountryOccurrences(text) {
-            const lines = text.split('\n');
-            const countryCounts = {};
-
-            for (let line of lines) {
-                // Skip email addresses to avoid false positives
-                if (!line.match(/[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) {
-                    countryList.forEach(country => {
-                        const regex = new RegExp(`\\b${country}\\b`, 'gi');
-                        if (line.match(regex)) {
-                            if (!countryCounts[country]) {
-                                countryCounts[country] = 0;
-                            }
-                            countryCounts[country]++;
-                        }
-                    });
-                }
-            }
-
-            let output = '';
-            for (const [country, count] of Object.entries(countryCounts)) {
-                output += `${country}: ${count} occurrences<br>`;
-            }
-
-            return output;
-        }
+        let cutHistoryStack = []; // New stack to keep track of cut entries
 
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            if (username && password) {
+            // Placeholder login validation
+            if (username === "user" && password === "password") {
                 currentUser = username;
                 document.querySelector('.login-container').style.display = 'none';
+                document.querySelector('.input-container').style.display = 'flex';
                 document.querySelector('.font-controls').style.display = 'block';
-                document.querySelector('.input-container').style.display = 'block';
-                document.querySelector('.copy-button').style.display = 'block';
-                document.querySelector('.undo-button').style.display = 'block';
                 document.getElementById('adCount').style.display = 'block';
                 document.getElementById('dailyAdCount').style.display = 'block';
                 document.getElementById('remainingTime').style.display = 'block';
-                loadText();
+                document.getElementById('countryCount').style.display = 'block';
+                document.querySelector('.copy-button').style.display = 'inline-block';
+                document.querySelector('.undo-button').style.display = 'inline-block';
+                document.getElementById('output').style.display = 'block';
+            } else {
+                alert("Invalid login credentials");
             }
         }
 
         function updateFont() {
             const fontStyle = document.getElementById('fontStyle').value;
             const fontSize = document.getElementById('fontSize').value;
-            const textContainer = document.getElementById('output');
-            textContainer.style.fontFamily = fontStyle;
-            textContainer.style.fontSize = fontSize + 'px';
+            document.getElementById('output').style.fontFamily = fontStyle;
+            document.getElementById('output').style.fontSize = fontSize + "px";
+        }
+
+        function countOccurrences(text, word) {
+            return (text.match(new RegExp(word, "gi")) || []).length;
         }
 
         function processText() {
             const inputText = document.getElementById('inputText').value;
-            let emailCount = countOccurrences(inputText, '@');
-            let totalCount = emailCount;
+            const paragraphs = inputText.split('\n\n');
+            const outputContainer = document.getElementById('output');
+            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
 
-            const countryOccurrences = countCountryOccurrences(inputText);
+            // Calculate total time for all ads
+            const totalAds = countOccurrences(inputText, 'professor');
+            totalTimeInSeconds = totalAds * 8;
 
-            historyStack.push(inputText);
-            totalTimeInSeconds += totalCount;
-            dailyAdCount += emailCount;
+            let index = 0;
+            function processChunk() {
+                const chunkSize = 100; // Number of paragraphs to process in one go
+                const end = Math.min(index + chunkSize, paragraphs.length);
+                for (; index < end; index++) {
+                    const paragraph = paragraphs[index].trim();
+                    if (paragraph) {
+                        const p = document.createElement('p');
+                        p.textContent = paragraph;
+                        outputContainer.appendChild(p);
+                        historyStack.push(paragraph); // Save to history for undo
+                    }
+                }
+                index = end;
+                if (index < paragraphs.length) {
+                    setTimeout(processChunk, 100); // Process next chunk
+                }
+            }
+            processChunk();
 
-            document.getElementById('output').innerHTML += inputText.replace(/\n/g, '<br>');
-            document.getElementById('inputText').value = '';
-
-            updateCounts();
-            saveText();
-
-            // Display country occurrences
-            document.getElementById('countryCount').innerHTML = countryOccurrences;
-            document.getElementById('countryCount').style.display = 'block';
-
-            updateRemainingTime();
-        }
-
-        function updateCounts() {
-            document.getElementById('adCount').innerText = `Total Advertisements: ${dailyAdCount}`;
-            document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
-        }
-
-        function updateRemainingTime() {
-            let timeLeft = totalTimeInSeconds;
-            const hours = Math.floor(timeLeft / 3600);
-            timeLeft %= 3600;
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-
-            document.getElementById('time').innerText = `${hours}h ${minutes}m ${seconds}s`;
+            document.getElementById('adCount').textContent = "Total Advertisements: " + totalAds;
+            document.getElementById('time').textContent = formatTime(totalTimeInSeconds);
         }
 
         function copyRemainingText() {
-            const outputText = document.getElementById('output').innerText;
-            const tempInput = document.createElement('textarea');
-            tempInput.value = outputText;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            alert('Text copied to clipboard!');
+            const remainingText = document.getElementById('output').innerText;
+            navigator.clipboard.writeText(remainingText).then(() => {
+                alert('Text copied to clipboard!');
+            }).catch(err => {
+                alert('Failed to copy text: ', err);
+            });
         }
 
         function undoLastEntry() {
-            if (historyStack.length > 0) {
-                const lastEntry = historyStack.pop();
-                document.getElementById('inputText').value = lastEntry;
-
-                const outputText = document.getElementById('output').innerHTML;
-                const newOutputText = outputText.substring(0, outputText.lastIndexOf(lastEntry.replace(/\n/g, '<br>')));
-                document.getElementById('output').innerHTML = newOutputText;
-
-                let emailCount = countOccurrences(lastEntry, '@');
-                dailyAdCount -= emailCount;
-
-                updateCounts();
-                saveText();
+            const lastCutEntry = cutHistoryStack.pop();
+            if (lastCutEntry !== undefined) {
+                const outputContainer = document.getElementById('output');
+                const newParagraph = document.createElement('p');
+                newParagraph.textContent = lastCutEntry;
+                outputContainer.appendChild(newParagraph);
+            } else {
+                alert('No entries to undo');
             }
         }
 
-        document.addEventListener('keydown', function (event) {
-            if (document.querySelector('input[name="cutOption"]:checked').value === 'keyboard' && event.key === 'ArrowDown') {
-                processText();
-            }
-        });
-
-        document.addEventListener('click', function (event) {
-            if (document.querySelector('input[name="cutOption"]:checked').value === 'mouse' && event.button === 0) {
-                processText();
-            }
-        });
-
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes}m ${remainingSeconds}s`;
+        }
     </script>
 </body>
 </html>
