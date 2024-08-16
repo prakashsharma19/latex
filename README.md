@@ -29,7 +29,7 @@
             margin: 10px 0;
         }
         .copy-button {
-            background-color: #4CAF50; /* Green */
+            background-color: #00008B; /* Blue */
             border: none;
             color: white;
             padding: 10px 20px;
@@ -66,7 +66,7 @@
             margin-bottom: 10px;
         }
         #okButton {
-            background-color: #4CAF50; /* Green */
+            background-color: #00008B; /* Blue */
             border: none;
             color: white;
             padding: 15px 32px;
@@ -116,7 +116,7 @@
             font-size: 16px;
         }
         #loginButton {
-            background-color: #4CAF50; /* Green */
+            background-color: #00008B; /* Blue */
             border: none;
             color: white;
             padding: 10px 20px;
