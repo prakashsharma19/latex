@@ -66,7 +66,7 @@
         .font-controls {
             margin-bottom: 10px;
         }
-        #okButton, #placeCursorButton {
+        #okButton {
             background-color: #4CAF50; /* Green */
             border: none;
             color: white;
@@ -79,7 +79,7 @@
             cursor: pointer;
             transition-duration: 0.4s;
         }
-        #okButton:hover, #placeCursorButton:hover {
+        #okButton:hover {
             background-color: white;
             color: black;
             border: 2px solid #4CAF50;
@@ -142,15 +142,27 @@
             display: inline-block;
             margin-left: 10px;
         }
-        #cursorMarker {
+        .cut-texts-box {
             position: absolute;
-            background-color: rgba(255, 0, 0, 0.5);
-            border: 1px solid red;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
+            top: 20px;
+            right: 20px;
+            width: 250px;
+            height: 90%;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            padding: 10px;
+            overflow-y: auto;
+            z-index: 1000; /* Ensure it is on top of other elements */
+        }
+        .cut-texts-box h2 {
+            font-size: 18px;
+            margin-top: 0;
+        }
+        .cut-text {
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
         }
     </style>
 </head>
@@ -176,7 +188,6 @@
     <div class="input-container" style="display:none;">
         <textarea id="inputText" rows="10" cols="50" placeholder="Paste your text here..."></textarea>
         <button id="okButton" onclick="processText()">OK</button>
-        <button id="placeCursorButton" onclick="placeCursor()">Place the cursor here</button>
     </div>
     <div id="adCount" style="display:none;">Total Advertisements: 0</div>
     <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
@@ -184,7 +195,6 @@
     <div id="countryCount" style="display:none;"></div>
     <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
     <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
-    <div id="cursorMarker"></div>
 
     <!-- Option to choose cut method -->
     <div style="margin-top: 20px;">
@@ -196,6 +206,12 @@
             <input type="radio" name="cutOption" value="mouse">
             Operate by Mouse (Left Button)
         </label>
+    </div>
+
+    <!-- Box for cut texts -->
+    <div id="cutTextsBox" class="cut-texts-box">
+        <h2>Cut Texts</h2>
+        <div id="cutTextsContainer" class="text-container"></div>
     </div>
 
     <div id="credits">
@@ -211,34 +227,64 @@
             "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
             "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
             "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
-            "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan",
-            "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia",
-            "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives",
-            "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro",
-            "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria",
-            "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines",
-            "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines",
-            "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore",
-            "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname",
-            "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga",
-            "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
-            "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+            "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel",
+            "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kosovo",
+            "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania",
+            "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius",
+            "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia",
+            "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman",
+            "Pakistan", "Palau", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar",
+            "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia",
+            "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa",
+            "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
+            "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+            "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
+            "Vietnam", "Yemen", "Zambia", "Zimbabwe"
         ];
 
-        let cutHistory = [];
-        let cutOption = "keyboard"; // default cut option
-        let cursorPosition = null;
+        let adCount = 0;
+        let dailyAdCount = 0;
+        let cutMethod = "keyboard"; // Default to keyboard method
+        let startTime = new Date();
+        let cutIntervals = [];
+        let timeLimit = 30; // Time limit in minutes
 
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            if (username && password) {
-                document.querySelector('.login-container').style.display = 'none';
-                document.querySelector('.font-controls').style.display = 'block';
-                document.querySelector('.input-container').style.display = 'block';
-            } else {
-                alert('Please enter both username and password.');
-            }
+        function processText() {
+            const inputText = document.getElementById('inputText').value;
+            const output = document.getElementById('output');
+            output.innerHTML = inputText.replace(/\n/g, '<br>'); // Preserve line breaks
+            document.querySelector('.input-container').style.display = 'none';
+            output.style.display = 'block';
+            updateCounts();
+            document.getElementById('remainingTime').style.display = 'block';
+            startTimer();
+            updateCountryCount();
+            document.querySelector('.font-controls').style.display = 'none';
+            document.querySelector('.copy-button').style.display = 'inline';
+        }
+
+        function startTimer() {
+            const timer = setInterval(() => {
+                const elapsedMinutes = (new Date() - startTime) / 60000;
+                const remainingMinutes = Math.max(0, timeLimit - Math.floor(elapsedMinutes));
+                document.getElementById('time').innerText = `${remainingMinutes} min`;
+                if (remainingMinutes <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('time').innerText = 'Time is up!';
+                }
+            }, 60000);
+        }
+
+        function updateCounts() {
+            document.getElementById('adCount').innerText = `Total Advertisements: ${adCount}`;
+            document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
+        }
+
+        function copyRemainingText() {
+            const outputText = document.getElementById('output').innerText;
+            navigator.clipboard.writeText(outputText)
+                .then(() => alert('Text copied to clipboard!'))
+                .catch(err => alert('Failed to copy text: ', err));
         }
 
         function updateFont() {
@@ -248,149 +294,103 @@
             document.getElementById('output').style.fontSize = fontSize + 'px';
         }
 
-        function processText() {
-            const inputText = document.getElementById('inputText').value;
-            const outputDiv = document.getElementById('output');
-            outputDiv.style.display = 'block';
-            outputDiv.innerHTML = inputText;
-            document.querySelector('.copy-button').style.display = 'inline-block';
-            document.getElementById('adCount').style.display = 'block';
-            document.getElementById('dailyAdCount').style.display = 'block';
-            document.getElementById('remainingTime').style.display = 'block';
-            document.getElementById('countryCount').style.display = 'block';
-            document.getElementById('adCount').textContent = `Total Advertisements: ${countAdvertisements(inputText)}`;
-            document.getElementById('dailyAdCount').textContent = `Total Ads Today: ${countDailyAds(inputText)}`;
-            document.getElementById('countryCount').innerHTML = getCountryCount(inputText);
+        function updateCountryCount() {
+            const count = countryList.length;
+            document.getElementById('countryCount').innerText = `Number of Countries: ${count}`;
         }
 
-        function countAdvertisements(text) {
-            // Logic to count advertisements
-            return text.split(' ').length; // Example logic
-        }
-
-        function countDailyAds(text) {
-            // Logic to count ads for today
-            return text.split(' ').length; // Example logic
-        }
-
-        function getCountryCount(text) {
-            // Count occurrences of each country in the text
-            const counts = countryList.reduce((acc, country) => {
-                const regex = new RegExp(`\\b${country}\\b`, 'gi');
-                const match = text.match(regex);
-                acc[country] = match ? match.length : 0;
-                return acc;
-            }, {});
-
-            // Sort countries by count in descending order
-            const sortedCountries = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
-            let result = '';
-
-            sortedCountries.forEach(country => {
-                if (counts[country] > 0) {
-                    result += `${country}: ${counts[country]}<br>`;
+        function cleanupSpaces() {
+            const paragraphs = document.querySelectorAll('.text-container p');
+            paragraphs.forEach(paragraph => {
+                if (!paragraph.innerText.trim()) {
+                    paragraph.remove();
                 }
             });
-
-            return result;
         }
 
-        function copyRemainingText() {
-            const outputDiv = document.getElementById('output');
+        function cutParagraph(paragraph) {
+            const textToCopy = paragraph.innerText;
+            const selection = window.getSelection();
             const range = document.createRange();
-            range.selectNode(outputDiv);
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(range);
+            range.selectNodeContents(paragraph);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            // Copy the text without formatting
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.style.position = 'fixed';
+            tempTextarea.style.opacity = '0';
+            tempTextarea.value = textToCopy;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
             document.execCommand('copy');
-            window.getSelection().removeAllRanges();
+            document.body.removeChild(tempTextarea);
+
+            // Remove the paragraph and cleanup
+            paragraph.remove();
+            cleanupSpaces();
+
+            // Update the input textarea by removing the corresponding text
+            const inputText = document.getElementById('inputText').value;
+            const updatedText = inputText.replace(textToCopy, '').trim();
+            document.getElementById('inputText').value = updatedText;
+
+            // Update the daily ad count
+            dailyAdCount++;
+
+            // Update the count and save changes
+            updateCounts();
+            saveText();
+
+            // Paste the text into the cut texts box
+            const cutTextsContainer = document.getElementById('cutTextsContainer');
+            const cutTextDiv = document.createElement('div');
+            cutTextDiv.className = 'cut-text';
+            cutTextDiv.innerText = textToCopy;
+            cutTextsContainer.appendChild(cutTextDiv);
         }
 
-        function cutText(startPos, endPos) {
-            const outputDiv = document.getElementById('output');
-            const text = outputDiv.innerText;
-            const beforeText = text.substring(0, startPos);
-            const cutText = text.substring(startPos, endPos);
-            const afterText = text.substring(endPos);
-
-            cutHistory.push({ cutText, startPos, endPos }); // Save cut operation
-
-            outputDiv.innerText = beforeText + afterText;
-            return cutText;
+        function saveText() {
+            // Implement your save logic here if needed
         }
 
-        function undoCut() {
-            if (cutHistory.length > 0) {
-                const lastCut = cutHistory.pop();
-                const outputDiv = document.getElementById('output');
-                const text = outputDiv.innerText;
-                const beforeText = text.substring(0, lastCut.startPos);
-                const afterText = text.substring(lastCut.startPos);
-
-                outputDiv.innerText = beforeText + lastCut.cutText + afterText;
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (username && password) {
+                alert('Login successful!');
+                document.querySelector('.input-container').style.display = 'block';
+                document.querySelector('.font-controls').style.display = 'block';
+            } else {
+                alert('Please enter both username and password.');
             }
         }
 
         document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'z') {
-                event.preventDefault();
-                undoCut();
+            if (event.key === 'ArrowDown' && cutMethod === 'keyboard') {
+                // Logic to cut text using keyboard
+                const selectedParagraph = document.querySelector('.text-container p');
+                if (selectedParagraph) {
+                    cutParagraph(selectedParagraph);
+                }
             }
         });
-
-        document.querySelectorAll('input[name="cutOption"]').forEach(radio => {
-            radio.addEventListener('change', (event) => {
-                cutOption = event.target.value;
-            });
-        });
-
-        function handleMouseCut(event) {
-            // Example logic for mouse cut handling
-            const outputDiv = document.getElementById('output');
-            const text = outputDiv.innerText;
-            const selection = window.getSelection();
-            const range = selection.getRangeAt(0);
-            const startOffset = range.startOffset;
-            const endOffset = range.endOffset;
-            const cutText = cutText(startOffset, endOffset);
-            // Handle cutText as needed
-        }
-
-        function handleKeyboardCut(event) {
-            // Example logic for keyboard cut handling
-            if (event.key === 'ArrowDown') {
-                const outputDiv = document.getElementById('output');
-                const selection = window.getSelection();
-                const range = selection.getRangeAt(0);
-                const startOffset = range.startOffset;
-                const endOffset = range.endOffset;
-                const cutText = cutText(startOffset, endOffset);
-                // Handle cutText as needed
-            }
-        }
 
         document.addEventListener('mousedown', function(event) {
-            if (cutOption === 'mouse') {
-                handleMouseCut(event);
+            if (event.button === 0 && cutMethod === 'mouse') {
+                // Logic to cut text using mouse
+                const target = event.target;
+                if (target.classList.contains('text-container') && target.tagName === 'P') {
+                    cutParagraph(target);
+                }
             }
         });
 
-        document.addEventListener('keydown', function(event) {
-            if (cutOption === 'keyboard') {
-                handleKeyboardCut(event);
-            }
+        document.querySelectorAll('input[name="cutOption"]').forEach((radio) => {
+            radio.addEventListener('change', (event) => {
+                cutMethod = event.target.value;
+            });
         });
-
-        function placeCursor() {
-            const outputDiv = document.getElementById('output');
-            const rect = outputDiv.getBoundingClientRect();
-            const cursorMarker = document.getElementById('cursorMarker');
-            
-            cursorMarker.style.top = (rect.top + window.scrollY + 10) + 'px';
-            cursorMarker.style.left = (rect.left + window.scrollX + 10) + 'px';
-            cursorMarker.style.display = 'block';
-        }
-
-        // Additional functions for remaining time, etc.
     </script>
 </body>
 </html>
