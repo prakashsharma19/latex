@@ -48,7 +48,7 @@
         .lock-icon {
             position: absolute;
             top: -10px;
-            right: -10px;
+            right: -40px;
             cursor: pointer;
             font-size: 24px;
             color: #2980b9;
@@ -82,12 +82,12 @@
 
         .input-container {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             margin-bottom: 20px;
         }
 
         .input-container textarea {
-            width: 100%;
+            width: 48%;
             border-radius: 5px;
             padding: 10px;
             font-size: 16px;
@@ -95,12 +95,8 @@
         }
 
         .rough-container {
-            width: 100%;
-            margin-top: 20px;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 30%;
+            margin-left: 2%;
         }
 
         #okButton {
@@ -235,10 +231,9 @@
     <div class="input-container" style="display:none;">
         <textarea id="inputText" rows="10" cols="50" placeholder="Paste your text here..."></textarea>
         <button id="okButton" onclick="processText()">OK</button>
-    </div>
-
-    <div class="rough-container" style="display:none;">
-        <textarea id="roughText" rows="10" cols="50" placeholder="Rough Work..."></textarea>
+        <div class="rough-container">
+            <textarea id="roughText" rows="10" cols="30" placeholder="Rough Work..."></textarea>
+        </div>
     </div>
 
     <div class="top-controls" style="display:none;">
@@ -252,8 +247,8 @@
     <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
     <div id="countryCount" style="display:none;"></div>
 
-    <div class="lock-icon" style="display:none;" onclick="toggleLock()">🔒</div>
     <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
+    <div class="lock-icon" style="display:none;" onclick="toggleLock()">🔒</div>
 
     <div id="credits">
         This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
@@ -523,17 +518,17 @@
             document.getElementById('output').style.fontSize = `${fontSize}px`;
         }
 
-        function copyRemainingText() {
-            const outputContainer = document.getElementById('output');
-            const remainingText = outputContainer.innerText;
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.style.position = 'fixed';
-            tempTextarea.style.opacity = '0';
-            tempTextarea.value = remainingText;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
+        function toggleLock() {
+            const lockIcon = document.querySelector('.lock-icon');
+            isLocked = !isLocked;
+
+            if (isLocked) {
+                lockIcon.innerText = '🔓';
+                document.getElementById('output').contentEditable = 'false';
+            } else {
+                lockIcon.innerText = '🔒';
+                document.getElementById('output').contentEditable = 'true';
+            }
         }
 
         function login() {
@@ -544,8 +539,7 @@
                 currentUser = `${username}_${password}`;
                 document.querySelector('.login-container').style.display = 'none';
                 document.querySelector('.font-controls').style.display = 'block';
-                document.querySelector('.input-container').style.display = 'block';
-                document.querySelector('.rough-container').style.display = 'block';
+                document.querySelector('.input-container').style.display = 'flex';
                 document.querySelector('.top-controls').style.display = 'flex';
                 document.getElementById('adCount').style.display = 'block';
                 document.getElementById('dailyAdCount').style.display = 'block';
@@ -555,20 +549,6 @@
                 loadText();
             } else {
                 alert('Please enter both username and password.');
-            }
-        }
-
-        function toggleLock() {
-            const lockIcon = document.querySelector('.lock-icon');
-            isLocked = !isLocked;
-
-            if (isLocked) {
-                lockIcon.innerText = '🔓';
-                document.body.style.pointerEvents = 'none';
-                document.getElementById('output').style.pointerEvents = 'auto';
-            } else {
-                lockIcon.innerText = '🔒';
-                document.body.style.pointerEvents = 'auto';
             }
         }
 
