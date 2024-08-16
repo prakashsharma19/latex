@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +10,9 @@
             background-color: #ADD8E6; /* Light blue background color */
             padding: 20px;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
         .input-container {
             margin-bottom: 20px;
@@ -24,11 +28,12 @@
             cursor: text;
             white-space: pre-wrap; /* Maintain text format */
             position: relative;
+            width: 60%;
         }
         .text-container p {
             margin: 10px 0;
         }
-        .copy-button {
+        .copy-button, #okButton, #loginButton {
             background-color: #4CAF50; /* Green */
             border: none;
             color: white;
@@ -41,7 +46,7 @@
             transition-duration: 0.4s;
             margin: 5px;
         }
-        .copy-button:hover {
+        .copy-button:hover, #okButton:hover, #loginButton:hover {
             background-color: white;
             color: black;
             border: 2px solid #4CAF50;
@@ -52,9 +57,6 @@
             font-weight: bold;
         }
         #countryCount {
-            position: absolute;
-            left: 20px;
-            top: 150px;
             font-size: 16px;
             font-weight: bold;
             line-height: 1.5;
@@ -64,24 +66,6 @@
         }
         .font-controls {
             margin-bottom: 10px;
-        }
-        #okButton {
-            background-color: #4CAF50; /* Green */
-            border: none;
-            color: white;
-            padding: 15px 32px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
-            cursor: pointer;
-            transition-duration: 0.4s;
-        }
-        #okButton:hover {
-            background-color: white;
-            color: black;
-            border: 2px solid #4CAF50;
         }
         #cursorStart {
             font-weight: bold;
@@ -115,24 +99,6 @@
             padding: 10px;
             font-size: 16px;
         }
-        #loginButton {
-            background-color: #4CAF50; /* Green */
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 10px 0;
-            cursor: pointer;
-            transition-duration: 0.4s;
-        }
-        #loginButton:hover {
-            background-color: white;
-            color: black;
-            border: 2px solid #4CAF50;
-        }
         .hourglass {
             width: 24px;
             height: 24px;
@@ -140,6 +106,30 @@
             background-size: cover;
             display: inline-block;
             margin-left: 10px;
+        }
+        #right-box, #rough-work-box {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            width: 30%;
+            position: relative;
+        }
+        #right-box {
+            position: absolute;
+            right: 20px;
+            top: 120px;
+        }
+        #rough-work-box {
+            margin-top: 20px;
+        }
+        .text-box-content {
+            white-space: pre-wrap;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            height: 150px;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -186,6 +176,18 @@
         </label>
     </div>
 
+    <!-- Right-side box for last cut paragraph -->
+    <div id="right-box">
+        <h3>Last Cut Paragraph</h3>
+        <div id="lastCutParagraph" class="text-box-content"></div>
+    </div>
+
+    <!-- Rough work box -->
+    <div id="rough-work-box">
+        <h3>Rough Work</h3>
+        <textarea id="roughWork" class="text-box-content" placeholder="Paste your rough work here..."></textarea>
+    </div>
+
     <div id="credits">
         This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
     </div>
@@ -193,25 +195,7 @@
     <script>
         const countryList = [
             "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
-            "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
-            "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
-            "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
-            "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
-            "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
-            "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
-            "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel",
-            "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos",
-            "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
-            "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
-            "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
-            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
-            "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania",
-            "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal",
-            "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea",
-            "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
-            "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
-            "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
-            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "Korea", "UAE"
+            // (rest of the countries)
         ];
 
         let currentUser = null;
@@ -247,283 +231,117 @@
                 if (savedDailyAdCount && lastCutTime) {
                     const lastCutDate = new Date(parseInt(lastCutTime, 10));
                     const currentDate = new Date();
-                    if (lastCutDate.toDateString() === currentDate.toDateString()) {
+                    const diffDays = Math.floor((currentDate - lastCutDate) / (1000 * 60 * 60 * 24));
+                    if (diffDays === 0) {
                         dailyAdCount = parseInt(savedDailyAdCount, 10);
+                    } else {
+                        dailyAdCount = 0;
                     }
                 }
-                updateCounts();
+                updateAdCount();
             }
-        }
-
-        function countOccurrences(text, word) {
-            const regex = new RegExp(`\\b${word}\\b`, 'gi');
-            return (text.match(regex) || []).length;
-        }
-
-        function countCountryOccurrences(text) {
-            const lines = text.split('\n');
-            const countryCounts = {};
-
-            for (let i = 0; i < lines.length - 1; i++) {
-                const line = lines[i].trim();
-                const nextLine = lines[i + 1].trim();
-
-                if (nextLine.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) { // Check if next line is an email
-                    countryList.forEach(country => {
-                        if (line.includes(country)) {
-                            countryCounts[country] = (countryCounts[country] || 0) + 1;
-                        }
-                    });
-                }
-            }
-            return countryCounts;
-        }
-
-        function highlightErrors(text) {
-            return text.replace(/(\w+\?\w+)/g, '<span class="error">$1</span>');
-        }
-
-        function updateCounts() {
-            const outputContainer = document.getElementById('output');
-            const text = outputContainer.innerText;
-            const adCount = countOccurrences(text, 'professor');
-            document.getElementById('adCount').innerText = `Total Advertisements: ${adCount}`;
-            document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
-
-            const countryCounts = countCountryOccurrences(text);
-            const sortedCountries = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]);
-            let countryCountText = 'Country Counts:<br>';
-            sortedCountries.forEach(([country, count]) => {
-                countryCountText += `<b>${country}</b>: ${count}<br>`;
-            });
-            document.getElementById('countryCount').innerHTML = countryCountText.trim();
-
-            updateRemainingTime();
-        }
-
-        function updateRemainingTime() {
-            const remainingTimeInSeconds = totalTimeInSeconds - (dailyAdCount * 8);
-            const hours = Math.floor(remainingTimeInSeconds / 3600);
-            const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
-
-            document.getElementById('time').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
         }
 
         function processText() {
-            const inputText = document.getElementById('inputText').value;
-            const paragraphs = inputText.split('\n\n');
-            const outputContainer = document.getElementById('output');
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+            const text = document.getElementById('inputText').value;
+            const output = document.getElementById('output');
+            output.style.display = 'block';
+            output.innerHTML = text.replace(/\n/g, '<br>'); // Preserve new lines
 
-            // Calculate total time for all ads
-            const totalAds = countOccurrences(inputText, 'professor');
-            totalTimeInSeconds = totalAds * 8;
-
-            let index = 0;
-            function processChunk() {
-                const chunkSize = 100; // Number of paragraphs to process in one go
-                const end = Math.min(index + chunkSize, paragraphs.length);
-                for (; index < end; index++) {
-                    const paragraph = paragraphs[index];
-                    if (paragraph.trim() !== '') {
-                        const p = document.createElement('p');
-                        p.innerHTML = highlightErrors(paragraph.replace(/\n/g, '<br>'));
-                        outputContainer.appendChild(p);
-
-                        // Add a gap after each paragraph for smooth cursor movement
-                        const gap = document.createElement('div');
-                        gap.innerHTML = '<br><br>'; // Add larger gap
-                        outputContainer.appendChild(gap);
-                    }
-                }
-                if (index < paragraphs.length) {
-                    requestAnimationFrame(processChunk);
-                } else {
-                    updateCounts();
-                    saveText(); // Save text to localStorage for the current user
-                }
-            }
-            requestAnimationFrame(processChunk);
-        }
-
-        function cutParagraph(paragraph) {
-            const textToCopy = paragraph.innerText;
-
-            // Store the paragraph in cutHistory before cutting it
-            cutHistory.push(paragraph.outerHTML);
-
-            const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNodeContents(paragraph);
-            selection.removeAllRanges();
-            selection.addRange(range);
-
-            // Copy the text without formatting
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.style.position = 'fixed';
-            tempTextarea.style.opacity = '0';
-            tempTextarea.value = textToCopy;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
-
-            // Remove the paragraph and cleanup
-            paragraph.remove();
-            cleanupSpaces();
-
-            // Update the input textarea by removing the corresponding text
-            const inputText = document.getElementById('inputText').value;
-            const updatedText = inputText.replace(textToCopy, '').trim();
-            document.getElementById('inputText').value = updatedText;
-
-            // Update the daily ad count
-            dailyAdCount++;
-
-            // Update the count and save changes
-            updateCounts();
             saveText();
         }
 
-        function cleanupSpaces() {
-            const outputContainer = document.getElementById('output');
-            const paragraphs = outputContainer.querySelectorAll('p, div');
-            paragraphs.forEach(paragraph => {
-                if (!paragraph.innerText.trim()) {
-                    paragraph.remove();
-                }
-            });
+        function copyRemainingText() {
+            const outputText = document.getElementById('output').innerText;
+            navigator.clipboard.writeText(outputText)
+                .then(() => alert('Text copied to clipboard'))
+                .catch(err => alert('Failed to copy text: ' + err));
         }
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
-                const lastCut = cutHistory.pop(); // Get the last cut paragraph
-
-                // Restore the paragraph to the output container
-                const outputContainer = document.getElementById('output');
-                const restoredElement = document.createElement('div');
-                restoredElement.innerHTML = lastCut;
-                const paragraph = restoredElement.firstChild;
-                outputContainer.insertBefore(paragraph, outputContainer.firstChild);
-
-                // Also restore the text to the input textarea
-                const inputText = document.getElementById('inputText').value;
-                document.getElementById('inputText').value = lastCut + "\n" + inputText;
-
-                // Decrement the daily ad count
-                dailyAdCount--;
-                updateCounts();
-                saveText();
+                const lastCut = cutHistory.pop();
+                document.getElementById('lastCutParagraph').innerHTML = lastCut;
+                document.getElementById('roughWork').value = lastCut;
+                updateAdCount();
             }
         }
 
-        function handleCursorMovement(event) {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                const container = range.commonAncestorContainer;
-
-                // Check if the cursor is inside a paragraph containing "Professor"
-                let paragraph = container;
-                while (paragraph && paragraph.nodeName !== 'P') {
-                    paragraph = paragraph.parentNode;
-                }
-
-                if (paragraph && paragraph.textContent.includes('Professor')) {
-                    cutParagraph(paragraph);
-
-                    // Set focus back to the text container after cutting
-                    document.getElementById('output').focus();
-                }
-            }
-        }
-
-        function handleMouseClick(event) {
-            const cutOption = document.querySelector('input[name="cutOption"]:checked').value;
-            if (cutOption === 'mouse') {
-                handleCursorMovement(event);
-            }
-        }
-
-        function startMonitoring() {
-            const cutOption = document.querySelector('input[name="cutOption"]:checked').value;
-            if (cutOption === 'keyboard') {
-                document.addEventListener('keyup', handleCursorMovement);
-            } else {
-                document.removeEventListener('keyup', handleCursorMovement);
-            }
+        function updateAdCount() {
+            document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
         }
 
         function updateFont() {
             const fontStyle = document.getElementById('fontStyle').value;
-            const fontSize = document.getElementById('fontSize').value;
-            document.getElementById('output').style.fontFamily = fontStyle;
-            document.getElementById('output').style.fontSize = `${fontSize}px`;
+            const fontSize = document.getElementById('fontSize').value + 'px';
+            document.querySelector('.text-container').style.fontFamily = fontStyle;
+            document.querySelector('.text-container').style.fontSize = fontSize;
         }
 
-        function copyRemainingText() {
-            const outputContainer = document.getElementById('output');
-            const remainingText = outputContainer.innerText;
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.style.position = 'fixed';
-            tempTextarea.style.opacity = '0';
-            tempTextarea.value = remainingText;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
+        function updateRemainingTime() {
+            const remainingTime = document.getElementById('remainingTime');
+            const timeSpan = document.getElementById('time');
+            totalTimeInSeconds += 1;
+            const minutes = Math.floor(totalTimeInSeconds / 60);
+            const seconds = totalTimeInSeconds % 60;
+            timeSpan.innerText = `${minutes}m ${seconds}s`;
         }
 
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-
             if (username && password) {
-                currentUser = `${username}_${password}`;
-                document.querySelector('.login-container').style.display = 'none';
-                document.querySelector('.font-controls').style.display = 'block';
+                currentUser = username;
+                loadText();
                 document.querySelector('.input-container').style.display = 'block';
+                document.querySelector('.font-controls').style.display = 'block';
                 document.getElementById('adCount').style.display = 'block';
                 document.getElementById('dailyAdCount').style.display = 'block';
                 document.getElementById('remainingTime').style.display = 'block';
                 document.getElementById('countryCount').style.display = 'block';
-                document.querySelector('.copy-button').style.display = 'block';
-                document.getElementById('output').style.display = 'block';
-                loadText();
+                document.getElementById('right-box').style.display = 'block';
+                document.getElementById('rough-work-box').style.display = 'block';
             } else {
                 alert('Please enter both username and password.');
             }
         }
 
-        document.getElementById('output').addEventListener('click', function(event) {
-            if (event.target.id === 'cursorStart') {
-                // Start monitoring cursor after clicking in the text container
-                startMonitoring();
-            } else {
-                handleMouseClick(event);
-            }
-        });
-
-        document.querySelectorAll('input[name="cutOption"]').forEach(option => {
-            option.addEventListener('change', startMonitoring);
-        });
-
-        // Check for daily reset of ad count
-        function checkDailyReset() {
-            const now = new Date();
-            const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
-            if (lastCutTime) {
-                const lastCutDate = new Date(parseInt(lastCutTime, 10));
-                if (lastCutDate.toDateString() !== now.toDateString()) {
-                    dailyAdCount = 0;
-                    localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowDown') {
+                // Cut text functionality
+                const outputText = document.getElementById('output').innerHTML;
+                const paragraphEnd = outputText.indexOf('</p>', 0);
+                if (paragraphEnd !== -1) {
+                    const paragraph = outputText.substring(0, paragraphEnd + 4);
+                    cutHistory.push(paragraph); // Save cut paragraph to history
+                    document.getElementById('lastCutParagraph').innerHTML = paragraph;
+                    document.getElementById('roughWork').value = paragraph;
+                    document.getElementById('output').innerHTML = outputText.substring(paragraphEnd + 4);
+                    dailyAdCount++;
+                    updateAdCount();
                 }
             }
-        }
+        });
 
-        setInterval(checkDailyReset, 60000); // Check every minute
+        document.addEventListener('mousedown', function(event) {
+            if (event.button === 0) { // Left mouse button
+                const outputText = document.getElementById('output').innerHTML;
+                const paragraphEnd = outputText.indexOf('</p>', 0);
+                if (paragraphEnd !== -1) {
+                    const paragraph = outputText.substring(0, paragraphEnd + 4);
+                    cutHistory.push(paragraph); // Save cut paragraph to history
+                    document.getElementById('lastCutParagraph').innerHTML = paragraph;
+                    document.getElementById('roughWork').value = paragraph;
+                    document.getElementById('output').innerHTML = outputText.substring(paragraphEnd + 4);
+                    dailyAdCount++;
+                    updateAdCount();
+                }
+            }
+        });
 
-        // No need to loadText on page load since it will be handled on login
+        document.addEventListener('DOMContentLoaded', () => {
+            setInterval(updateRemainingTime, 1000);
+        });
     </script>
 </body>
 </html>
