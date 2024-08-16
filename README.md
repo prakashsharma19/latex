@@ -20,7 +20,6 @@
         }
 
         .font-controls,
-        .input-container,
         .login-container {
             background-color: #ffffff;
             padding: 20px;
@@ -37,6 +36,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             white-space: pre-wrap;
             position: relative;
+            margin-top: 20px;
         }
 
         .text-container p {
@@ -47,11 +47,15 @@
 
         .lock-icon {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: -10px;
+            right: -10px;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 24px;
             color: #2980b9;
+            background-color: #ffffff;
+            padding: 5px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .copy-button,
@@ -78,11 +82,12 @@
 
         .input-container {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            margin-bottom: 20px;
         }
 
         .input-container textarea {
-            width: 48%;
+            width: 100%;
             border-radius: 5px;
             padding: 10px;
             font-size: 16px;
@@ -90,12 +95,17 @@
         }
 
         .rough-container {
-            width: 48%;
+            width: 100%;
+            margin-top: 20px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         #okButton {
             align-self: flex-end;
-            margin-top: 0;
+            margin-top: 10px;
         }
 
         #adCount,
@@ -177,7 +187,13 @@
         }
 
         #undoButton {
-            margin-bottom: 20px;
+            margin-left: 20px;
+        }
+
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
     </style>
 </head>
@@ -218,24 +234,26 @@
 
     <div class="input-container" style="display:none;">
         <textarea id="inputText" rows="10" cols="50" placeholder="Paste your text here..."></textarea>
-        <div class="rough-container">
-            <textarea id="roughText" rows="10" cols="50" placeholder="Rough Work..."></textarea>
-            <button id="okButton" onclick="processText()">OK</button>
+        <button id="okButton" onclick="processText()">OK</button>
+    </div>
+
+    <div class="rough-container" style="display:none;">
+        <textarea id="roughText" rows="10" cols="50" placeholder="Rough Work..."></textarea>
+    </div>
+
+    <div class="top-controls" style="display:none;">
+        <div id="remainingTime">Remaining Time: <span id="time"></span>
+            <div class="hourglass"></div>
         </div>
+        <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
     </div>
 
     <div id="adCount" style="display:none;">Total Advertisements: 0</div>
     <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
-    <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span>
-        <div class="hourglass"></div>
-    </div>
     <div id="countryCount" style="display:none;"></div>
 
-    <div id="output" class="text-container" style="display:none;" contenteditable="true">
-        <span class="lock-icon" onclick="toggleLock()">🔒</span>
-    </div>
-
-    <button class="copy-button" id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
+    <div class="lock-icon" style="display:none;" onclick="toggleLock()">🔒</div>
+    <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
 
     <div id="credits">
         This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
@@ -275,19 +293,19 @@
             const inputText = document.getElementById('inputText').value;
             const outputText = document.getElementById('output').innerHTML;
             if (currentUser) {
-                localStorage.setItem(`savedInput_${currentUser}`, inputText);
-                localStorage.setItem(`savedOutput_${currentUser}`, outputText);
-                localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
-                localStorage.setItem(`lastCutTime_${currentUser}`, Date.now());
+                localStorage.setItem(savedInput_${currentUser}, inputText);
+                localStorage.setItem(savedOutput_${currentUser}, outputText);
+                localStorage.setItem(dailyAdCount_${currentUser}, dailyAdCount);
+                localStorage.setItem(lastCutTime_${currentUser}, Date.now());
             }
         }
 
         function loadText() {
             if (currentUser) {
-                const savedInput = localStorage.getItem(`savedInput_${currentUser}`);
-                const savedOutput = localStorage.getItem(`savedOutput_${currentUser}`);
-                const savedDailyAdCount = localStorage.getItem(`dailyAdCount_${currentUser}`);
-                const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
+                const savedInput = localStorage.getItem(savedInput_${currentUser});
+                const savedOutput = localStorage.getItem(savedOutput_${currentUser});
+                const savedDailyAdCount = localStorage.getItem(dailyAdCount_${currentUser});
+                const lastCutTime = localStorage.getItem(lastCutTime_${currentUser});
                 if (savedInput) {
                     document.getElementById('inputText').value = savedInput;
                 }
@@ -306,7 +324,7 @@
         }
 
         function countOccurrences(text, word) {
-            const regex = new RegExp(`\\b${word}\\b`, 'gi');
+            const regex = new RegExp(\\b${word}\\b, 'gi');
             return (text.match(regex) || []).length;
         }
 
@@ -337,14 +355,14 @@
             const outputContainer = document.getElementById('output');
             const text = outputContainer.innerText;
             const adCount = countOccurrences(text, 'professor');
-            document.getElementById('adCount').innerText = `Total Advertisements: ${adCount}`;
-            document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
+            document.getElementById('adCount').innerText = Total Advertisements: ${adCount};
+            document.getElementById('dailyAdCount').innerText = Total Ads Today: ${dailyAdCount};
 
             const countryCounts = countCountryOccurrences(text);
             const sortedCountries = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]);
             let countryCountText = 'Country Counts:<br>';
             sortedCountries.forEach(([country, count]) => {
-                countryCountText += `<b>${country}</b>: ${count}<br>`;
+                countryCountText += <b>${country}</b>: ${count}<br>;
             });
             document.getElementById('countryCount').innerHTML = countryCountText.trim();
 
@@ -356,7 +374,7 @@
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
 
-            document.getElementById('time').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+            document.getElementById('time').innerText = hours > 0 ? ${hours}h ${minutes}m : ${minutes}m;
         }
 
         function processText() {
@@ -390,6 +408,7 @@
                 } else {
                     updateCounts();
                     saveText();
+                    document.querySelector('.lock-icon').style.display = 'block';
                 }
             }
             requestAnimationFrame(processChunk);
@@ -428,72 +447,40 @@
 
             document.getElementById('undoButton').style.display = 'block';
         }
-
         function undoLastCut() {
             if (cutHistory.length > 0) {
-                const lastCutText = cutHistory.pop();
-
-                const outputContainer = document.getElementById('output');
-                const p = document.createElement('p');
-                p.innerText = lastCutText;
-                outputContainer.insertBefore(p, outputContainer.firstChild);
-
-                const inputText = document.getElementById('inputText').value;
-                document.getElementById('inputText').value = `${lastCutText}\n${inputText}`.trim();
-
+                const lastCut = cutHistory.pop();
+                document.getElementById('inputText').value += `\n\n${lastCut}`;
+                document.getElementById('undoButton').style.display = 'none';
                 dailyAdCount--;
-
                 updateCounts();
                 saveText();
-
-                if (cutHistory.length === 0) {
-                    document.getElementById('undoButton').style.display = 'none';
-                }
             }
         }
 
-        function cleanupSpaces() {
-            const outputContainer = document.getElementById('output');
-            const paragraphs = outputContainer.querySelectorAll('p, div');
-            paragraphs.forEach(paragraph => {
-                if (!paragraph.innerText.trim()) {
-                    paragraph.remove();
-                }
-            });
+        function toggleLock() {
+            isLocked = !isLocked;
+            document.getElementById('inputText').disabled = isLocked;
+            document.getElementById('output').contentEditable = !isLocked;
+            document.querySelector('.lock-icon').innerText = isLocked ? '🔓' : '🔒';
         }
 
-        function handleCursorMovement(event) {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                const container = range.commonAncestorContainer;
-
-                let paragraph = container;
-                while (paragraph && paragraph.nodeName !== 'P') {
-                    paragraph = paragraph.parentNode;
-                }
-
-                if (paragraph && paragraph.textContent.includes('Professor')) {
-                    cutParagraph(paragraph);
-
-                    document.getElementById('output').focus();
-                }
-            }
-        }
-
-        function handleMouseClick(event) {
-            const cutOption = document.querySelector('input[name="cutOption"]:checked').value;
-            if (cutOption === 'mouse') {
-                handleCursorMovement(event);
-            }
-        }
-
-        function startMonitoring() {
-            const cutOption = document.querySelector('input[name="cutOption"]:checked').value;
-            if (cutOption === 'keyboard') {
-                document.addEventListener('keyup', handleCursorMovement);
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (username && password) {
+                currentUser = username;
+                document.querySelector('.font-controls').style.display = 'block';
+                document.querySelector('.input-container').style.display = 'block';
+                document.querySelector('.rough-container').style.display = 'block';
+                document.querySelector('.top-controls').style.display = 'flex';
+                document.getElementById('adCount').style.display = 'block';
+                document.getElementById('dailyAdCount').style.display = 'block';
+                document.getElementById('countryCount').style.display = 'block';
+                document.getElementById('credits').style.display = 'block';
+                loadText();
             } else {
-                document.removeEventListener('keyup', handleCursorMovement);
+                alert('Please enter both username and password');
             }
         }
 
@@ -501,82 +488,20 @@
             const fontStyle = document.getElementById('fontStyle').value;
             const fontSize = document.getElementById('fontSize').value;
             document.getElementById('output').style.fontFamily = fontStyle;
-            document.getElementById('output').style.fontSize = `${fontSize}px`;
+            document.getElementById('output').style.fontSize = fontSize + 'px';
         }
 
-        function copyRemainingText() {
-            const outputContainer = document.getElementById('output');
-            const remainingText = outputContainer.innerText;
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.style.position = 'fixed';
-            tempTextarea.style.opacity = '0';
-            tempTextarea.value = remainingText;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
-        }
-
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            if (username && password) {
-                currentUser = `${username}_${password}`;
-                document.querySelector('.login-container').style.display = 'none';
-                document.querySelector('.font-controls').style.display = 'block';
-                document.querySelector('.input-container').style.display = 'block';
-                document.getElementById('adCount').style.display = 'block';
-                document.getElementById('dailyAdCount').style.display = 'block';
-                document.getElementById('remainingTime').style.display = 'block';
-                document.getElementById('countryCount').style.display = 'block';
-                document.getElementById('undoButton').style.display = 'block';
-                document.getElementById('output').style.display = 'block';
-                loadText();
-            } else {
-                alert('Please enter both username and password.');
-            }
-        }
-
-        function toggleLock() {
-            const lockIcon = document.querySelector('.lock-icon');
-            isLocked = !isLocked;
-
-            if (isLocked) {
-                lockIcon.innerText = '🔓';
-                document.body.style.pointerEvents = 'none';
-                document.getElementById('output').style.pointerEvents = 'auto';
-            } else {
-                lockIcon.innerText = '🔒';
-                document.body.style.pointerEvents = 'auto';
-            }
-        }
-
-        document.getElementById('output').addEventListener('click', function(event) {
-            if (event.target.id === 'cursorStart') {
-                startMonitoring();
-            } else {
-                handleMouseClick(event);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' && document.querySelector('input[name="cutOption"][value="keyboard"]').checked) {
+                processText();
             }
         });
 
-        document.querySelectorAll('input[name="cutOption"]').forEach(option => {
-            option.addEventListener('change', startMonitoring);
-        });
-
-        function checkDailyReset() {
-            const now = new Date();
-            const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
-            if (lastCutTime) {
-                const lastCutDate = new Date(parseInt(lastCutTime, 10));
-                if (lastCutDate.toDateString() !== now.toDateString()) {
-                    dailyAdCount = 0;
-                    localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
-                }
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.matches('.lock-icon')) {
+                toggleLock();
             }
-        }
-
-        setInterval(checkDailyReset, 60000);
+        });
     </script>
 </body>
 
