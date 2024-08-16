@@ -4,7 +4,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advertisements-PPH</title>
     <style>
-        /* (Style section remains unchanged) */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+        }
+        .login-container,
+        .font-controls,
+        .input-container {
+            margin: 20px auto;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        .login-container input,
+        .font-controls input,
+        .input-container textarea {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .login-container button,
+        .input-container button,
+        .copy-button,
+        .undo-button {
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        .login-container button:hover,
+        .input-container button:hover,
+        .copy-button:hover,
+        .undo-button:hover {
+            background-color: #0056b3;
+        }
+        #adCount,
+        #dailyAdCount,
+        #remainingTime,
+        #countryCount,
+        #output {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #output {
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            max-width: 600px;
+            margin: 20px auto;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        .hourglass {
+            display: inline-block;
+            margin-left: 10px;
+            border: 5px solid #ccc;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #credits {
+            text-align: center;
+            margin-top: 50px;
+        }
+        #credits a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        #credits a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -84,53 +166,27 @@
         let historyStack = [];
 
         function saveText() {
-            const inputText = document.getElementById('inputText').value;
-            const outputText = document.getElementById('output').innerHTML;
-            if (currentUser) {
-                localStorage.setItem(`savedInput_${currentUser}`, inputText);
-                localStorage.setItem(`savedOutput_${currentUser}`, outputText);
-                localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
-                localStorage.setItem(`lastCutTime_${currentUser}`, Date.now());
-            }
+            localStorage.setItem('outputText', document.getElementById('output').innerHTML);
         }
 
         function loadText() {
-            if (currentUser) {
-                const savedInput = localStorage.getItem(`savedInput_${currentUser}`);
-                const savedOutput = localStorage.getItem(`savedOutput_${currentUser}`);
-                const savedDailyAdCount = localStorage.getItem(`dailyAdCount_${currentUser}`);
-                const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
-                if (savedInput) {
-                    document.getElementById('inputText').value = savedInput;
-                }
-                if (savedOutput) {
-                    document.getElementById('output').innerHTML = savedOutput;
-                }
-                if (savedDailyAdCount && lastCutTime) {
-                    const lastCutDate = new Date(parseInt(lastCutTime, 10));
-                    const currentDate = new Date();
-                    if (lastCutDate.toDateString() === currentDate.toDateString()) {
-                        dailyAdCount = parseInt(savedDailyAdCount, 10);
-                    }
-                }
-                updateCounts();
+            const savedText = localStorage.getItem('outputText');
+            if (savedText) {
+                document.getElementById('output').innerHTML = savedText;
             }
         }
 
         function countOccurrences(text, word) {
-            const regex = new RegExp(`\\b${word}\\b`, 'gi');
-            return (text.match(regex) || []).length;
+            return (text.match(new RegExp(word, 'gi')) || []).length;
         }
 
         function countCountryOccurrences(text) {
             const lines = text.split('\n');
             const countryCounts = {};
 
-            for (let i = 0; i < lines.length - 1; i++) {
-                const line = lines[i].trim();
-                const nextLine = lines[i + 1].trim();
-
-                if (nextLine.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) {
+            for (let line of lines) {
+                // Skip email addresses to avoid false positives
+                if (!line.match(/[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) {
                     countryList.forEach(country => {
                         const regex = new RegExp(`\\b${country}\\b`, 'gi');
                         if (line.match(regex)) {
