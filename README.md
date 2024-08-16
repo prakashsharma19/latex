@@ -28,7 +28,7 @@
         .text-container p {
             margin: 10px 0;
         }
-        .copy-button {
+        .copy-button, .undo-button {
             background-color: #4CAF50; /* Green */
             border: none;
             color: white;
@@ -41,7 +41,7 @@
             transition-duration: 0.4s;
             margin: 5px;
         }
-        .copy-button:hover {
+        .copy-button:hover, .undo-button:hover {
             background-color: white;
             color: black;
             border: 2px solid #4CAF50;
@@ -171,6 +171,7 @@
     <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
     <div id="countryCount" style="display:none;"></div>
     <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
+    <button class="undo-button" style="display:none;" onclick="undoLastEntry()">Undo Last Entry</button>
     <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
 
     <!-- Option to choose cut method -->
@@ -359,14 +360,6 @@
             }
         }
 
-        // Listen for Ctrl+Z key combination
-        document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && event.key === 'z') {
-                event.preventDefault();
-                undoLastEntry();
-            }
-        });
-
         function cutParagraph(paragraph) {
             const textToCopy = paragraph.innerText;
             const selection = window.getSelection();
@@ -483,6 +476,7 @@
                 document.getElementById('remainingTime').style.display = 'block';
                 document.getElementById('countryCount').style.display = 'block';
                 document.querySelector('.copy-button').style.display = 'block';
+                document.querySelector('.undo-button').style.display = 'block';
                 document.getElementById('output').style.display = 'block';
                 loadText();
             } else {
