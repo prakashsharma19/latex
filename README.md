@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -28,7 +29,7 @@
         .text-container p {
             margin: 10px 0;
         }
-        .copy-button, .undo-button {
+        .copy-button {
             background-color: #4CAF50; /* Green */
             border: none;
             color: white;
@@ -41,7 +42,7 @@
             transition-duration: 0.4s;
             margin: 5px;
         }
-        .copy-button:hover, .undo-button:hover {
+        .copy-button:hover {
             background-color: white;
             color: black;
             border: 2px solid #4CAF50;
@@ -171,7 +172,6 @@
     <div id="remainingTime" style="display:none;">Remaining Time: <span id="time"></span><div class="hourglass"></div></div>
     <div id="countryCount" style="display:none;"></div>
     <button class="copy-button" style="display:none;" onclick="copyRemainingText()">Copy Remaining Text</button>
-    <button class="undo-button" style="display:none;" onclick="undoLastEntry()">Undo Last Entry</button>
     <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
 
     <!-- Option to choose cut method -->
@@ -204,41 +204,28 @@
             "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
             "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
             "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
-            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
-            "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania",
-            "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal",
-            "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea",
-            "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
-            "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
-            "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
-            "Vietnam", "Yemen", "Zambia", "Zimbabwe"
+            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Panama",
+            "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda",
+            "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles",
+            "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Sudan", "Spain", "Sri Lanka",
+            "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste",
+            "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates",
+            "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia",
+            "Zimbabwe"
         ];
 
-        let currentUser = null;
-        let dailyAdCount = 0;
-        let totalTimeInSeconds = 0;
-        let historyStack = [];
-        let cutHistoryStack = []; // New stack to keep track of cut entries
+        let cutHistory = [];
+        let cutOption = "keyboard"; // default cut option
 
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-
-            // Placeholder login validation
-            if (username === "user" && password === "password") {
-                currentUser = username;
+            if (username && password) {
                 document.querySelector('.login-container').style.display = 'none';
-                document.querySelector('.input-container').style.display = 'flex';
                 document.querySelector('.font-controls').style.display = 'block';
-                document.getElementById('adCount').style.display = 'block';
-                document.getElementById('dailyAdCount').style.display = 'block';
-                document.getElementById('remainingTime').style.display = 'block';
-                document.getElementById('countryCount').style.display = 'block';
-                document.querySelector('.copy-button').style.display = 'inline-block';
-                document.querySelector('.undo-button').style.display = 'inline-block';
-                document.getElementById('output').style.display = 'block';
+                document.querySelector('.input-container').style.display = 'block';
             } else {
-                alert("Invalid login credentials");
+                alert('Please enter both username and password.');
             }
         }
 
@@ -246,74 +233,142 @@
             const fontStyle = document.getElementById('fontStyle').value;
             const fontSize = document.getElementById('fontSize').value;
             document.getElementById('output').style.fontFamily = fontStyle;
-            document.getElementById('output').style.fontSize = fontSize + "px";
-        }
-
-        function countOccurrences(text, word) {
-            return (text.match(new RegExp(word, "gi")) || []).length;
+            document.getElementById('output').style.fontSize = fontSize + 'px';
         }
 
         function processText() {
             const inputText = document.getElementById('inputText').value;
-            const paragraphs = inputText.split('\n\n');
-            const outputContainer = document.getElementById('output');
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+            const outputDiv = document.getElementById('output');
+            outputDiv.style.display = 'block';
+            outputDiv.innerHTML = inputText;
+            document.querySelector('.copy-button').style.display = 'inline-block';
+            document.getElementById('adCount').style.display = 'block';
+            document.getElementById('dailyAdCount').style.display = 'block';
+            document.getElementById('remainingTime').style.display = 'block';
+            document.getElementById('countryCount').style.display = 'block';
+            document.getElementById('adCount').textContent = `Total Advertisements: ${countAdvertisements(inputText)}`;
+            document.getElementById('dailyAdCount').textContent = `Total Ads Today: ${countDailyAds(inputText)}`;
+            document.getElementById('countryCount').innerHTML = getCountryCount(inputText);
+        }
 
-            // Calculate total time for all ads
-            const totalAds = countOccurrences(inputText, 'professor');
-            totalTimeInSeconds = totalAds * 8;
+        function countAdvertisements(text) {
+            // Logic to count advertisements
+            return text.split(' ').length; // Example logic
+        }
 
-            let index = 0;
-            function processChunk() {
-                const chunkSize = 100; // Number of paragraphs to process in one go
-                const end = Math.min(index + chunkSize, paragraphs.length);
-                for (; index < end; index++) {
-                    const paragraph = paragraphs[index].trim();
-                    if (paragraph) {
-                        const p = document.createElement('p');
-                        p.textContent = paragraph;
-                        outputContainer.appendChild(p);
-                        historyStack.push(paragraph); // Save to history for undo
-                    }
+        function countDailyAds(text) {
+            // Logic to count ads for today
+            return text.split(' ').length; // Example logic
+        }
+
+        function getCountryCount(text) {
+            // Count occurrences of each country in the text
+            const counts = countryList.reduce((acc, country) => {
+                const regex = new RegExp(`\\b${country}\\b`, 'gi');
+                const match = text.match(regex);
+                acc[country] = match ? match.length : 0;
+                return acc;
+            }, {});
+
+            // Sort countries by count in descending order
+            const sortedCountries = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+            let result = '';
+
+            sortedCountries.forEach(country => {
+                if (counts[country] > 0) {
+                    result += `${country}: ${counts[country]}<br>`;
                 }
-                index = end;
-                if (index < paragraphs.length) {
-                    setTimeout(processChunk, 100); // Process next chunk
-                }
-            }
-            processChunk();
+            });
 
-            document.getElementById('adCount').textContent = "Total Advertisements: " + totalAds;
-            document.getElementById('time').textContent = formatTime(totalTimeInSeconds);
+            return result;
         }
 
         function copyRemainingText() {
-            const remainingText = document.getElementById('output').innerText;
-            navigator.clipboard.writeText(remainingText).then(() => {
-                alert('Text copied to clipboard!');
-            }).catch(err => {
-                alert('Failed to copy text: ', err);
-            });
+            const outputDiv = document.getElementById('output');
+            const range = document.createRange();
+            range.selectNode(outputDiv);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges();
         }
 
-        // Updated Undo Functionality
-        function undoLastEntry() {
-            const outputContainer = document.getElementById('output');
-            const lastParagraph = outputContainer.lastChild;
+        function cutText(startPos, endPos) {
+            const outputDiv = document.getElementById('output');
+            const text = outputDiv.innerText;
+            const beforeText = text.substring(0, startPos);
+            const cutText = text.substring(startPos, endPos);
+            const afterText = text.substring(endPos);
 
-            if (lastParagraph && lastParagraph.textContent !== 'Place your cursor here') {
-                cutHistoryStack.push(lastParagraph.textContent);
-                outputContainer.removeChild(lastParagraph);
-            } else {
-                alert('No entries to undo');
+            cutHistory.push({ cutText, startPos, endPos }); // Save cut operation
+
+            outputDiv.innerText = beforeText + afterText;
+            return cutText;
+        }
+
+        function undoCut() {
+            if (cutHistory.length > 0) {
+                const lastCut = cutHistory.pop();
+                const outputDiv = document.getElementById('output');
+                const text = outputDiv.innerText;
+                const beforeText = text.substring(0, lastCut.startPos);
+                const afterText = text.substring(lastCut.startPos);
+
+                outputDiv.innerText = beforeText + lastCut.cutText + afterText;
             }
         }
 
-        function formatTime(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = seconds % 60;
-            return `${minutes}m ${remainingSeconds}s`;
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && event.key === 'z') {
+                event.preventDefault();
+                undoCut();
+            }
+        });
+
+        document.querySelectorAll('input[name="cutOption"]').forEach(radio => {
+            radio.addEventListener('change', (event) => {
+                cutOption = event.target.value;
+            });
+        });
+
+        function handleMouseCut(event) {
+            // Example logic for mouse cut handling
+            const outputDiv = document.getElementById('output');
+            const text = outputDiv.innerText;
+            const selection = window.getSelection();
+            const range = selection.getRangeAt(0);
+            const startOffset = range.startOffset;
+            const endOffset = range.endOffset;
+            const cutText = cutText(startOffset, endOffset);
+            // Handle cutText as needed
         }
+
+        function handleKeyboardCut(event) {
+            // Example logic for keyboard cut handling
+            if (event.key === 'ArrowDown') {
+                const outputDiv = document.getElementById('output');
+                const selection = window.getSelection();
+                const range = selection.getRangeAt(0);
+                const startOffset = range.startOffset;
+                const endOffset = range.endOffset;
+                const cutText = cutText(startOffset, endOffset);
+                // Handle cutText as needed
+            }
+        }
+
+        document.addEventListener('mousedown', function(event) {
+            if (cutOption === 'mouse') {
+                handleMouseCut(event);
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (cutOption === 'keyboard') {
+                handleKeyboardCut(event);
+            }
+        });
+
+        // Additional functions for remaining time, etc.
     </script>
 </body>
 </html>
