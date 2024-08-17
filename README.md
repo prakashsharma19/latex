@@ -16,20 +16,9 @@
 
         h1 {
             color: #1171ba;
-            display: inline-block;
-            margin-right: 20px;
-            font-size: 28px;
-        }
-
-        .header-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            text-align: center;
             margin-bottom: 30px;
-        }
-
-        .header-container img {
-            height: 50px;
+            font-size: 28px;
         }
 
         .font-controls,
@@ -56,25 +45,14 @@
             margin: 0;
             padding-bottom: 10px;
             border-bottom: 1px solid #e0e0e0;
-        }
-
-        .lock-icon {
-            position: absolute;
-            top: 10px;
-            right: -30px;
-            cursor: pointer;
-            font-size: 24px;
-            color: #ffffff;
-            background-color: #1171ba;
-            padding: 5px;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            line-height: 1.5;
         }
 
         .copy-button,
         #okButton,
         #loginButton,
-        #undoButton {
+        #undoButton,
+        #lockButton {
             background-color: #1171ba;
             border: none;
             color: white;
@@ -89,7 +67,8 @@
         .copy-button:hover,
         #okButton:hover,
         #loginButton:hover,
-        #undoButton:hover {
+        #undoButton:hover,
+        #lockButton:hover {
             background-color: #0e619f;
         }
 
@@ -215,6 +194,10 @@
             margin-left: 20px;
         }
 
+        #lockButton {
+            margin-left: 20px;
+        }
+
         .top-controls {
             display: flex;
             justify-content: space-between;
@@ -224,10 +207,7 @@
 </head>
 
 <body>
-    <div class="header-container">
-        <h1>Advertisements-PPH</h1>
-        <img src="https://pphmjopenaccess.com/public/journals/16/pageHeaderLogoImage_en_US.png" alt="PPH Logo">
-    </div>
+    <h1>Advertisements-PPH</h1>
 
     <!-- Option to choose cut method -->
     <div class="option-buttons">
@@ -286,6 +266,7 @@
             <div class="hourglass"></div>
         </div>
         <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
+        <button id="lockButton" style="display:none;" onclick="toggleLock()">🔒 Lock</button>
     </div>
 
     <div id="adCount" style="display:none;">Total Advertisements: 0</div>
@@ -293,7 +274,6 @@
     <div id="countryCount" style="display:none;"></div>
 
     <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
-    <div class="lock-icon" style="display:none;" onclick="toggleLock()">🔒</div>
 
     <div id="credits">
         This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
@@ -331,9 +311,11 @@
 
         function saveText() {
             const inputText = document.getElementById('inputText').value;
+            const roughText = document.getElementById('roughText').value;
             const outputText = document.getElementById('output').innerHTML;
             if (currentUser) {
                 localStorage.setItem(`savedInput_${currentUser}`, inputText);
+                localStorage.setItem(`savedRough_${currentUser}`, roughText);
                 localStorage.setItem(`savedOutput_${currentUser}`, outputText);
                 localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
                 localStorage.setItem(`lastCutTime_${currentUser}`, Date.now());
@@ -343,11 +325,15 @@
         function loadText() {
             if (currentUser) {
                 const savedInput = localStorage.getItem(`savedInput_${currentUser}`);
+                const savedRough = localStorage.getItem(`savedRough_${currentUser}`);
                 const savedOutput = localStorage.getItem(`savedOutput_${currentUser}`);
                 const savedDailyAdCount = localStorage.getItem(`dailyAdCount_${currentUser}`);
                 const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
                 if (savedInput) {
                     document.getElementById('inputText').value = savedInput;
+                }
+                if (savedRough) {
+                    document.getElementById('roughText').value = savedRough;
                 }
                 if (savedOutput) {
                     document.getElementById('output').innerHTML = savedOutput;
@@ -421,7 +407,7 @@
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split('\n\n');
             const outputContainer = document.getElementById('output');
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+            outputContainer.innerHTML = '';
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
@@ -437,10 +423,6 @@
                         const p = document.createElement('p');
                         p.innerHTML = highlightErrors(paragraph.replace(/\n/g, '<br>'));
                         outputContainer.appendChild(p);
-
-                        const gap = document.createElement('div');
-                        gap.innerHTML = '<br><br>';
-                        outputContainer.appendChild(gap);
                     }
                 }
                 if (index < paragraphs.length) {
@@ -448,7 +430,7 @@
                 } else {
                     updateCounts();
                     saveText();
-                    document.querySelector('.lock-icon').style.display = 'block';
+                    document.getElementById('lockButton').style.display = 'inline-block';
                 }
             }
             requestAnimationFrame(processChunk);
@@ -513,7 +495,7 @@
 
         function cleanupSpaces() {
             const outputContainer = document.getElementById('output');
-            const paragraphs = outputContainer.querySelectorAll('p, div');
+            const paragraphs = outputContainer.querySelectorAll('p');
             paragraphs.forEach(paragraph => {
                 if (!paragraph.innerText.trim()) {
                     paragraph.remove();
@@ -564,15 +546,17 @@
         }
 
         function toggleLock() {
-            const lockIcon = document.querySelector('.lock-icon');
+            const lockButton = document.getElementById('lockButton');
             isLocked = !isLocked;
 
             if (isLocked) {
-                lockIcon.innerText = '🔓';
-                document.getElementById('output').contentEditable = 'false';
+                lockButton.innerHTML = '🔓 Unlock';
+                document.body.style.pointerEvents = 'none';
+                document.getElementById('output').style.pointerEvents = 'auto';
+                document.getElementById('undoButton').style.pointerEvents = 'auto';
             } else {
-                lockIcon.innerText = '🔒';
-                document.getElementById('output').contentEditable = 'true';
+                lockButton.innerHTML = '🔒 Lock';
+                document.body.style.pointerEvents = 'auto';
             }
         }
 
