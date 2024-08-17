@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -12,6 +11,8 @@
             padding: 20px;
             margin: 0;
             color: #333;
+            display: flex;
+            justify-content: space-between;
         }
 
         h1 {
@@ -19,15 +20,20 @@
             text-align: center;
             margin-bottom: 30px;
             font-size: 28px;
+            width: 100%;
         }
 
-        .font-controls,
-        .login-container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+        .left-content {
+            flex: 1;
+            margin-right: 20px;
+        }
+
+        .right-content {
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-top: 20px;
         }
 
         .text-container {
@@ -39,7 +45,76 @@
             white-space: pre-wrap;
             position: relative;
             margin-top: 20px;
-            z-index: 2;
+        }
+
+        #time {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: right;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .reminder-slots {
+            list-style-type: none;
+            padding: 0;
+            width: 100%;
+        }
+
+        .reminder-slots li {
+            background-color: #1171ba;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+
+        .reminder-slots li:hover,
+        .reminder-slots li.selected {
+            background-color: #0e619f;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .popup button {
+            background-color: #1171ba;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .popup button:hover {
+            background-color: #0e619f;
+        }
+
+        .font-controls,
+        .login-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
 
         .text-container p {
@@ -208,74 +283,94 @@
 </head>
 
 <body>
-    <h1>Advertisements-PPH</h1>
+    <div class="left-content">
+        <h1>Advertisements-PPH</h1>
 
-    <!-- Option to choose cut method -->
-    <div class="option-buttons">
-        <label>
-            <input type="radio" name="cutOption" value="keyboard" checked>
-            Operate by Keyboard (Down Arrow Key)
-        </label>
-        <label>
-            <input type="radio" name="cutOption" value="mouse">
-            Operate by Mouse (Left Button)
-        </label>
-    </div>
-
-    <div class="login-container">
-        <input type="text" id="username" placeholder="Enter your name">
-        <input type="password" id="password" placeholder="Enter your password">
-        <button id="loginButton" onclick="login()">Login</button>
-    </div>
-
-    <div class="font-controls" style="display:none;">
-        <label for="fontStyle">Font Style:</label>
-        <select id="fontStyle" onchange="updateFont()">
-            <option value="Arial">Arial</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Calibri Light">Calibri Light</option>
-        </select>
-        <label for="fontSize">Font Size:</label>
-        <input type="number" id="fontSize" value="16" onchange="updateFont()">px
-    </div>
-
-    <div class="input-container" style="display:none;">
-        <div class="container-header" onclick="toggleBox('pasteBox')">
-            Paste your text here
-            <span id="pasteBoxToggle">[+]</span>
+        <!-- Option to choose cut method -->
+        <div class="option-buttons">
+            <label>
+                <input type="radio" name="cutOption" value="keyboard" checked>
+                Operate by Keyboard (Down Arrow Key)
+            </label>
+            <label>
+                <input type="radio" name="cutOption" value="mouse">
+                Operate by Mouse (Left Button)
+            </label>
         </div>
-        <div id="pasteBox" class="input-boxes">
-            <textarea id="inputText" rows="5" placeholder="Paste your text here..."></textarea>
-            <button id="okButton" onclick="processText()">OK</button>
+
+        <div class="login-container">
+            <input type="text" id="username" placeholder="Enter your name">
+            <input type="password" id="password" placeholder="Enter your password">
+            <button id="loginButton" onclick="login()">Login</button>
+        </div>
+
+        <div class="font-controls" style="display:none;">
+            <label for="fontStyle">Font Style:</label>
+            <select id="fontStyle" onchange="updateFont()">
+                <option value="Arial">Arial</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Calibri Light">Calibri Light</option>
+            </select>
+            <label for="fontSize">Font Size:</label>
+            <input type="number" id="fontSize" value="16" onchange="updateFont()">px
+        </div>
+
+        <div class="input-container" style="display:none;">
+            <div class="container-header" onclick="toggleBox('pasteBox')">
+                Paste your text here
+                <span id="pasteBoxToggle">[+]</span>
+            </div>
+            <div id="pasteBox" class="input-boxes">
+                <textarea id="inputText" rows="5" placeholder="Paste your text here..."></textarea>
+                <button id="okButton" onclick="processText()">OK</button>
+            </div>
+        </div>
+
+        <div class="input-container" style="display:none;">
+            <div class="container-header" onclick="toggleBox('roughBox')">
+                Rough Work
+                <span id="roughBoxToggle">[+]</span>
+            </div>
+            <div id="roughBox" class="input-boxes rough-container">
+                <textarea id="roughText" rows="5" placeholder="Rough Work..."></textarea>
+            </div>
+        </div>
+
+        <div class="top-controls" style="display:none;">
+            <div id="remainingTime">File completed by: <span id="time"></span>
+                <div class="hourglass"></div>
+            </div>
+            <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
+            <button id="lockButton" style="display:none;" onclick="toggleLock()">🔒 Lock</button>
+        </div>
+
+        <div id="adCount" style="display:none;">Total Advertisements: 0</div>
+        <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
+        <div id="countryCount" style="display:none;"></div>
+
+        <div id="output" class="text-container" style="display:none;" contenteditable="true">
+            <p id="cursorStart">Place your cursor here</p>
         </div>
     </div>
 
-    <div class="input-container" style="display:none;">
-        <div class="container-header" onclick="toggleBox('roughBox')">
-            Rough Work
-            <span id="roughBoxToggle">[+]</span>
-        </div>
-        <div id="roughBox" class="input-boxes rough-container">
-            <textarea id="roughText" rows="5" placeholder="Rough Work..."></textarea>
-        </div>
+    <div class="right-content">
+        <div id="time"></div>
+        <ul class="reminder-slots">
+            <li data-time="09:00">9:00-9:30 AM</li>
+            <li data-time="10:35">10:35-10:45 AM</li>
+            <li data-time="11:50">11:50-12:00 PM</li>
+            <li data-time="13:05">1:05-1:10 PM</li>
+            <li data-time="14:20">2:20-2:30 PM</li>
+            <li data-time="15:40">3:40-3:45 PM</li>
+            <li data-time="16:50">4:50-5:00 PM</li>
+        </ul>
     </div>
 
-    <div class="top-controls" style="display:none;">
-        <div id="remainingTime">File completed by: <span id="time"></span>
-            <div class="hourglass"></div>
-        </div>
-        <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
-        <button id="lockButton" style="display:none;" onclick="toggleLock()">🔒 Lock</button>
-    </div>
-
-    <div id="adCount" style="display:none;">Total Advertisements: 0</div>
-    <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
-    <div id="countryCount" style="display:none;"></div>
-
-    <div id="output" class="text-container" style="display:none;" contenteditable="true">
-        <p id="cursorStart">Place your cursor here</p>
+    <div id="reminderPopup" class="popup">
+        <p>Send Ads</p>
+        <button onclick="dismissPopup()">OK</button>
     </div>
 
     <div id="credits">
@@ -661,6 +756,65 @@
             paragraphsWithCountry.forEach(paragraph => {
                 outputContainer.appendChild(paragraph);
             });
+        }
+
+        // Function to display the current time
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+
+        // Function to check if the selected time slot matches the current time
+        function checkReminders() {
+            const now = new Date();
+            const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+
+            document.querySelectorAll('.reminder-slots li.selected').forEach(slot => {
+                if (slot.dataset.time === currentTime) {
+                    showPopup();
+                }
+            });
+        }
+
+        // Check reminders every minute
+        setInterval(checkReminders, 60000);
+
+        // Show the reminder popup
+        function showPopup() {
+            document.getElementById('reminderPopup').style.display = 'block';
+            blinkTab();
+        }
+
+        // Dismiss the reminder popup
+        function dismissPopup() {
+            document.getElementById('reminderPopup').style.display = 'none';
+            document.title = originalTitle;
+            clearInterval(blinkInterval);
+        }
+
+        // Handle slot selection
+        document.querySelectorAll('.reminder-slots li').forEach(slot => {
+            slot.addEventListener('click', () => {
+                slot.classList.toggle('selected');
+            });
+        });
+
+        // Blink tab title when minimized
+        let originalTitle = document.title;
+        let blinkInterval;
+
+        function blinkTab() {
+            let isOriginalTitle = true;
+            blinkInterval = setInterval(() => {
+                document.title = isOriginalTitle ? '🔔 Reminder: Send Ads!' : originalTitle;
+                isOriginalTitle = !isOriginalTitle;
+            }, 1000);
         }
     </script>
 </body>
