@@ -39,6 +39,7 @@
             white-space: pre-wrap;
             position: relative;
             margin-top: 20px;
+            z-index: 2;
         }
 
         .text-container p {
@@ -273,7 +274,9 @@
     <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
     <div id="countryCount" style="display:none;"></div>
 
-    <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
+    <div id="output" class="text-container" style="display:none;" contenteditable="true">
+        <p id="cursorStart">Place your cursor here</p>
+    </div>
 
     <div id="credits">
         This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
@@ -407,7 +410,7 @@
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split('\n\n');
             const outputContainer = document.getElementById('output');
-            outputContainer.innerHTML = '';
+            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
@@ -547,16 +550,23 @@
 
         function toggleLock() {
             const lockButton = document.getElementById('lockButton');
+            const interactiveElements = document.querySelectorAll('input, button, textarea, select');
             isLocked = !isLocked;
 
             if (isLocked) {
                 lockButton.innerHTML = '🔓 Unlock';
-                document.body.style.pointerEvents = 'none';
-                document.getElementById('output').style.pointerEvents = 'auto';
-                document.getElementById('undoButton').style.pointerEvents = 'auto';
+                interactiveElements.forEach(element => {
+                    if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
+                        element.disabled = true;
+                    }
+                });
             } else {
                 lockButton.innerHTML = '🔒 Lock';
-                document.body.style.pointerEvents = 'auto';
+                interactiveElements.forEach(element => {
+                    if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
+                        element.disabled = false;
+                    }
+                });
             }
         }
 
