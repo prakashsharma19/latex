@@ -564,7 +564,7 @@
         }
 
         function startMonitoring() {
-            const cutOption = document.querySelector('input[name="cutOption"]:checked").value;
+            const cutOption = document.querySelector('input[name="cutOption"]:checked').value;
             if (cutOption === 'keyboard') {
                 document.addEventListener('keyup', handleCursorMovement);
             } else {
