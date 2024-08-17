@@ -1,9 +1,4 @@
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advertisements-PPH</title>
-    <style>
-        body {
+<htmllang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Advertisements-PPH</title><style>body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-color: #f4f4f4;
             padding: 20px;
@@ -22,7 +17,7 @@
             background-color: #ffffff;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 02px4pxrgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
 
@@ -31,29 +26,45 @@
             padding: 15px;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 02px4pxrgba(0, 0, 0, 0.1);
             white-space: pre-wrap;
             position: relative;
             margin-top: 20px;
         }
 
-        .text-container p {
+        .text-containerp {
             margin: 0;
             padding-bottom: 10px;
             border-bottom: 1px solid #e0e0e0;
         }
 
         .lock-icon {
-            position: absolute;
-            top: 10px;
-            right: -30px;
+            position: relative;
+            top: 0;
+            right: 0;
             cursor: pointer;
             font-size: 24px;
             color: #1171ba;
             background-color: #ffffff;
             padding: 5px;
             border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 02px4pxrgba(0, 0, 0, 0.1);
+            margin-top: 10px; /* Adjust as needed */display: none; /* Initially hidden */
+        }
+
+        .locked {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .locked#output,
+        .locked#undoButton {
+            pointer-events: auto;
+            opacity: 1;
+        }
+
+        .locked#roughBox {
+            pointer-events: auto;
         }
 
         .copy-button,
@@ -64,7 +75,7 @@
             background-color: #1171ba;
             border: none;
             color: white;
-            padding: 10px 20px;
+            padding: 10px20px;
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
@@ -86,7 +97,7 @@
             margin-bottom: 20px;
         }
 
-        .input-container textarea {
+        .input-containertextarea {
             width: 100%;
             border-radius: 5px;
             padding: 10px;
@@ -119,7 +130,7 @@
             color: #1171ba;
         }
 
-        #remainingTime .hourglass {
+        #remainingTime.hourglass {
             vertical-align: middle;
         }
 
@@ -146,12 +157,12 @@
             color: #34495e;
         }
 
-        #credits a {
+        #creditsa {
             color: #2980b9;
             text-decoration: none;
         }
 
-        #credits a:hover {
+        #creditsa:hover {
             text-decoration: underline;
         }
 
@@ -160,9 +171,9 @@
             font-weight: bold;
         }
 
-        .login-container input {
+        .login-containerinput {
             width: 100%;
-            margin: 5px 0;
+            margin: 5px0;
             padding: 10px;
             font-size: 16px;
             border: 1px solid #e0e0e0;
@@ -183,7 +194,7 @@
             margin-bottom: 30px;
         }
 
-        .option-buttons label {
+        .option-buttonslabel {
             margin-right: 20px;
         }
 
@@ -196,85 +207,17 @@
             justify-content: space-between;
             align-items: center;
         }
-    </style>
-</head>
-
-<body>
-    <h1>Advertisements-PPH</h1>
-
-    <!-- Option to choose cut method -->
-    <div class="option-buttons">
-        <label>
-            <input type="radio" name="cutOption" value="keyboard" checked>
+    </style></head><body><h1>Advertisements-PPH</h1><!-- Option to choose cut method --><div class="option-buttons"><label><input type="radio" name="cutOption" value="keyboard" checked>
             Operate by Keyboard (Down Arrow Key)
-        </label>
-        <label>
-            <input type="radio" name="cutOption" value="mouse">
+        </label><label><input type="radio" name="cutOption" value="mouse">
             Operate by Mouse (Left Button)
-        </label>
-    </div>
-
-    <div class="login-container">
-        <input type="text" id="username" placeholder="Enter your name">
-        <input type="password" id="password" placeholder="Enter your password">
-        <button id="loginButton" onclick="login()">Login</button>
-    </div>
-
-    <div class="font-controls" style="display:none;">
-        <label for="fontStyle">Font Style:</label>
-        <select id="fontStyle" onchange="updateFont()">
-            <option value="Arial">Arial</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Calibri Light">Calibri Light</option>
-        </select>
-        <label for="fontSize">Font Size:</label>
-        <input type="number" id="fontSize" value="16" onchange="updateFont()">px
-    </div>
-
-    <div class="input-container" style="display:none;">
-        <div class="container-header" onclick="toggleBox('pasteBox')">
+        </label></div><div class="login-container"><input type="text" id="username" placeholder="Enter your name"><input type="password" id="password" placeholder="Enter your password"><button id="loginButton" onclick="login()">Login</button></div><div class="font-controls" style="display:none;"><label for="fontStyle">Font Style:</label><select id="fontStyle" onchange="updateFont()"><option value="Arial">Arial</option><option value="Times New Roman">Times New Roman</option><option value="Courier New">Courier New</option><option value="Georgia">Georgia</option><option value="Calibri Light">Calibri Light</option></select><label for="fontSize">Font Size:</label><input type="number" id="fontSize" value="16" onchange="updateFont()">px
+    </div><div class="input-container" style="display:none;"><div class="container-header" onclick="toggleBox('pasteBox')">
             Paste your text here
-            <span id="pasteBoxToggle">[+]</span>
-        </div>
-        <div id="pasteBox" class="input-boxes">
-            <textarea id="inputText" rows="5" placeholder="Paste your text here..."></textarea>
-            <button id="okButton" onclick="processText()">OK</button>
-        </div>
-    </div>
-
-    <div class="input-container" style="display:none;">
-        <div class="container-header" onclick="toggleBox('roughBox')">
+            <spanid="pasteBoxToggle">[+]</span></div><div id="pasteBox" class="input-boxes"><textarea id="inputText" rows="5" placeholder="Paste your text here..."></textarea><button id="okButton" onclick="processText()">OK</button></div></div><div class="input-container" style="display:none;"><div class="container-header" onclick="toggleBox('roughBox')">
             Rough Work
-            <span id="roughBoxToggle">[+]</span>
-        </div>
-        <div id="roughBox" class="input-boxes rough-container">
-            <textarea id="roughText" rows="5" placeholder="Rough Work..."></textarea>
-        </div>
-    </div>
-
-    <div class="top-controls" style="display:none;">
-        <div id="remainingTime">Remaining Time: <span id="time"></span>
-            <div class="hourglass"></div>
-        </div>
-        <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
-        <!-- Move lock button here -->
-        <div class="lock-icon" style="display:none;" onclick="toggleLock()">🔒</div>
-    </div>
-
-    <div id="adCount" style="display:none;">Total Advertisements: 0</div>
-    <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
-    <div id="countryCount" style="display:none;"></div>
-
-    <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
-
-    <div id="credits">
-        This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
-    </div>
-
-    <script>
-        const countryList = [
+            <spanid="roughBoxToggle">[+]</span></div><div id="roughBox" class="input-boxes rough-container"><textarea id="roughText" rows="5" placeholder="Rough Work..."></textarea></div></div><div class="top-controls" style="display:none;"><div id="remainingTime">Remaining Time: <spanid="time"></span><divclass="hourglass"></div></div><button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button><div class="lock-icon" onclick="toggleLock()">🔒</div></div><div id="adCount" style="display:none;">Total Advertisements: 0</div><div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div><div id="countryCount" style="display:none;"></div><div id="output" class="text-container" style="display:none;" contenteditable="true"></div><div id="credits">
+        This page is developed by <ahref="https://prakashsharma19.github.io/prakash/"target="_blank">Prakash</a></div><script>const countryList = [
             "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
             "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
             "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
@@ -303,21 +246,24 @@
         let cutHistory = [];
         let isLocked = false;
 
-        function saveText() {
+        functionsaveText() {
             const inputText = document.getElementById('inputText').value;
             const outputText = document.getElementById('output').innerHTML;
+            const roughText = document.getElementById('roughText').value;
             if (currentUser) {
                 localStorage.setItem(`savedInput_${currentUser}`, inputText);
                 localStorage.setItem(`savedOutput_${currentUser}`, outputText);
+                localStorage.setItem(`savedRough_${currentUser}`, roughText);
                 localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
                 localStorage.setItem(`lastCutTime_${currentUser}`, Date.now());
             }
         }
 
-        function loadText() {
+        functionloadText() {
             if (currentUser) {
                 const savedInput = localStorage.getItem(`savedInput_${currentUser}`);
                 const savedOutput = localStorage.getItem(`savedOutput_${currentUser}`);
+                const savedRough = localStorage.getItem(`savedRough_${currentUser}`);
                 const savedDailyAdCount = localStorage.getItem(`dailyAdCount_${currentUser}`);
                 const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
                 if (savedInput) {
@@ -326,9 +272,12 @@
                 if (savedOutput) {
                     document.getElementById('output').innerHTML = savedOutput;
                 }
+                if (savedRough) {
+                    document.getElementById('roughText').value = savedRough;
+                }
                 if (savedDailyAdCount && lastCutTime) {
-                    const lastCutDate = new Date(parseInt(lastCutTime, 10));
-                    const currentDate = new Date();
+                    const lastCutDate = newDate(parseInt(lastCutTime, 10));
+                    const currentDate = newDate();
                     if (lastCutDate.toDateString() === currentDate.toDateString()) {
                         dailyAdCount = parseInt(savedDailyAdCount, 10);
                     }
@@ -337,12 +286,12 @@
             }
         }
 
-        function countOccurrences(text, word) {
-            const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        functioncountOccurrences(text, word) {
+            const regex = newRegExp(`\\b${word}\\b`, 'gi');
             return (text.match(regex) || []).length;
         }
 
-        function countCountryOccurrences(text) {
+        functioncountCountryOccurrences(text) {
             const lines = text.split('\n');
             const countryCounts = {};
 
@@ -361,11 +310,11 @@
             return countryCounts;
         }
 
-        function highlightErrors(text) {
+        functionhighlightErrors(text) {
             return text.replace(/(\w+\?\w+)/g, '<span class="error">$1</span>');
         }
 
-        function updateCounts() {
+        functionupdateCounts() {
             const outputContainer = document.getElementById('output');
             const text = outputContainer.innerText;
             const adCount = countOccurrences(text, 'professor');
@@ -383,7 +332,7 @@
             updateRemainingTime();
         }
 
-        function updateRemainingTime() {
+        functionupdateRemainingTime() {
             const remainingTimeInSeconds = totalTimeInSeconds - (dailyAdCount * 8);
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
@@ -391,7 +340,7 @@
             document.getElementById('time').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
         }
 
-        function processText() {
+        functionprocessText() {
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split('\n\n');
             const outputContainer = document.getElementById('output');
@@ -402,7 +351,7 @@
 
             let index = 0;
 
-            function processChunk() {
+            functionprocessChunk() {
                 const chunkSize = 100;
                 const end = Math.min(index + chunkSize, paragraphs.length);
                 for (; index < end; index++) {
@@ -428,9 +377,8 @@
             requestAnimationFrame(processChunk);
         }
 
-        function cutParagraph(paragraph) {
-            if (!isLocked) {  // Only allow cutting when not locked
-                const textToCopy = paragraph.innerText;
+        functioncutParagraph(paragraph) {
+            if (!isLocked) {  // Only allow cutting when not lockedconst textToCopy = paragraph.innerText;
                 cutHistory.push(textToCopy);
 
                 const selection = window.getSelection();
@@ -464,7 +412,7 @@
             }
         }
 
-        function undoLastCut() {
+        functionundoLastCut() {
             if (cutHistory.length > 0) {
                 const lastCutText = cutHistory.pop();
 
@@ -487,7 +435,7 @@
             }
         }
 
-        function cleanupSpaces() {
+        functioncleanupSpaces() {
             const outputContainer = document.getElementById('output');
             const paragraphs = outputContainer.querySelectorAll('p, div');
             paragraphs.forEach(paragraph => {
@@ -495,9 +443,10 @@
                     paragraph.remove();
                 }
             });
+            outputContainer.innerHTML = outputContainer.innerHTML.replace(/<br\s*\/?>\s*<br\s*\/?>/g, '<br><br>');
         }
 
-        function handleCursorMovement(event) {
+        functionhandleCursorMovement(event) {
             const selection = window.getSelection();
             if (selection.rangeCount > 0) {
                 const range = selection.getRangeAt(0);
@@ -516,14 +465,14 @@
             }
         }
 
-        function handleMouseClick(event) {
+        functionhandleMouseClick(event) {
             const cutOption = document.querySelector('input[name="cutOption"]:checked').value;
             if (cutOption === 'mouse') {
                 handleCursorMovement(event);
             }
         }
 
-        function startMonitoring() {
+        functionstartMonitoring() {
             const cutOption = document.querySelector('input[name="cutOption"]:checked').value;
             if (cutOption === 'keyboard') {
                 document.addEventListener('keyup', handleCursorMovement);
@@ -532,27 +481,27 @@
             }
         }
 
-        function updateFont() {
+        functionupdateFont() {
             const fontStyle = document.getElementById('fontStyle').value;
             const fontSize = document.getElementById('fontSize').value;
             document.getElementById('output').style.fontFamily = fontStyle;
             document.getElementById('output').style.fontSize = `${fontSize}px`;
         }
 
-        function toggleLock() {
+        functiontoggleLock() {
             const lockIcon = document.querySelector('.lock-icon');
             isLocked = !isLocked;
 
             if (isLocked) {
                 lockIcon.innerText = '🔓';
-                document.getElementById('output').contentEditable = 'false';
+                document.body.classList.add('locked');
             } else {
                 lockIcon.innerText = '🔒';
-                document.getElementById('output').contentEditable = 'true';
+                document.body.classList.remove('locked');
             }
         }
 
-        function toggleBox(boxId) {
+        functiontoggleBox(boxId) {
             const box = document.getElementById(boxId);
             const toggleSymbol = document.getElementById(boxId + 'Toggle');
 
@@ -565,7 +514,7 @@
             }
         }
 
-        function login() {
+        functionlogin() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
@@ -598,11 +547,11 @@
             option.addEventListener('change', startMonitoring);
         });
 
-        function checkDailyReset() {
-            const now = new Date();
+        functioncheckDailyReset() {
+            const now = newDate();
             const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
             if (lastCutTime) {
-                const lastCutDate = new Date(parseInt(lastCutTime, 10));
+                const lastCutDate = newDate(parseInt(lastCutTime, 10));
                 if (lastCutDate.toDateString() !== now.toDateString()) {
                     dailyAdCount = 0;
                     localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
@@ -611,5 +560,4 @@
         }
 
         setInterval(checkDailyReset, 60000);
-    </script>
-</body>
+    </script></body></html>
