@@ -1,4 +1,4 @@
-<htmllang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Advertisements-PPH</title><style>body {
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Advertisements-PPH</title><style>body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-color: #f4f4f4;
             padding: 20px;
@@ -49,7 +49,8 @@
             padding: 5px;
             border-radius: 50%;
             box-shadow: 02px4pxrgba(0, 0, 0, 0.1);
-            margin-top: 10px; /* Adjust as needed */display: none; /* Initially hidden */
+            margin-top: 10px;
+            display: none;
         }
 
         .locked {
