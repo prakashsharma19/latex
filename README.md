@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -263,7 +262,7 @@
     </div>
 
     <div class="top-controls" style="display:none;">
-        <div id="remainingTime">Remaining Time: <span id="time"></span>
+        <div id="remainingTime">File completed by: <span id="time"></span>
             <div class="hourglass"></div>
         </div>
         <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
@@ -271,7 +270,7 @@
     </div>
 
     <div id="adCount" style="display:none;">Total Advertisements: 0</div>
-    <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
+    <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
     <div id="countryCount" style="display:none;"></div>
 
     <div id="output" class="text-container" style="display:none;" contenteditable="true">
@@ -279,7 +278,7 @@
     </div>
 
     <div id="credits">
-        This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
+        This tool is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
     </div>
 
     <script>
