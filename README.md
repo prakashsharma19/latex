@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -39,6 +38,7 @@
             white-space: pre-wrap;
             position: relative;
             margin-top: 20px;
+            z-index: 2;
         }
 
         .text-container p {
@@ -203,6 +203,36 @@
             justify-content: space-between;
             align-items: center;
         }
+
+        .blurred {
+            filter: blur(5px);
+            pointer-events: none;
+        }
+
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 3;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2;
+        }
     </style>
 </head>
 
@@ -273,11 +303,15 @@
     <div id="dailyAdCount" style="display:none;">Total Ads Today: 0</div>
     <div id="countryCount" style="display:none;"></div>
 
-    <div id="output" class="text-container" style="display:none;" contenteditable="true"></div>
+    <div id="output" class="text-container" style="display:none;" contenteditable="true">
+        <p id="cursorStart">Place your cursor here</p>
+    </div>
 
     <div id="credits">
         This page is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
     </div>
+
+    <div id="overlay" class="overlay" style="display: none;"></div>
 
     <script>
         const countryList = [
@@ -407,7 +441,7 @@
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split('\n\n');
             const outputContainer = document.getElementById('output');
-            outputContainer.innerHTML = '';
+            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
@@ -530,7 +564,7 @@
         }
 
         function startMonitoring() {
-            const cutOption = document.querySelector('input[name="cutOption"]:checked').value;
+            const cutOption = document.querySelector('input[name="cutOption"]:checked").value;
             if (cutOption === 'keyboard') {
                 document.addEventListener('keyup', handleCursorMovement);
             } else {
@@ -547,16 +581,22 @@
 
         function toggleLock() {
             const lockButton = document.getElementById('lockButton');
+            const outputContainer = document.getElementById('output');
+            const overlay = document.getElementById('overlay');
             isLocked = !isLocked;
 
             if (isLocked) {
                 lockButton.innerHTML = '🔓 Unlock';
-                document.body.style.pointerEvents = 'none';
-                document.getElementById('output').style.pointerEvents = 'auto';
-                document.getElementById('undoButton').style.pointerEvents = 'auto';
+                document.body.classList.add('blurred');
+                outputContainer.classList.add('popup');
+                overlay.style.display = 'block';
+                document.getElementById('undoButton').style.zIndex = '3';
+                lockButton.style.zIndex = '3';
             } else {
                 lockButton.innerHTML = '🔒 Lock';
-                document.body.style.pointerEvents = 'auto';
+                document.body.classList.remove('blurred');
+                outputContainer.classList.remove('popup');
+                overlay.style.display = 'none';
             }
         }
 
