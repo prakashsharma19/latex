@@ -212,7 +212,23 @@
             width: 150px;
         }
 
-        #time {
+        #currentTime {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: right;
+        }
+
+        #remainingTimeText {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: right;
+        }
+
+        .reminder-heading {
             font-size: 16px;
             font-weight: bold;
             color: #2c3e50;
@@ -280,6 +296,14 @@
             margin-top: 10px;
             font-size: 16px;
         }
+
+        .reminder-note {
+            font-style: italic;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 5px;
+            color: #333;
+        }
     </style>
 </head>
 
@@ -339,7 +363,7 @@
     </div>
 
     <div class="top-controls" style="display:none;">
-        <div id="remainingTime">File completed by: <span id="time"></span>
+        <div id="remainingTime">File completed by: <span id="remainingTimeText"></span>
             <div class="hourglass"></div>
         </div>
         <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
@@ -355,7 +379,8 @@
     </div>
 
     <div class="right-content">
-        <div id="time"></div>
+        <div id="currentTime"></div>
+        <div class="reminder-heading">Ad Slots:</div>
         <ul class="reminder-slots">
             <li data-time="09:00">9:00-9:30 AM</li>
             <li data-time="10:35">10:35-10:45 AM</li>
@@ -365,6 +390,7 @@
             <li data-time="15:40">3:40-3:45 PM</li>
             <li data-time="16:50">4:50-5:00 PM</li>
         </ul>
+        <div class="reminder-note">(Select your slots to get reminder)</div>
     </div>
 
     <div id="reminderPopup" class="popup">
@@ -497,7 +523,7 @@
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
 
-            document.getElementById('time').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+            document.getElementById('remainingTimeText').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
         }
 
         function processText() {
@@ -529,7 +555,7 @@
                     saveText();
                     document.getElementById('lockButton').style.display = 'inline-block';
 
-                    // Move entries with 'Russia' to the end
+                    // Move entries with 'Russia' to the end, followed by problem entries
                     moveEntriesToEnd('Russia', outputContainer);
                 }
             }
@@ -772,7 +798,7 @@
             const hours = now.getHours().toString().padStart(2, '0');
             const minutes = now.getMinutes().toString().padStart(2, '0');
             const seconds = now.getSeconds().toString().padStart(2, '0');
-            document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
+            document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
         }
 
         // Update time every second
