@@ -648,10 +648,11 @@
         outputContainer.appendChild(paragraph);
     });
 
-    paragraphsWithKeyword.forEach(paragraph => {
-        outputContainer.appendChild(paragraph);
-    });
-
+    paragraphsWithProblems.forEach(paragraph => {
+            outputContainer.appendChild(paragraph);
+        });
+    }
+}
     if (paragraphsWithProblems.length > 0) {
         const problemHeading = document.createElement('p');
         problemHeading.className = 'problem-heading';
