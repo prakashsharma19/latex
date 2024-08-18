@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -26,14 +27,17 @@
         .left-content {
             flex: 1;
             margin-right: 20px;
+            position: relative;
         }
 
         .right-content {
             width: 250px;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
-            margin-top: 20px;
+            align-items: flex-end;
+            position: absolute;
+            top: 20px;
+            right: 0;
         }
 
         .text-container {
@@ -48,34 +52,36 @@
         }
 
         #time {
-            font-size: 24px;
+            font-size: 16px;
             font-weight: bold;
             color: #2c3e50;
             text-align: right;
-            width: 100%;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         .reminder-slots {
             list-style-type: none;
             padding: 0;
+            margin: 0;
             width: 100%;
         }
 
         .reminder-slots li {
-            background-color: #1171ba;
-            color: white;
-            padding: 10px;
+            background-color: #d3eaf7;
+            color: #333;
+            padding: 5px 10px;
             border-radius: 5px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             cursor: pointer;
             text-align: center;
             transition: background-color 0.3s;
+            font-size: 14px;
         }
 
         .reminder-slots li:hover,
         .reminder-slots li.selected {
-            background-color: #0e619f;
+            background-color: #1171ba;
+            color: white;
         }
 
         .popup {
@@ -204,8 +210,8 @@
 
         #countryCount {
             position: absolute;
-            left: 20px;
-            top: 150px;
+            left: 0;
+            top: 100px;
             font-size: 16px;
             font-weight: bold;
             line-height: 1.5;
@@ -276,8 +282,9 @@
 
         .top-controls {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -339,7 +346,7 @@
         </div>
 
         <div class="top-controls" style="display:none;">
-            <div id="remainingTime">File completed by: <span id="time"></span>
+            <div id="remainingTime">File completed by: <span id="remainingTimeText"></span>
                 <div class="hourglass"></div>
             </div>
             <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
@@ -498,7 +505,7 @@
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
 
-            document.getElementById('time').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+            document.getElementById('remainingTimeText').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
         }
 
         function processText() {
