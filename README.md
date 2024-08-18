@@ -251,7 +251,7 @@
         }
 
         #remainingTimeText {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             color: #2c3e50;
             margin-bottom: 10px;
@@ -421,8 +421,8 @@
     </div>
 
     <div id="adCount" style="display:none;">Total Advertisements: 0</div>
-    <div class="progress-bar" id="progressBar"></div>
     <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
+    <div class="progress-bar" id="progressBar"></div>
     <div id="countryCount" style="display:none;"></div>
 
     <div id="output" class="text-container" style="display:none;" contenteditable="true">
@@ -489,6 +489,7 @@
                 localStorage.setItem(`savedOutput_${currentUser}`, outputText);
                 localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
                 localStorage.setItem(`lastCutTime_${currentUser}`, Date.now());
+                saveSelectedReminders();
             }
         }
 
@@ -515,6 +516,7 @@
                         dailyAdCount = parseInt(savedDailyAdCount, 10);
                     }
                 }
+                loadSelectedReminders();
                 updateCounts();
             }
         }
@@ -563,19 +565,19 @@
             document.getElementById('countryCount').innerHTML = countryCountText.trim();
 
             updateRemainingTime();
-            updateProgressBar(adCount);
+            updateProgressBar(dailyAdCount);
         }
 
-        function updateProgressBar(adCount) {
+        function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
             const maxCount = 1200; // Number of entries for the bar to be fully filled
 
-            const percentage = Math.min(adCount / maxCount, 1) * 100;
+            const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
 
             // RGB transition from red to green
-            const red = Math.max(255 - Math.floor((adCount / maxCount) * 255), 0);
-            const green = Math.min(Math.floor((adCount / maxCount) * 255), 255);
+            const red = Math.max(255 - Math.floor((dailyAdCount / maxCount) * 255), 0);
+            const green = Math.min(Math.floor((dailyAdCount / maxCount) * 255), 255);
             progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
         }
 
@@ -894,12 +896,33 @@
             clearInterval(blinkInterval);
         }
 
-        // Handle slot selection
+        // Handle slot selection and saving
         document.querySelectorAll('.reminder-slots li').forEach(slot => {
             slot.addEventListener('click', () => {
                 slot.classList.toggle('selected');
+                saveSelectedReminders();
             });
         });
+
+        function saveSelectedReminders() {
+            const selectedSlots = [];
+            document.querySelectorAll('.reminder-slots li.selected').forEach(slot => {
+                selectedSlots.push(slot.dataset.time);
+            });
+            localStorage.setItem(`selectedReminders_${currentUser}`, JSON.stringify(selectedSlots));
+        }
+
+        function loadSelectedReminders() {
+            const savedSlots = localStorage.getItem(`selectedReminders_${currentUser}`);
+            if (savedSlots) {
+                const selectedSlots = JSON.parse(savedSlots);
+                document.querySelectorAll('.reminder-slots li').forEach(slot => {
+                    if (selectedSlots.includes(slot.dataset.time)) {
+                        slot.classList.add('selected');
+                    }
+                });
+            }
+        }
 
         // Blink tab title when minimized
         let originalTitle = document.title;
