@@ -15,6 +15,7 @@
         }
 
         h1 {
+            display: none; /* Hide the latex heading */
             color: #1171ba;
             text-align: center;
             margin-bottom: 30px;
@@ -28,6 +29,28 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .font-controls select,
+        .font-controls input {
+            margin-left: 10px;
+        }
+
+        .fullscreen-button {
+            background-color: #1171ba;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+
+        .fullscreen-button:hover {
+            background-color: #0e619f;
         }
 
         .text-container {
@@ -144,7 +167,7 @@
 
         #credits {
             position: absolute;
-            bottom: 20px;
+            top: 20px;
             right: 20px;
             font-size: 16px;
             color: #34495e;
@@ -240,6 +263,7 @@
             list-style-type: none;
             padding: 0;
             margin: 0;
+            text-align: right;
         }
 
         .reminder-slots li {
@@ -249,7 +273,6 @@
             border-radius: 5px;
             margin-bottom: 5px;
             cursor: pointer;
-            text-align: center;
             font-size: 12px;
             transition: background-color 0.3s;
         }
@@ -300,7 +323,7 @@
         .reminder-note {
             font-style: italic;
             font-size: 12px;
-            text-align: center;
+            text-align: right;
             margin-top: 5px;
             color: #333;
         }
@@ -308,7 +331,10 @@
 </head>
 
 <body>
-    <h1>Advertisements-PPH</h1>
+    <!-- Credits in upper-right corner -->
+    <div id="credits">
+        This tool is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
+    </div>
 
     <!-- Option to choose cut method -->
     <div class="option-buttons">
@@ -339,6 +365,7 @@
         </select>
         <label for="fontSize">Font Size:</label>
         <input type="number" id="fontSize" value="16" onchange="updateFont()">px
+        <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
     </div>
 
     <div class="input-container" style="display:none;">
@@ -396,10 +423,6 @@
     <div id="reminderPopup" class="popup">
         <p>Send Ads</p>
         <button onclick="dismissPopup()">OK</button>
-    </div>
-
-    <div id="credits">
-        This tool is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
     </div>
 
     <script>
@@ -849,6 +872,17 @@
                 document.title = isOriginalTitle ? '🔔 Reminder: Send Ads!' : originalTitle;
                 isOriginalTitle = !isOriginalTitle;
             }, 1000);
+        }
+
+        // Toggle Fullscreen Mode
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                document.querySelector('.fullscreen-button').textContent = 'Normal Screen';
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
+                document.querySelector('.fullscreen-button').textContent = 'Full Screen';
+            }
         }
     </script>
 </body>
