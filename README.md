@@ -1,5 +1,3 @@
-<html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +13,7 @@
         }
 
         h1 {
-            display: none; /* Hide the latex heading */
+            display: block; /* Display the heading */
             color: #1171ba;
             text-align: center;
             margin-bottom: 30px;
@@ -84,8 +82,7 @@
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
-            transition: background-color 0.3s, transform 0.1s ease;
-            margin-top: 10px;
+            /* Remove the transition effect */
         }
 
         .copy-button:hover,
@@ -349,6 +346,25 @@
         .fade-out.hidden {
             opacity: 0;
         }
+
+        /* Progress Bar */
+        #progressBarContainer {
+            position: relative;
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        #progressBar {
+            position: absolute;
+            height: 100%;
+            width: 0;
+            background-color: #ff0000;
+            border-radius: 5px;
+            transition: width 0.3s ease-in-out;
+        }
     </style>
 </head>
 
@@ -369,6 +385,8 @@
             Operate by Mouse (Left Button)
         </label>
     </div>
+
+    <h1>Advertisements-PPH</h1>
 
     <div class="login-container">
         <input type="text" id="username" placeholder="Enter your name">
@@ -420,7 +438,12 @@
     </div>
 
     <div id="adCount" style="display:none;">Total Advertisements: 0</div>
-    <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
+    <div id="dailyAdCount" style="display:none;">
+        Total Ads Sent Today: 0
+        <div id="progressBarContainer">
+            <div id="progressBar"></div>
+        </div>
+    </div>
     <div id="countryCount" style="display:none;"></div>
 
     <div id="output" class="text-container" style="display:none;" contenteditable="true">
@@ -448,29 +471,6 @@
     </div>
 
     <script>
-        const countryList = [
-            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
-            "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
-            "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
-            "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
-            "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
-            "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
-            "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
-            "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel",
-            "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos",
-            "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
-            "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
-            "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
-            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
-            "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania",
-            "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal",
-            "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea",
-            "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
-            "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
-            "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
-            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "Korea", "UAE"
-        ];
-
         let currentUser = null;
         let dailyAdCount = 0;
         let totalTimeInSeconds = 0;
@@ -487,6 +487,7 @@
                 localStorage.setItem(`savedOutput_${currentUser}`, outputText);
                 localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
                 localStorage.setItem(`lastCutTime_${currentUser}`, Date.now());
+                saveSelectedSlots();
             }
         }
 
@@ -513,6 +514,7 @@
                         dailyAdCount = parseInt(savedDailyAdCount, 10);
                     }
                 }
+                loadSelectedSlots();
                 updateCounts();
             }
         }
@@ -550,7 +552,9 @@
             const text = outputContainer.innerText;
             const adCount = countOccurrences(text, 'professor');
             document.getElementById('adCount').innerText = `Total Advertisements: ${adCount}`;
-            document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
+            document.getElementById('dailyAdCount').innerText = `Total Ads Sent Today: ${dailyAdCount}`;
+
+            updateProgressBar(dailyAdCount);
 
             const countryCounts = countCountryOccurrences(text);
             const sortedCountries = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]);
@@ -561,6 +565,19 @@
             document.getElementById('countryCount').innerHTML = countryCountText.trim();
 
             updateRemainingTime();
+        }
+
+        function updateProgressBar(dailyAdCount) {
+            const progressBar = document.getElementById('progressBar');
+            const maxAds = 1200;
+            const percentage = Math.min((dailyAdCount / maxAds) * 100, 100);
+            progressBar.style.width = `${percentage}%`;
+
+            if (dailyAdCount < 600) {
+                progressBar.style.backgroundColor = `rgb(${255}, ${255 * (dailyAdCount / 600)}, 0)`;
+            } else {
+                progressBar.style.backgroundColor = `rgb(${255 - 255 * ((dailyAdCount - 600) / 600)}, 255, 0)`;
+            }
         }
 
         function updateRemainingTime() {
@@ -885,8 +902,27 @@
         document.querySelectorAll('.reminder-slots li').forEach(slot => {
             slot.addEventListener('click', () => {
                 slot.classList.toggle('selected');
+                saveSelectedSlots();
             });
         });
+
+        function saveSelectedSlots() {
+            if (currentUser) {
+                const selectedSlots = Array.from(document.querySelectorAll('.reminder-slots li.selected')).map(slot => slot.dataset.time);
+                localStorage.setItem(`selectedSlots_${currentUser}`, JSON.stringify(selectedSlots));
+            }
+        }
+
+        function loadSelectedSlots() {
+            if (currentUser) {
+                const selectedSlots = JSON.parse(localStorage.getItem(`selectedSlots_${currentUser}`) || '[]');
+                document.querySelectorAll('.reminder-slots li').forEach(slot => {
+                    if (selectedSlots.includes(slot.dataset.time)) {
+                        slot.classList.add('selected');
+                    }
+                });
+            }
+        }
 
         // Blink tab title when minimized
         let originalTitle = document.title;
@@ -930,6 +966,29 @@
                 Notification.requestPermission();
             }
         });
+
+        const countryList = [
+            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
+            "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
+            "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
+            "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
+            "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
+            "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
+            "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+            "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel",
+            "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos",
+            "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
+            "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
+            "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
+            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
+            "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania",
+            "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal",
+            "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea",
+            "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
+            "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+            "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
+            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "Korea", "UAE"
+        ];
     </script>
 </body>
 
