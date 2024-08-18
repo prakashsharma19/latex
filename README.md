@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -12,8 +11,7 @@
             padding: 20px;
             margin: 0;
             color: #333;
-            display: flex;
-            justify-content: space-between;
+            position: relative;
         }
 
         h1 {
@@ -21,23 +19,15 @@
             text-align: center;
             margin-bottom: 30px;
             font-size: 28px;
-            width: 100%;
         }
 
-        .left-content {
-            flex: 1;
-            margin-right: 20px;
-            position: relative;
-        }
-
-        .right-content {
-            width: 250px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            position: absolute;
-            top: 20px;
-            right: 0;
+        .font-controls,
+        .login-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
 
         .text-container {
@@ -49,78 +39,7 @@
             white-space: pre-wrap;
             position: relative;
             margin-top: 20px;
-        }
-
-        #time {
-            font-size: 16px;
-            font-weight: bold;
-            color: #2c3e50;
-            text-align: right;
-            margin-bottom: 10px;
-        }
-
-        .reminder-slots {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            width: 100%;
-        }
-
-        .reminder-slots li {
-            background-color: #d3eaf7;
-            color: #333;
-            padding: 5px 10px;
-            border-radius: 5px;
-            margin-bottom: 5px;
-            cursor: pointer;
-            text-align: center;
-            transition: background-color 0.3s;
-            font-size: 14px;
-        }
-
-        .reminder-slots li:hover,
-        .reminder-slots li.selected {
-            background-color: #1171ba;
-            color: white;
-        }
-
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 20px;
-            background-color: #ffffff;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            text-align: center;
-        }
-
-        .popup button {
-            background-color: #1171ba;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            margin-top: 10px;
-        }
-
-        .popup button:hover {
-            background-color: #0e619f;
-        }
-
-        .font-controls,
-        .login-container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            z-index: 2;
         }
 
         .text-container p {
@@ -210,8 +129,8 @@
 
         #countryCount {
             position: absolute;
-            left: 0;
-            top: 100px;
+            left: 20px;
+            top: 250px;
             font-size: 16px;
             font-weight: bold;
             line-height: 1.5;
@@ -225,7 +144,7 @@
 
         #credits {
             position: absolute;
-            top: 20px;
+            bottom: 20px;
             right: 20px;
             font-size: 16px;
             color: #34495e;
@@ -282,84 +201,157 @@
 
         .top-controls {
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
             align-items: center;
-            margin-top: 15px;
+        }
+
+        .right-content {
+            position: absolute;
+            top: 250px;
+            right: 20px;
+            width: 150px;
+        }
+
+        #time {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: right;
+        }
+
+        .reminder-slots {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .reminder-slots li {
+            background-color: #d3eaf7;
+            color: #333;
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 12px;
+            transition: background-color 0.3s;
+        }
+
+        .reminder-slots li:hover,
+        .reminder-slots li.selected {
+            background-color: #1171ba;
+            color: white;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .popup button {
+            background-color: #1171ba;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .popup button:hover {
+            background-color: #0e619f;
+        }
+
+        .problem-heading {
+            color: #e74c3c;
+            font-style: italic;
+            margin-top: 10px;
+            font-size: 16px;
         }
     </style>
 </head>
 
 <body>
-    <div class="left-content">
-        <h1>Advertisements-PPH</h1>
+    <h1>Advertisements-PPH</h1>
 
-        <!-- Option to choose cut method -->
-        <div class="option-buttons">
-            <label>
-                <input type="radio" name="cutOption" value="keyboard" checked>
-                Operate by Keyboard (Down Arrow Key)
-            </label>
-            <label>
-                <input type="radio" name="cutOption" value="mouse">
-                Operate by Mouse (Left Button)
-            </label>
+    <!-- Option to choose cut method -->
+    <div class="option-buttons">
+        <label>
+            <input type="radio" name="cutOption" value="keyboard" checked>
+            Operate by Keyboard (Down Arrow Key)
+        </label>
+        <label>
+            <input type="radio" name="cutOption" value="mouse">
+            Operate by Mouse (Left Button)
+        </label>
+    </div>
+
+    <div class="login-container">
+        <input type="text" id="username" placeholder="Enter your name">
+        <input type="password" id="password" placeholder="Enter your password">
+        <button id="loginButton" onclick="login()">Login</button>
+    </div>
+
+    <div class="font-controls" style="display:none;">
+        <label for="fontStyle">Font Style:</label>
+        <select id="fontStyle" onchange="updateFont()">
+            <option value="Arial">Arial</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Calibri Light">Calibri Light</option>
+        </select>
+        <label for="fontSize">Font Size:</label>
+        <input type="number" id="fontSize" value="16" onchange="updateFont()">px
+    </div>
+
+    <div class="input-container" style="display:none;">
+        <div class="container-header" onclick="toggleBox('pasteBox')">
+            Paste your text here
+            <span id="pasteBoxToggle">[+]</span>
         </div>
-
-        <div class="login-container">
-            <input type="text" id="username" placeholder="Enter your name">
-            <input type="password" id="password" placeholder="Enter your password">
-            <button id="loginButton" onclick="login()">Login</button>
+        <div id="pasteBox" class="input-boxes">
+            <textarea id="inputText" rows="5" placeholder="Paste your text here..."></textarea>
+            <button id="okButton" onclick="processText()">OK</button>
         </div>
+    </div>
 
-        <div class="font-controls" style="display:none;">
-            <label for="fontStyle">Font Style:</label>
-            <select id="fontStyle" onchange="updateFont()">
-                <option value="Arial">Arial</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Calibri Light">Calibri Light</option>
-            </select>
-            <label for="fontSize">Font Size:</label>
-            <input type="number" id="fontSize" value="16" onchange="updateFont()">px
+    <div class="input-container" style="display:none;">
+        <div class="container-header" onclick="toggleBox('roughBox')">
+            Rough Work
+            <span id="roughBoxToggle">[+]</span>
         </div>
-
-        <div class="input-container" style="display:none;">
-            <div class="container-header" onclick="toggleBox('pasteBox')">
-                Paste your text here
-                <span id="pasteBoxToggle">[+]</span>
-            </div>
-            <div id="pasteBox" class="input-boxes">
-                <textarea id="inputText" rows="5" placeholder="Paste your text here..."></textarea>
-                <button id="okButton" onclick="processText()">OK</button>
-            </div>
+        <div id="roughBox" class="input-boxes rough-container">
+            <textarea id="roughText" rows="5" placeholder="Rough Work..."></textarea>
         </div>
+    </div>
 
-        <div class="input-container" style="display:none;">
-            <div class="container-header" onclick="toggleBox('roughBox')">
-                Rough Work
-                <span id="roughBoxToggle">[+]</span>
-            </div>
-            <div id="roughBox" class="input-boxes rough-container">
-                <textarea id="roughText" rows="5" placeholder="Rough Work..."></textarea>
-            </div>
+    <div class="top-controls" style="display:none;">
+        <div id="remainingTime">File completed by: <span id="time"></span>
+            <div class="hourglass"></div>
         </div>
+        <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
+        <button id="lockButton" style="display:none;" onclick="toggleLock()">🔒 Lock</button>
+    </div>
 
-        <div class="top-controls" style="display:none;">
-            <div id="remainingTime">File completed by: <span id="remainingTimeText"></span>
-                <div class="hourglass"></div>
-            </div>
-            <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
-            <button id="lockButton" style="display:none;" onclick="toggleLock()">🔒 Lock</button>
-        </div>
+    <div id="adCount" style="display:none;">Total Advertisements: 0</div>
+    <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
+    <div id="countryCount" style="display:none;"></div>
 
-        <div id="adCount" style="display:none;">Total Advertisements: 0</div>
-        <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
-        <div id="countryCount" style="display:none;"></div>
-
-        <div id="output" class="text-container" style="display:none;" contenteditable="true">
-            <p id="cursorStart">Place your cursor here</p>
-        </div>
+    <div id="output" class="text-container" style="display:none;" contenteditable="true">
+        <p id="cursorStart">Place your cursor here</p>
     </div>
 
     <div class="right-content">
@@ -505,7 +497,7 @@
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
 
-            document.getElementById('remainingTimeText').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+            document.getElementById('time').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
         }
 
         function processText() {
@@ -538,10 +530,49 @@
                     document.getElementById('lockButton').style.display = 'inline-block';
 
                     // Move entries with 'Russia' to the end
-                    moveCountryEntriesToEnd('Russia');
+                    moveEntriesToEnd('Russia', outputContainer);
                 }
             }
             requestAnimationFrame(processChunk);
+        }
+
+        function moveEntriesToEnd(keyword, outputContainer) {
+            const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
+
+            const paragraphsWithKeyword = [];
+            const paragraphsWithProblems = [];
+            const otherParagraphs = [];
+
+            paragraphs.forEach(paragraph => {
+                const text = paragraph.innerText;
+                if (text.includes(keyword)) {
+                    paragraphsWithKeyword.push(paragraph);
+                } else if (text.includes('?') || !text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) {
+                    paragraphsWithProblems.push(paragraph);
+                } else {
+                    otherParagraphs.push(paragraph);
+                }
+            });
+
+            outputContainer.innerHTML = '';
+            otherParagraphs.forEach(paragraph => {
+                outputContainer.appendChild(paragraph);
+            });
+
+            paragraphsWithKeyword.forEach(paragraph => {
+                outputContainer.appendChild(paragraph);
+            });
+
+            if (paragraphsWithProblems.length > 0) {
+                const problemHeading = document.createElement('p');
+                problemHeading.className = 'problem-heading';
+                problemHeading.innerText = 'Check before sent';
+                outputContainer.appendChild(problemHeading);
+
+                paragraphsWithProblems.forEach(paragraph => {
+                    outputContainer.appendChild(paragraph);
+                });
+            }
         }
 
         function cutParagraph(paragraph) {
@@ -734,36 +765,6 @@
         }
 
         setInterval(checkDailyReset, 60000);
-
-        function moveCountryEntriesToEnd(countryName) {
-            const outputContainer = document.getElementById('output');
-            const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
-
-            // Separate the paragraphs containing the specific country
-            const paragraphsWithCountry = [];
-            const otherParagraphs = [];
-
-            paragraphs.forEach(paragraph => {
-                if (paragraph.innerText.includes(countryName)) {
-                    paragraphsWithCountry.push(paragraph);
-                } else {
-                    otherParagraphs.push(paragraph);
-                }
-            });
-
-            // Clear the current output
-            outputContainer.innerHTML = '';
-
-            // Append paragraphs without the specific country first
-            otherParagraphs.forEach(paragraph => {
-                outputContainer.appendChild(paragraph);
-            });
-
-            // Then append paragraphs containing the specific country
-            paragraphsWithCountry.forEach(paragraph => {
-                outputContainer.appendChild(paragraph);
-            });
-        }
 
         // Function to display the current time
         function updateTime() {
