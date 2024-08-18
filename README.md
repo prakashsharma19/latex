@@ -84,7 +84,7 @@
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.1s ease;
             margin-top: 10px;
         }
 
@@ -94,6 +94,14 @@
         #undoButton:hover,
         #lockButton:hover {
             background-color: #0e619f;
+        }
+
+        .copy-button:active,
+        #okButton:active,
+        #loginButton:active,
+        #undoButton:active,
+        #lockButton:active {
+            transform: scale(0.95);
         }
 
         .input-container {
@@ -305,12 +313,16 @@
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.1s ease;
             margin-top: 10px;
         }
 
         .popup button:hover {
             background-color: #0e619f;
+        }
+
+        .popup button:active {
+            transform: scale(0.95);
         }
 
         .problem-heading {
@@ -326,6 +338,16 @@
             text-align: right;
             margin-top: 5px;
             color: #333;
+        }
+
+        /* Fade-out transition */
+        .fade-out {
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .fade-out.hidden {
+            opacity: 0;
         }
     </style>
 </head>
@@ -603,7 +625,7 @@
                 }
             });
 
-            outputContainer.innerHTML = '';
+            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
             otherParagraphs.forEach(paragraph => {
                 outputContainer.appendChild(paragraph);
             });
@@ -625,37 +647,40 @@
         }
 
         function cutParagraph(paragraph) {
-            const textToCopy = paragraph.innerText;
-            cutHistory.push(textToCopy);
+            paragraph.classList.add('fade-out');
+            setTimeout(() => {
+                const textToCopy = paragraph.innerText;
+                cutHistory.push(textToCopy);
 
-            const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNodeContents(paragraph);
-            selection.removeAllRanges();
-            selection.addRange(range);
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.selectNodeContents(paragraph);
+                selection.removeAllRanges();
+                selection.addRange(range);
 
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.style.position = 'fixed';
-            tempTextarea.style.opacity = '0';
-            tempTextarea.value = textToCopy;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
+                const tempTextarea = document.createElement('textarea');
+                tempTextarea.style.position = 'fixed';
+                tempTextarea.style.opacity = '0';
+                tempTextarea.value = textToCopy;
+                document.body.appendChild(tempTextarea);
+                tempTextarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTextarea);
 
-            paragraph.remove();
-            cleanupSpaces();
+                paragraph.remove();
+                cleanupSpaces();
 
-            const inputText = document.getElementById('inputText').value;
-            const updatedText = inputText.replace(textToCopy, '').trim();
-            document.getElementById('inputText').value = updatedText;
+                const inputText = document.getElementById('inputText').value;
+                const updatedText = inputText.replace(textToCopy, '').trim();
+                document.getElementById('inputText').value = updatedText;
 
-            dailyAdCount++;
+                dailyAdCount++;
 
-            updateCounts();
-            saveText();
+                updateCounts();
+                saveText();
 
-            document.getElementById('undoButton').style.display = 'block';
+                document.getElementById('undoButton').style.display = 'block';
+            }, 500); // Delay to allow fade-out effect
         }
 
         function undoLastCut() {
@@ -835,6 +860,7 @@
             document.querySelectorAll('.reminder-slots li.selected').forEach(slot => {
                 if (slot.dataset.time === currentTime) {
                     showPopup();
+                    showNotification('Ad Reminder', `It's time to send ads for ${slot.dataset.time}`);
                 }
             });
         }
@@ -884,6 +910,26 @@
                 document.querySelector('.fullscreen-button').textContent = 'Full Screen';
             }
         }
+
+        // Show Desktop Notification
+        function showNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                new Notification(title, { body });
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification(title, { body });
+                    }
+                });
+            }
+        }
+
+        // Request Notification permission on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (Notification.permission !== 'granted') {
+                Notification.requestPermission();
+            }
+        });
     </script>
 </body>
 
