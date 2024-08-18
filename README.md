@@ -626,41 +626,43 @@
         }
 
         function moveEntriesToEnd(keyword, outputContainer) {
-            const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
+    const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
 
-            const paragraphsWithKeyword = [];
-            const paragraphsWithProblems = [];
-            const otherParagraphs = [];
+    const paragraphsWithKeyword = [];
+    const paragraphsWithProblems = [];
+    const otherParagraphs = [];
 
-            paragraphs.forEach(paragraph => {
-                const text = paragraph.innerText;
-                if (text.includes(keyword)) {
-                    paragraphsWithKeyword.push(paragraph);
-                } else if (text.includes('?') || !text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) {
-                    paragraphsWithProblems.push(paragraph);
-                } else {
-                    otherParagraphs.push(paragraph);
-                }
-            });
+    paragraphs.forEach(paragraph => {
+        const text = paragraph.innerText;
+        if (text.includes(keyword)) {
+            paragraphsWithKeyword.push(paragraph);
+        } else if (text.includes('?') || !text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) {
+            paragraphsWithProblems.push(paragraph);
+        } else {
+            otherParagraphs.push(paragraph);
+        }
+    });
 
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
-            otherParagraphs.forEach(paragraph => {
-                outputContainer.appendChild(paragraph);
-            });
+    outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+    otherParagraphs.forEach(paragraph => {
+        outputContainer.appendChild(paragraph);
+    });
 
-            paragraphsWithKeyword.forEach(paragraph => {
-                outputContainer.appendChild(paragraph);
-            });
+    paragraphsWithKeyword.forEach(paragraph => {
+        outputContainer.appendChild(paragraph);
+    });
 
-            if (paragraphsWithProblems.length > 0) {
-                const problemHeading = document.createElement('p');
-                problemHeading.className = 'problem-heading';
-                problemHeading.innerText = 'Check before sent';
-                outputContainer.appendChild(problemHeading);
+    if (paragraphsWithProblems.length > 0) {
+        const problemHeading = document.createElement('p');
+        problemHeading.className = 'problem-heading';
+        problemHeading.innerText = 'Check before sent';
+        outputContainer.appendChild(problemHeading);
 
-                paragraphsWithProblems.forEach(paragraph => {
-                    outputContainer.appendChild(paragraph);
-                });
+        paragraphsWithProblems.forEach(paragraph => {
+            outputContainer.appendChild(paragraph);
+        });
+    }
+}
             }
         }
 
