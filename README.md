@@ -168,7 +168,7 @@
 
         #cursorStart {
             font-weight: bold;
-            color: #e74c3c;
+            color: #3498db; /* Cool blue color */
         }
 
         #credits {
@@ -669,9 +669,10 @@
 
             paragraphs.forEach(paragraph => {
                 const text = paragraph.innerText;
-                if (text.includes(keyword) && !includeErrors) {
+                const hasError = text.includes('?') || text.includes('Missing email') || text.includes('Missing country');
+                if (text.includes(keyword) && !hasError) {
                     paragraphsWithKeyword.push(paragraph);
-                } else if (includeErrors && (text.includes('?') || text.includes('Missing email') || text.includes('Missing country'))) {
+                } else if (includeErrors && hasError) {
                     paragraphsWithProblems.push(paragraph);
                 } else {
                     otherParagraphs.push(paragraph);
