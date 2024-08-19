@@ -192,6 +192,7 @@
         .error {
             color: #e74c3c;
             font-weight: bold;
+            font-style: italic;
         }
 
         .login-container input {
@@ -296,24 +297,26 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 20px;
+            padding: 30px;
             background-color: #ffffff;
             border: 1px solid #e0e0e0;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             text-align: center;
+            font-size: 24px;
+            font-weight: bold;
         }
 
         .popup button {
             background-color: #1171ba;
             border: none;
             color: white;
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 15px 30px;
+            font-size: 18px;
             cursor: pointer;
             border-radius: 5px;
             transition: background-color 0.3s, transform 0.1s ease;
-            margin-top: 10px;
+            margin-top: 20px;
         }
 
         .popup button:hover {
@@ -322,6 +325,12 @@
 
         .popup button:active {
             transform: scale(0.95);
+        }
+
+        .popup img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 20px;
         }
 
         .problem-heading {
@@ -445,6 +454,7 @@
     </div>
 
     <div id="reminderPopup" class="popup">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Alarm_bell.png/600px-Alarm_bell.png" alt="Bell">
         <p>Send Ads</p>
         <button onclick="dismissPopup()">OK</button>
     </div>
@@ -518,6 +528,7 @@
                 }
                 loadSelectedReminders();
                 updateCounts();
+                updateRemainingTime(); // Ensure remaining time is updated on login
             }
         }
 
@@ -546,7 +557,9 @@
         }
 
         function highlightErrors(text) {
-            return text.replace(/(\w+\?\w+)/g, '<span class="error">$1</span>');
+            return text.replace(/\?/g, '<span class="error">?</span>')
+                .replace(/Missing email/g, '<span class="error">Missing email</span>')
+                .replace(/Missing country/g, '<span class="error">Missing country</span>');
         }
 
         function updateCounts() {
@@ -582,7 +595,8 @@
         }
 
         function updateRemainingTime() {
-            const remainingTimeInSeconds = totalTimeInSeconds - (dailyAdCount * 8);
+            const remainingTimeInMinutes = dailyAdCount / 9;
+            const remainingTimeInSeconds = remainingTimeInMinutes * 60;
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
 
@@ -636,7 +650,7 @@
                 const text = paragraph.innerText;
                 if (text.includes(keyword)) {
                     paragraphsWithKeyword.push(paragraph);
-                } else if (text.includes('?') || !text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) {
+                } else if (text.includes('?') || text.includes('Missing email') || text.includes('Missing country')) {
                     paragraphsWithProblems.push(paragraph);
                 } else {
                     otherParagraphs.push(paragraph);
@@ -876,6 +890,7 @@
                 if (slot.dataset.time === currentTime) {
                     showPopup();
                     showNotification('Ad Reminder', `It's time to send ads for ${slot.dataset.time}`);
+                    blinkBrowserIcon(); // Blink browser icon for attention
                 }
             });
         }
@@ -955,6 +970,28 @@
                 Notification.requestPermission().then(permission => {
                     if (permission === 'granted') {
                         new Notification(title, { body });
+                    }
+                });
+            }
+        }
+
+        // Blink browser icon
+        function blinkBrowserIcon() {
+            if (document.hidden) {
+                const favicon = document.querySelector('link[rel="icon"]');
+                const originalIcon = favicon.href;
+                let isOriginalIcon = true;
+                const attentionIcon = 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Alarm_bell.png/600px-Alarm_bell.png';
+
+                const blinkFavicon = setInterval(() => {
+                    favicon.href = isOriginalIcon ? attentionIcon : originalIcon;
+                    isOriginalIcon = !isOriginalIcon;
+                }, 500);
+
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) {
+                        clearInterval(blinkFavicon);
+                        favicon.href = originalIcon;
                     }
                 });
             }
