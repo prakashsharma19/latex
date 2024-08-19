@@ -339,6 +339,7 @@
             font-style: italic;
             margin-top: 10px;
             font-size: 16px;
+            font-weight: bold;
         }
 
         .reminder-note {
@@ -455,7 +456,7 @@
     </div>
 
     <div id="reminderPopup" class="popup">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Alarm_bell.png/600px-Alarm_bell.png" alt="Bell">
+        <span style="font-size: 50px;">🔔</span>
         <p>Send Ads</p>
         <button onclick="dismissPopup()">OK</button>
     </div>
@@ -530,6 +531,8 @@
                 loadSelectedReminders();
                 updateCounts();
                 updateRemainingTime(); // Ensure remaining time is updated on login
+                ensureProblemHeading();
+                document.getElementById('lockButton').style.display = 'inline-block';
             }
         }
 
@@ -601,7 +604,8 @@
         }
 
         function updateRemainingTime() {
-            const remainingTimeInMinutes = dailyAdCount / 9;
+            const adCount = document.getElementById('adCount').innerText.split(' ')[2];
+            const remainingTimeInMinutes = adCount / 9; // Calculating based on total ads (9 ads/min)
             const remainingTimeInSeconds = remainingTimeInMinutes * 60;
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
@@ -640,9 +644,20 @@
 
                     // Move error entries last, including "Russia"
                     moveEntriesToEnd('Russia', outputContainer, true);
+                    ensureProblemHeading(); // Ensure problem heading is added
                 }
             }
             requestAnimationFrame(processChunk);
+        }
+
+        function ensureProblemHeading() {
+            const outputContainer = document.getElementById('output');
+            if (!document.querySelector('.problem-heading')) {
+                const problemHeading = document.createElement('p');
+                problemHeading.className = 'problem-heading';
+                problemHeading.innerText = 'Check before sent';
+                outputContainer.appendChild(problemHeading);
+            }
         }
 
         function moveEntriesToEnd(keyword, outputContainer, includeErrors = false) {
@@ -673,11 +688,7 @@
             });
 
             if (paragraphsWithProblems.length > 0) {
-                const problemHeading = document.createElement('p');
-                problemHeading.className = 'problem-heading';
-                problemHeading.innerText = 'Check before sent';
-                outputContainer.appendChild(problemHeading);
-
+                ensureProblemHeading();
                 paragraphsWithProblems.forEach(paragraph => {
                     outputContainer.appendChild(paragraph);
                 });
