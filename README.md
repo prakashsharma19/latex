@@ -65,8 +65,7 @@
         }
 
         .text-container p {
-            margin: 0;
-            padding-bottom: 10px;
+            margin: 0 0 10px;
             border-bottom: 1px solid #e0e0e0;
             line-height: 1.5;
         }
@@ -298,9 +297,11 @@
             left: 50%;
             transform: translate(-50%, -50%);
             padding: 30px;
-            background-color: #ffffff;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #2c3e50;
+            color: white;
+            border: 2px solid #e74c3c;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             z-index: 1000;
             text-align: center;
             font-size: 24px;
@@ -308,7 +309,7 @@
         }
 
         .popup button {
-            background-color: #1171ba;
+            background-color: #e74c3c;
             border: none;
             color: white;
             padding: 15px 30px;
@@ -320,7 +321,7 @@
         }
 
         .popup button:hover {
-            background-color: #0e619f;
+            background-color: #c0392b;
         }
 
         .popup button:active {
@@ -557,9 +558,14 @@
         }
 
         function highlightErrors(text) {
-            return text.replace(/\?/g, '<span class="error">?</span>')
-                .replace(/Missing email/g, '<span class="error">Missing email</span>')
-                .replace(/Missing country/g, '<span class="error">Missing country</span>');
+            let modifiedText = text.replace(/\?/g, '<span class="error">?</span>');
+            if (!text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/)) {
+                modifiedText += ' <span class="error">Missing email</span>';
+            }
+            if (!countryList.some(country => text.includes(country))) {
+                modifiedText += ' <span class="error">Missing country</span>';
+            }
+            return modifiedText;
         }
 
         function updateCounts() {
@@ -605,9 +611,9 @@
 
         function processText() {
             const inputText = document.getElementById('inputText').value;
-            const paragraphs = inputText.split('\n\n');
+            const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+            outputContainer.innerHTML = ''; // Clear existing content
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
@@ -615,7 +621,7 @@
             let index = 0;
 
             function processChunk() {
-                const chunkSize = 100;
+                const chunkSize = 10; // Reduce chunk size for better separation
                 const end = Math.min(index + chunkSize, paragraphs.length);
                 for (; index < end; index++) {
                     const paragraph = paragraphs[index];
@@ -632,14 +638,14 @@
                     saveText();
                     document.getElementById('lockButton').style.display = 'inline-block';
 
-                    // Move entries with 'Russia' to the end, followed by problem entries
-                    moveEntriesToEnd('Russia', outputContainer);
+                    // Move error entries last, including "Russia"
+                    moveEntriesToEnd('Russia', outputContainer, true);
                 }
             }
             requestAnimationFrame(processChunk);
         }
 
-        function moveEntriesToEnd(keyword, outputContainer) {
+        function moveEntriesToEnd(keyword, outputContainer, includeErrors = false) {
             const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
 
             const paragraphsWithKeyword = [];
@@ -648,9 +654,9 @@
 
             paragraphs.forEach(paragraph => {
                 const text = paragraph.innerText;
-                if (text.includes(keyword)) {
+                if (text.includes(keyword) && !includeErrors) {
                     paragraphsWithKeyword.push(paragraph);
-                } else if (text.includes('?') || text.includes('Missing email') || text.includes('Missing country')) {
+                } else if (includeErrors && (text.includes('?') || text.includes('Missing email') || text.includes('Missing country'))) {
                     paragraphsWithProblems.push(paragraph);
                 } else {
                     otherParagraphs.push(paragraph);
