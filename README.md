@@ -182,6 +182,14 @@
             color: #2c3e50;
         }
 
+        #loadingIndicator {
+            color: red;
+            margin-left: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            display: none;
+        }
+
         #remainingTime .hourglass {
             vertical-align: middle;
         }
@@ -454,10 +462,13 @@
         </div>
         <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
         <button id="lockButton" style="display:none;" onclick="toggleLock()">🔒 Lock</button>
-        <button id="startButton" onclick="processText()">Start</button>
+        <button id="startButton" onclick="startProcessing()">Start</button>
     </div>
 
-    <div id="adCount" style="display:none;">Total Advertisements: 0</div>
+    <div id="adCount" style="display:none;">
+        Total Advertisements: <span id="totalAds">0</span>
+        <span id="loadingIndicator">Loading, please wait...</span>
+    </div>
     <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
     <div class="progress-bar" id="progressBar"></div>
     <div id="countryCount" style="display:none;"></div>
@@ -516,6 +527,7 @@
         let totalTimeInSeconds = 0;
         let cutHistory = [];
         let isLocked = false;
+        let isProcessing = false; // Flag to prevent multiple processing
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -611,7 +623,7 @@
             const outputContainer = document.getElementById('output');
             const text = outputContainer.innerText;
             const adCount = countOccurrences(text, 'professor');
-            document.getElementById('adCount').innerText = `Total Advertisements: ${adCount}`;
+            document.getElementById('totalAds').innerText = adCount;
             document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
 
             const countryCounts = countCountryOccurrences(text);
@@ -640,7 +652,7 @@
         }
 
         function updateRemainingTime() {
-            const adCount = document.getElementById('adCount').innerText.split(' ')[2];
+            const adCount = document.getElementById('totalAds').innerText;
             const remainingTimeInMinutes = adCount / 9; // Calculating based on total ads (9 ads/min)
             const remainingTimeInSeconds = remainingTimeInMinutes * 60;
             const hours = Math.floor(remainingTimeInSeconds / 3600);
@@ -650,6 +662,11 @@
         }
 
         function processText() {
+            if (isProcessing) return; // Prevent multiple processing
+
+            isProcessing = true;
+            document.getElementById('loadingIndicator').style.display = 'inline'; // Show loading indicator
+
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
@@ -681,9 +698,16 @@
                     // Move error entries last, including "Russia"
                     moveEntriesToEnd('Russia', outputContainer, true);
                     ensureProblemHeading(); // Ensure problem heading is added
+
+                    document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator
+                    isProcessing = false; // Reset processing flag
                 }
             }
             requestAnimationFrame(processChunk);
+        }
+
+        function startProcessing() {
+            processText(); // Ensure it only processes the text once
         }
 
         function ensureProblemHeading() {
