@@ -74,8 +74,8 @@
         #okButton,
         #loginButton,
         #undoButton,
-        #lockButton {
-            background-color: #1171ba;
+        #lockButton,
+        #startButton {
             border: none;
             color: white;
             padding: 10px 20px;
@@ -90,7 +90,8 @@
         #okButton:hover,
         #loginButton:hover,
         #undoButton:hover,
-        #lockButton:hover {
+        #lockButton:hover,
+        #startButton:hover {
             background-color: #0e619f;
         }
 
@@ -98,8 +99,24 @@
         #okButton:active,
         #loginButton:active,
         #undoButton:active,
-        #lockButton:active {
+        #lockButton:active,
+        #startButton:active {
             transform: scale(0.95);
+        }
+
+        #lockButton {
+            margin-left: 20px;
+            background-color: #1171ba;
+        }
+
+        #undoButton {
+            margin-left: 20px;
+            background-color: #1171ba;
+        }
+
+        #startButton {
+            margin-left: 20px;
+            background-color: #28a745;
         }
 
         .input-container {
@@ -140,6 +157,7 @@
         #okButton {
             align-self: flex-end;
             margin-top: 10px;
+            background-color: #1171ba;
         }
 
         #adCount,
@@ -168,7 +186,7 @@
 
         #cursorStart {
             font-weight: bold;
-            color: #3498db; /* Cool blue color */
+            color: #3498db;
         }
 
         #credits {
@@ -219,14 +237,6 @@
 
         .option-buttons label {
             margin-right: 20px;
-        }
-
-        #undoButton {
-            margin-left: 20px;
-        }
-
-        #lockButton {
-            margin-left: 20px;
         }
 
         .top-controls {
@@ -429,6 +439,7 @@
         </div>
         <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
         <button id="lockButton" style="display:none;" onclick="toggleLock()">🔒 Lock</button>
+        <button id="startButton" onclick="processText()">Start</button>
     </div>
 
     <div id="adCount" style="display:none;">Total Advertisements: 0</div>
