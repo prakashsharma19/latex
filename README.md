@@ -52,6 +52,23 @@
             background-color: #0e619f;
         }
 
+        .clear-memory-button {
+            background-color: red;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .clear-memory-button:hover {
+            background-color: darkred;
+        }
+
         .text-container {
             background-color: #ffffff;
             padding: 15px;
@@ -370,6 +387,9 @@
 <body>
     <h1>Advertisements-PPH</h1>
 
+    <!-- Clear memory button -->
+    <button class="clear-memory-button" onclick="clearMemory()">Clear Memory</button>
+
     <!-- Credits in upper-right corner -->
     <div id="credits">
         This tool is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
@@ -496,6 +516,16 @@
         let totalTimeInSeconds = 0;
         let cutHistory = [];
         let isLocked = false;
+
+        function clearMemory() {
+            const password = prompt('Please enter the password to clear memory:');
+            if (password === 'cleanall') {
+                localStorage.clear();
+                alert('Memory cleared!');
+            } else {
+                alert('Incorrect password. Memory not cleared.');
+            }
+        }
 
         function saveText() {
             const inputText = document.getElementById('inputText').value;
