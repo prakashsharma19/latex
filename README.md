@@ -72,7 +72,6 @@
 
         .copy-button,
         #okButton,
-        #loginButton,
         #undoButton,
         #lockButton,
         #startButton {
@@ -86,21 +85,17 @@
             margin-top: 10px;
         }
 
-        .copy-button:hover,
-        #okButton:hover,
-        #loginButton:hover,
-        #undoButton:hover,
-        #lockButton:hover,
-        #startButton:hover {
-            background-color: #0e619f;
+        #loginButton {
+            background-color: #28a745;
+            margin-top: 10px;
+            font-size: 16px;
         }
 
-        .copy-button:active,
-        #okButton:active,
-        #loginButton:active,
-        #undoButton:active,
-        #lockButton:active,
-        #startButton:active {
+        #loginButton:hover {
+            background-color: #218838;
+        }
+
+        #loginButton:active {
             transform: scale(0.95);
         }
 
@@ -731,7 +726,7 @@
 
             const inputText = document.getElementById('inputText').value;
             const updatedText = inputText.replace(textToCopy, '').trim();
-            document.getElementById('inputText').value = updatedText;
+            document.getElementById('inputText').value = updatedText ? updatedText + "\n\n" : updatedText;
 
             dailyAdCount++;
 
@@ -751,7 +746,7 @@
                 outputContainer.insertBefore(p, outputContainer.firstChild);
 
                 const inputText = document.getElementById('inputText').value;
-                document.getElementById('inputText').value = `${lastCutText}\n${inputText}`.trim();
+                document.getElementById('inputText').value = `${lastCutText}\n\n${inputText}`.trim();
 
                 dailyAdCount--;
 
