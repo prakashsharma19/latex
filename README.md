@@ -850,8 +850,8 @@
 
         // Function to trigger Alt + Tab using an external script
         function triggerAltTab() {
-            // You would need to run an external script to handle this action
-            // Example: window.open('alt-tab-swap-script.bat', '_blank');
+            // Attempt to open the batch file (Note: this won't work due to browser security)
+            window.open('file:///C:/path-to-your-script/alt-tab-swap-script.bat');
             console.log('Triggering Alt + Tab (Simulated)');
         }
 
