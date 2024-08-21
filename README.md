@@ -574,7 +574,7 @@
         let cutHistory = [];
         let isLocked = false;
         let isProcessing = false; // Flag to prevent multiple processing
-        let autoSwapEnabled = false; // Flag to enable or disable auto swap
+        let autoSwapEnabled = true; // Flag to enable or disable auto swap
 
         // Toggle the auto-swap feature
         function toggleSwap() {
