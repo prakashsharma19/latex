@@ -69,6 +69,46 @@
             background-color: darkred;
         }
 
+        .swap-toggle-container {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .swap-toggle-label {
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        .swap-toggle-button {
+            width: 50px;
+            height: 25px;
+            background-color: #ccc;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .swap-toggle-button::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2.5px;
+            left: 2.5px;
+            transition: transform 0.3s;
+        }
+
+        .swap-toggle-button.active {
+            background-color: #28a745;
+        }
+
+        .swap-toggle-button.active::before {
+            transform: translateX(25px);
+        }
+
         .text-container {
             background-color: #ffffff;
             padding: 15px;
@@ -398,6 +438,12 @@
     <!-- Clear memory button -->
     <button class="clear-memory-button" onclick="clearMemory()">Clear Memory</button>
 
+    <!-- Swap Window Toggle -->
+    <div class="swap-toggle-container">
+        <span class="swap-toggle-label">Auto-Swap Window After Cut:</span>
+        <div class="swap-toggle-button" id="swapToggleButton" onclick="toggleSwap()"></div>
+    </div>
+
     <!-- Credits in upper-right corner -->
     <div id="credits">
         This tool is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
@@ -528,6 +574,14 @@
         let cutHistory = [];
         let isLocked = false;
         let isProcessing = false; // Flag to prevent multiple processing
+        let autoSwapEnabled = false; // Flag to enable or disable auto swap
+
+        // Toggle the auto-swap feature
+        function toggleSwap() {
+            autoSwapEnabled = !autoSwapEnabled;
+            const button = document.getElementById('swapToggleButton');
+            button.classList.toggle('active', autoSwapEnabled);
+        }
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -788,6 +842,17 @@
             saveText();
 
             document.getElementById('undoButton').style.display = 'block';
+
+            if (autoSwapEnabled) {
+                triggerAltTab();
+            }
+        }
+
+        // Function to trigger Alt + Tab using an external script
+        function triggerAltTab() {
+            // You would need to run an external script to handle this action
+            // Example: window.open('alt-tab-swap-script.bat', '_blank');
+            console.log('Triggering Alt + Tab (Simulated)');
         }
 
         function undoLastCut() {
