@@ -69,46 +69,6 @@
             background-color: darkred;
         }
 
-        .swap-toggle-container {
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-        }
-
-        .swap-toggle-label {
-            font-size: 16px;
-            margin-right: 10px;
-        }
-
-        .swap-toggle-button {
-            width: 50px;
-            height: 25px;
-            background-color: #ccc;
-            border-radius: 15px;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .swap-toggle-button::before {
-            content: '';
-            width: 20px;
-            height: 20px;
-            background-color: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 2.5px;
-            left: 2.5px;
-            transition: transform 0.3s;
-        }
-
-        .swap-toggle-button.active {
-            background-color: #28a745;
-        }
-
-        .swap-toggle-button.active::before {
-            transform: translateX(25px);
-        }
-
         .text-container {
             background-color: #ffffff;
             padding: 15px;
@@ -195,11 +155,6 @@
             color: white;
             padding: 10px;
             border-radius: 5px;
-        }
-
-        .rough-container {
-            width: 30%;
-            margin-left: 2%;
         }
 
         .input-boxes {
@@ -429,6 +384,54 @@
             border-radius: 2px;
             margin-top: 10px;
         }
+
+        /* Incorrect Entries Box */
+        .incorrect-container {
+            width: 30%;
+            margin-left: 2%;
+            margin-top: 20px;
+            background-color: #f8d7da;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .incorrect-container .container-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #721c24;
+        }
+
+        #incorrectEntries {
+            width: 100%;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            height: 200px;
+            overflow-y: auto;
+        }
+
+        #copyIncorrectButton {
+            background-color: #721c24;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            margin-top: 10px;
+            float: right;
+        }
+
+        #copyIncorrectButton:hover {
+            background-color: #b21f2d;
+        }
     </style>
 </head>
 
@@ -437,12 +440,6 @@
 
     <!-- Clear memory button -->
     <button class="clear-memory-button" onclick="clearMemory()">Clear Memory</button>
-
-    <!-- Swap Window Toggle -->
-    <div class="swap-toggle-container">
-        <span class="swap-toggle-label">Auto-Swap Window After Cut:</span>
-        <div class="swap-toggle-button" id="swapToggleButton" onclick="toggleSwap()"></div>
-    </div>
 
     <!-- Credits in upper-right corner -->
     <div id="credits">
@@ -492,14 +489,12 @@
         </div>
     </div>
 
-    <div class="input-container" style="display:none;">
-        <div class="container-header" onclick="toggleBox('roughBox')">
-            Rough Work
-            <span id="roughBoxToggle">[+]</span>
+    <div class="input-container incorrect-container" style="display:none;">
+        <div class="container-header">
+            Incorrect Entries
         </div>
-        <div id="roughBox" class="input-boxes rough-container">
-            <textarea id="roughText" rows="5" placeholder="Rough Work..."></textarea>
-        </div>
+        <textarea id="incorrectEntries" readonly></textarea>
+        <button id="copyIncorrectButton" onclick="copyIncorrectEntries()">Copy</button>
     </div>
 
     <div class="top-controls" style="display:none;">
@@ -574,14 +569,6 @@
         let cutHistory = [];
         let isLocked = false;
         let isProcessing = false; // Flag to prevent multiple processing
-        let autoSwapEnabled = true; // Flag to enable or disable auto swap
-
-        // Toggle the auto-swap feature
-        function toggleSwap() {
-            autoSwapEnabled = !autoSwapEnabled;
-            const button = document.getElementById('swapToggleButton');
-            button.classList.toggle('active', autoSwapEnabled);
-        }
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -725,6 +712,7 @@
             const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
             outputContainer.innerHTML = ''; // Clear existing content
+            const incorrectEntries = [];
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
@@ -738,8 +726,14 @@
                     const paragraph = paragraphs[index];
                     if (paragraph.trim() !== '') {
                         const p = document.createElement('p');
-                        p.innerHTML = highlightErrors(paragraph.replace(/\n/g, '<br>'));
+                        const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
+                        p.innerHTML = highlightedText;
                         outputContainer.appendChild(p);
+
+                        // Add incorrect entries to the array
+                        if (highlightedText.includes('<span class="error">')) {
+                            incorrectEntries.push(paragraph);
+                        }
                     }
                 }
                 if (index < paragraphs.length) {
@@ -749,9 +743,8 @@
                     saveText();
                     document.getElementById('lockButton').style.display = 'inline-block';
 
-                    // Move error entries last, including "Russia"
-                    moveEntriesToEnd('Russia', outputContainer, true);
-                    ensureProblemHeading(); // Ensure problem heading is added
+                    // Display incorrect entries in the dedicated box
+                    displayIncorrectEntries(incorrectEntries);
 
                     document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator
                     isProcessing = false; // Reset processing flag
@@ -764,50 +757,16 @@
             processText(); // Ensure it only processes the text once
         }
 
-        function ensureProblemHeading() {
-            const outputContainer = document.getElementById('output');
-            if (!document.querySelector('.problem-heading')) {
-                const problemHeading = document.createElement('p');
-                problemHeading.className = 'problem-heading';
-                problemHeading.innerText = 'Check before sent';
-                outputContainer.appendChild(problemHeading);
-            }
+        function displayIncorrectEntries(entries) {
+            const incorrectEntriesBox = document.getElementById('incorrectEntries');
+            incorrectEntriesBox.value = entries.join("\n\n");
+            document.querySelector('.incorrect-container').style.display = 'block';
         }
 
-        function moveEntriesToEnd(keyword, outputContainer, includeErrors = false) {
-            const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
-
-            const paragraphsWithKeyword = [];
-            const paragraphsWithProblems = [];
-            const otherParagraphs = [];
-
-            paragraphs.forEach(paragraph => {
-                const text = paragraph.innerText;
-                const hasError = text.includes('?') || text.includes('Missing email') || text.includes('Missing country');
-                if (text.includes(keyword) && !hasError) {
-                    paragraphsWithKeyword.push(paragraph);
-                } else if (includeErrors && hasError) {
-                    paragraphsWithProblems.push(paragraph);
-                } else {
-                    otherParagraphs.push(paragraph);
-                }
-            });
-
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
-            otherParagraphs.forEach(paragraph => {
-                outputContainer.appendChild(paragraph);
-            });
-
-            paragraphsWithKeyword.forEach(paragraph => {
-                outputContainer.appendChild(paragraph);
-            });
-
-            if (paragraphsWithProblems.length > 0) {
-                ensureProblemHeading();
-                paragraphsWithProblems.forEach(paragraph => {
-                    outputContainer.appendChild(paragraph);
-                });
-            }
+        function copyIncorrectEntries() {
+            const incorrectEntriesBox = document.getElementById('incorrectEntries');
+            incorrectEntriesBox.select();
+            document.execCommand('copy');
         }
 
         function cutParagraph(paragraph) {
@@ -842,17 +801,6 @@
             saveText();
 
             document.getElementById('undoButton').style.display = 'block';
-
-            if (autoSwapEnabled) {
-                triggerAltTab();
-            }
-        }
-
-        // Function to trigger Alt + Tab using an external script
-        function triggerAltTab() {
-            // Attempt to open the batch file (Note: this won't work due to browser security)
-            window.open('file:///C:/path-to-your-script/alt-tab-swap-script.bat');
-            console.log('Triggering Alt + Tab (Simulated)');
         }
 
         function undoLastCut() {
