@@ -12,7 +12,7 @@
             margin: 0;
             color: #333;
             position: relative;
-            overflow-y: auto; /* Ensure scrolling is enabled by default */
+            overflow: hidden; /* Prevent scrolling when locked */
         }
 
         h1 {
@@ -104,16 +104,18 @@
         }
 
         #loginButton {
-            background-color: #0069d9;
+            background-color: #007bff;
             margin-top: 10px;
             font-size: 16px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s, transform 0.1s ease;
+            padding: 12px 24px;
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s;
         }
 
         #loginButton:hover {
             background-color: #0056b3;
-            transform: scale(1.05);
         }
 
         #loginButton:active {
@@ -127,7 +129,6 @@
 
         #lockButton:hover {
             background-color: #0e619f;
-            cursor: pointer;
         }
 
         #undoButton {
@@ -144,7 +145,6 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 20px;
-            flex-direction: column;
         }
 
         .input-container textarea {
@@ -167,7 +167,8 @@
             border-radius: 5px;
         }
 
-        .rough-container {
+        .rough-container,
+        .incomplete-container {
             width: 30%;
             margin-left: 2%;
         }
@@ -214,6 +215,16 @@
             color: #34495e;
         }
 
+        #journalName {
+            position: absolute;
+            left: 20px;
+            top: 220px;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1.5;
+            color: #34495e;
+        }
+
         #cursorStart {
             font-weight: bold;
             color: #3498db;
@@ -222,8 +233,8 @@
         #credits {
             position: absolute;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            width: 100%;
+            text-align: center;
             font-size: 16px;
             color: #34495e;
         }
@@ -235,6 +246,15 @@
 
         #credits a:hover {
             text-decoration: underline;
+        }
+
+        #usernameDisplay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 16px;
+            color: #34495e;
+            cursor: pointer;
         }
 
         .error {
@@ -401,41 +421,39 @@
             margin-top: 10px;
         }
 
-        /* Style for error entries box */
-        #errorEntriesContainer {
-            display: none;
+        /* Styles for the "Incomplete Entries" box */
+        .incomplete-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
         }
 
-        #errorEntriesHeader {
-            background-color: #1171ba;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            cursor: pointer;
+        .incomplete-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            cursor: pointer;
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
         }
 
-        #errorEntries {
-            background-color: #ffffff;
-            padding: 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-top: 10px;
-            display: none;
-        }
-
-        #errorEntriesToggle {
-            font-weight: bold;
-        }
-
-        #errorEntries .copy-button {
+        .copy-button {
             background-color: #28a745;
-            margin-top: 10px;
+            margin-left: 20px;
         }
+
+        .copy-button:hover {
+            background-color: #218838;
+        }
+
+        .copy-button:active {
+            transform: scale(0.95);
+        }
+
     </style>
 </head>
 
@@ -445,11 +463,8 @@
     <!-- Clear memory button -->
     <button class="clear-memory-button" onclick="clearMemory()">Clear Memory</button>
 
-    <!-- Username and Logout -->
-    <div id="usernameDisplay" style="position: absolute; top: 20px; right: 20px; cursor: pointer;">
-        <span id="usernameSpan"></span>
-        <div id="logoutButton" style="display: none;">Logout</div>
-    </div>
+    <!-- Username display -->
+    <div id="usernameDisplay" onclick="showLogout()"></div>
 
     <!-- Credits in bottom-center -->
     <div id="credits">
@@ -471,7 +486,7 @@
     <div class="login-container">
         <input type="text" id="username" placeholder="Enter your name">
         <input type="password" id="password" placeholder="Enter your password">
-        <input type="text" id="journal" placeholder="Enter journal abbreviation" autocomplete="off">
+        <input type="text" id="journalAbbr" placeholder="Enter journal abbreviation">
         <button id="loginButton" onclick="login()">Login</button>
     </div>
 
@@ -500,15 +515,15 @@
         </div>
     </div>
 
-    <!-- New box for incomplete entries -->
-    <div id="errorEntriesContainer">
-        <div id="errorEntriesHeader" onclick="toggleBox('errorEntries')">
+    <!-- Incomplete Entries Box -->
+    <div class="input-container" style="display:none;">
+        <div class="container-header incomplete-header" onclick="toggleBox('incompleteBox')">
             Incomplete Entries
-            <span id="errorEntriesToggle">[+]</span>
+            <span id="incompleteBoxToggle">[+]</span>
         </div>
-        <div id="errorEntries" class="input-boxes">
-            <!-- Error entries will be dynamically inserted here -->
-            <button class="copy-button" onclick="copyErrors()">Copy Errors</button>
+        <div id="incompleteBox" class="input-boxes incomplete-container">
+            <textarea id="incompleteText" rows="5" readonly></textarea>
+            <button class="copy-button" onclick="copyIncompleteEntries()">Copy</button>
         </div>
     </div>
 
@@ -527,22 +542,20 @@
             <div class="hourglass"></div>
         </div>
         <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
-        <button id="lockButton" style="display:none;" title="Lock to prevent accidental inputs" onclick="toggleLock()">🔒 Lock</button>
+        <button id="lockButton" style="display:none;" title="Lock to prevent accidental inputs" onmouseover="showLockHint()" onclick="toggleLock()">🔒 Lock</button>
         <button id="startButton" onclick="startProcessing()">Start</button>
     </div>
 
     <div id="adCount" style="display:none;">
         Total Advertisements: <span id="totalAds">0</span>
         <span id="loadingIndicator">Loading, please wait...</span>
-        <span id="infoIcon" style="cursor: pointer;" onclick="showAdHistory()">ℹ️</span>
-        <div id="adHistory" style="display:none;">
-            <!-- Last 5 days of ad counts will be dynamically inserted here -->
-        </div>
     </div>
-    <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
+    <div id="dailyAdCount" style="display:none;">
+        Total Ads Sent Today: 0
+        <span class="info-icon" onclick="showAdHistory()">ℹ️</span>
+    </div>
     <div class="progress-bar" id="progressBar"></div>
     <div id="countryCount" style="display:none;"></div>
-    <div id="journalName" style="display:none; margin-top: 10px;"></div>
 
     <div id="output" class="text-container" style="display:none;" contenteditable="true">
         <p id="cursorStart">Place your cursor here</p>
@@ -570,72 +583,49 @@
     </div>
 
     <script>
-        const countryList = [
-            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
-            "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
-            "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
-            "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
-            "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
-            "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
-            "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
-            "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel",
-            "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos",
-            "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
-            "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
-            "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
-            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
-            "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania",
-            "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal",
-            "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea",
-            "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
-            "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
-            "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
-            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U. S. A.", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire"
-        ];
-
-        const journalMapping = {
-            'DM': 'Advances and Applications in Discrete Mathematics',
-            'AADM': 'Advances and Applications in Discrete Mathematics',
-            'FM': 'Advances and Applications in Fluid Mechanics',
-            'AAFM': 'Advances and Applications in Fluid Mechanics',
-            'ADAS': 'Advances and Applications in Statistics',
-            'DE': 'Advances in Differential Equations and Control Processes',
-            'ADECP': 'Advances in Differential Equations and Control Processes',
-            'AFSS': 'Advances in Fuzzy Sets and Systems',
-            'fuzzy': 'Advances in Fuzzy Sets and Systems',
-            'AM': 'Far East Journal of Applied Mathematics',
-            'FJAM': 'Far East Journal of Applied Mathematics',
-            'DS': 'Far East Journal of Dynamical Systems',
-            'FJDS': 'Far East Journal of Dynamical Systems',
-            'ME': 'Far East Journal of Mathematical Education',
-            'FJME': 'Far East Journal of Mathematical Education',
-            'MS': 'Far East Journal of Mathematical Sciences (FJMS)',
-            'FJMS': 'Far East Journal of Mathematical Sciences (FJMS)',
-            'TS': 'Far East Journal of Theoretical Statistics',
-            'FJTS': 'Far East Journal of Theoretical Statistics',
-            'MET': 'International Journal of Materials Engineering and Technology',
-            'IJMET': 'International Journal of Materials Engineering and Technology',
-            'NM': 'International Journal of Numerical Methods and Applications',
-            'IJNMA': 'International Journal of Numerical Methods and Applications',
-            'IJND': 'International Journal of Nutrition and Dietetics',
-            'ANT': 'JP Journal of Algebra, Number Theory and Applications',
-            'JPANTA': 'JP Journal of Algebra, Number Theory and Applications',
-            'Bio': 'JP Journal of Biostatistics',
-            'JPJB': 'JP Journal of Biostatistics',
-            'GT': 'JP Journal of Geometry and Topology',
-            'JPGT': 'JP Journal of Geometry and Topology',
-            'HMT': 'JP Journal of Heat and Mass Transfer',
-            'JPHMT': 'JP Journal of Heat and Mass Transfer',
-            'UJMS': 'Universal Journal of Mathematics and Mathematical Sciences',
-            'UJMMS': 'Universal Journal of Mathematics and Mathematical Sciences'
-        };
-
         let currentUser = null;
         let dailyAdCount = 0;
         let totalTimeInSeconds = 0;
         let cutHistory = [];
         let isLocked = false;
         let isProcessing = false; // Flag to prevent multiple processing
+        let journalFullName = '';
+        const journalAbbreviations = {
+            DM: 'Advances and Applications in Discrete Mathematics',
+            AADM: 'Advances and Applications in Discrete Mathematics',
+            FM: 'Advances and Applications in Fluid Mechanics',
+            AAFM: 'Advances and Applications in Fluid Mechanics',
+            ADAS: 'Advances and Applications in Statistics',
+            DE: 'Advances in Differential Equations and Control Processes',
+            ADECP: 'Advances in Differential Equations and Control Processes',
+            AFSS: 'Advances in Fuzzy Sets and Systems',
+            fuzzy: 'Advances in Fuzzy Sets and Systems',
+            AM: 'Far East Journal of Applied Mathematics',
+            FJAM: 'Far East Journal of Applied Mathematics',
+            DS: 'Far East Journal of Dynamical Systems',
+            FJDS: 'Far East Journal of Dynamical Systems',
+            ME: 'Far East Journal of Mathematical Education',
+            FJME: 'Far East Journal of Mathematical Education',
+            MS: 'Far East Journal of Mathematical Sciences',
+            FJMS: 'Far East Journal of Mathematical Sciences',
+            TS: 'Far East Journal of Theoretical Statistics',
+            FJTS: 'Far East Journal of Theoretical Statistics',
+            MET: 'International Journal of Materials Engineering and Technology',
+            IJMET: 'International Journal of Materials Engineering and Technology',
+            NM: 'International Journal of Numerical Methods and Applications',
+            IJNMA: 'International Journal of Numerical Methods and Applications',
+            IJND: 'International Journal of Nutrition and Dietetics',
+            ANT: 'JP Journal of Algebra, Number Theory and Applications',
+            JPANTA: 'JP Journal of Algebra, Number Theory and Applications',
+            Bio: 'JP Journal of Biostatistics',
+            JPJB: 'JP Journal of Biostatistics',
+            GT: 'JP Journal of Geometry and Topology',
+            JPGT: 'JP Journal of Geometry and Topology',
+            HMT: 'JP Journal of Heat and Mass Transfer',
+            JPHMT: 'JP Journal of Heat and Mass Transfer',
+            UJMS: 'Universal Journal of Mathematics and Mathematical Sciences',
+            UJMMS: 'Universal Journal of Mathematics and Mathematical Sciences'
+        };
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -748,7 +738,7 @@
 
         function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
-            const maxCount = 1500; // Number of entries for the bar to be fully filled
+            const maxCount = 1500; // Updated to 1500 ads for full bar
 
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
@@ -778,9 +768,9 @@
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
-            const errorEntriesContainer = document.getElementById('errorEntries');
+            const incompleteContainer = document.getElementById('incompleteText');
             outputContainer.innerHTML = ''; // Clear existing content
-            errorEntriesContainer.innerHTML = ''; // Clear error entries
+            incompleteContainer.value = ''; // Clear existing incomplete entries
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
@@ -793,15 +783,13 @@
                 for (; index < end; index++) {
                     const paragraph = paragraphs[index];
                     if (paragraph.trim() !== '') {
-                        const p = document.createElement('p');
-                        const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
-
-                        if (highlightedText.includes('error')) {
-                            p.innerHTML = highlightedText;
-                            errorEntriesContainer.appendChild(p); // Append to error entries
+                        const highlightedParagraph = highlightErrors(paragraph.replace(/\n/g, '<br>'));
+                        if (highlightedParagraph.includes('error')) {
+                            incompleteContainer.value += highlightedParagraph.replace(/<[^>]*>/g, '') + '\n\n';
                         } else {
-                            p.innerHTML = highlightedText;
-                            outputContainer.appendChild(p); // Append to normal output
+                            const p = document.createElement('p');
+                            p.innerHTML = highlightedParagraph;
+                            outputContainer.appendChild(p);
                         }
                     }
                 }
@@ -811,8 +799,6 @@
                     updateCounts();
                     saveText();
                     document.getElementById('lockButton').style.display = 'inline-block';
-
-                    ensureProblemHeading(); // Ensure problem heading is added
 
                     document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator
                     isProcessing = false; // Reset processing flag
@@ -832,42 +818,6 @@
                 problemHeading.className = 'problem-heading';
                 problemHeading.innerText = 'Check before sent';
                 outputContainer.appendChild(problemHeading);
-            }
-        }
-
-        function moveEntriesToEnd(keyword, outputContainer, includeErrors = false) {
-            const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
-
-            const paragraphsWithKeyword = [];
-            const paragraphsWithProblems = [];
-            const otherParagraphs = [];
-
-            paragraphs.forEach(paragraph => {
-                const text = paragraph.innerText;
-                const hasError = text.includes('?') || text.includes('Missing email') || text.includes('Missing country');
-                if (text.includes(keyword) && !hasError) {
-                    paragraphsWithKeyword.push(paragraph);
-                } else if (includeErrors && hasError) {
-                    paragraphsWithProblems.push(paragraph);
-                } else {
-                    otherParagraphs.push(paragraph);
-                }
-            });
-
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
-            otherParagraphs.forEach(paragraph => {
-                outputContainer.appendChild(paragraph);
-            });
-
-            paragraphsWithKeyword.forEach(paragraph => {
-                outputContainer.appendChild(paragraph);
-            });
-
-            if (paragraphsWithProblems.length > 0) {
-                ensureProblemHeading();
-                paragraphsWithProblems.forEach(paragraph => {
-                    outputContainer.appendChild(paragraph);
-                });
             }
         }
 
@@ -1000,8 +950,12 @@
                         element.disabled = false;
                     }
                 });
-                document.body.style.overflow = 'auto'; // Unlock scrolling
+                document.body.style.overflow = ''; // Unlock scrolling
             }
+        }
+
+        function showLockHint() {
+            document.getElementById('lockButton').title = 'Lock to prevent accidental inputs';
         }
 
         function toggleBox(boxId) {
@@ -1020,10 +974,11 @@
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const journalAbbr = document.getElementById('journal').value.toUpperCase().trim();
+            const journalAbbr = document.getElementById('journalAbbr').value.toUpperCase();
 
             if (username && password && journalAbbr) {
                 currentUser = `${username}_${password}`;
+                journalFullName = journalAbbreviations[journalAbbr] || 'Unknown Journal';
                 document.querySelector('.login-container').style.display = 'none';
                 document.querySelector('.font-controls').style.display = 'block';
                 document.querySelectorAll('.input-container').forEach(container => container.style.display = 'block');
@@ -1033,66 +988,44 @@
                 document.getElementById('remainingTime').style.display = 'block';
                 document.getElementById('countryCount').style.display = 'block';
                 document.getElementById('output').style.display = 'block';
-
-                // Show journal full name
-                const journalFullName = journalMapping[journalAbbr];
-                if (journalFullName) {
-                    const journalNameElem = document.getElementById('journalName');
-                    journalNameElem.innerText = `Journal Name: ${journalFullName}`;
-                    journalNameElem.style.display = 'block';
-                } else {
-                    alert('Invalid journal abbreviation');
-                    return;
-                }
-
-                loadText();
-
-                // Display username and logout option
-                document.getElementById('usernameSpan').innerText = username;
+                document.getElementById('usernameDisplay').innerText = username;
                 document.getElementById('usernameDisplay').style.display = 'block';
+                document.getElementById('journalName').innerText = `Journal Name: ${journalFullName}`;
+                document.getElementById('journalName').style.display = 'block';
+                loadText();
             } else {
-                alert('Please enter all the fields: username, password, and journal abbreviation.');
+                alert('Please enter username, password, and journal abbreviation.');
             }
         }
 
-        function copyErrors() {
-            const errorText = document.getElementById('errorEntries').innerText;
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.value = errorText;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
-            alert('Error entries copied!');
+        function showLogout() {
+            const logoutConfirm = confirm('Do you want to logout?');
+            if (logoutConfirm) {
+                currentUser = null;
+                document.querySelector('.login-container').style.display = 'block';
+                document.querySelector('.font-controls').style.display = 'none';
+                document.querySelectorAll('.input-container').forEach(container => container.style.display = 'none');
+                document.querySelector('.top-controls').style.display = 'none';
+                document.getElementById('adCount').style.display = 'none';
+                document.getElementById('dailyAdCount').style.display = 'none';
+                document.getElementById('remainingTime').style.display = 'none';
+                document.getElementById('countryCount').style.display = 'none';
+                document.getElementById('output').style.display = 'none';
+                document.getElementById('usernameDisplay').style.display = 'none';
+                document.getElementById('journalName').style.display = 'none';
+            }
+        }
+
+        function copyIncompleteEntries() {
+            const incompleteText = document.getElementById('incompleteText').value;
+            navigator.clipboard.writeText(incompleteText).then(() => {
+                alert('Incomplete entries copied to clipboard.');
+            });
         }
 
         function showAdHistory() {
-            const adHistoryElem = document.getElementById('adHistory');
-            const last5DaysAds = [
-                { date: '2024-08-18', count: 1000 },
-                { date: '2024-08-19', count: 1200 },
-                { date: '2024-08-20', count: 1400 },
-                { date: '2024-08-21', count: 1300 },
-                { date: '2024-08-22', count: 1250 }
-            ]; // Example data, replace with actual logic
-            adHistoryElem.innerHTML = last5DaysAds.map(day => `
-                <div>
-                    ${day.date}: ${day.count}
-                    <div class="progress-bar" style="width:${(day.count / 1500) * 100}%; background-color:${day.count > 1200 ? 'green' : 'red'};"></div>
-                </div>
-            `).join('');
-            adHistoryElem.style.display = adHistoryElem.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function dismissPopup() {
-            document.getElementById('reminderPopup').style.display = 'none';
-            document.title = originalTitle;
-            clearInterval(blinkInterval);
-        }
-
-        function showPopup() {
-            document.getElementById('reminderPopup').style.display = 'block';
-            blinkTab();
+            // Implement logic to show last 5 days "total ads sent counts"
+            alert('Last 5 days "total ads sent counts" will be displayed here with a small progress bar.');
         }
 
         function checkDailyReset() {
@@ -1138,6 +1071,61 @@
         // Check reminders every minute
         setInterval(checkReminders, 60000);
 
+        // Show the reminder popup
+        function showPopup() {
+            if (!isLocked) { // Only show popup if not locked
+                document.getElementById('reminderPopup').style.display = 'block';
+                blinkTab();
+            }
+        }
+
+        // Dismiss the reminder popup
+        function dismissPopup() {
+            document.getElementById('reminderPopup').style.display = 'none';
+            document.title = originalTitle;
+            clearInterval(blinkInterval);
+        }
+
+        // Handle slot selection and saving
+        document.querySelectorAll('.reminder-slots li').forEach(slot => {
+            slot.addEventListener('click', () => {
+                slot.classList.toggle('selected');
+                saveSelectedReminders();
+            });
+        });
+
+        function saveSelectedReminders() {
+            const selectedSlots = [];
+            document.querySelectorAll('.reminder-slots li.selected').forEach(slot => {
+                selectedSlots.push(slot.dataset.time);
+            });
+            localStorage.setItem(`selectedReminders_${currentUser}`, JSON.stringify(selectedSlots));
+        }
+
+        function loadSelectedReminders() {
+            const savedSlots = localStorage.getItem(`selectedReminders_${currentUser}`);
+            if (savedSlots) {
+                const selectedSlots = JSON.parse(savedSlots);
+                document.querySelectorAll('.reminder-slots li').forEach(slot => {
+                    if (selectedSlots.includes(slot.dataset.time)) {
+                        slot.classList.add('selected');
+                    }
+                });
+            }
+        }
+
+        // Blink tab title when minimized
+        let originalTitle = document.title;
+        let blinkInterval;
+
+        function blinkTab() {
+            let isOriginalTitle = true;
+            blinkInterval = setInterval(() => {
+                document.title = isOriginalTitle ? '🔔 Reminder: Send Ads!' : originalTitle;
+                isOriginalTitle = !isOriginalTitle;
+            }, 1000);
+        }
+
         // Toggle Fullscreen Mode
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
@@ -1160,18 +1148,6 @@
                     }
                 });
             }
-        }
-
-        // Blink tab title when minimized
-        let originalTitle = document.title;
-        let blinkInterval;
-
-        function blinkTab() {
-            let isOriginalTitle = true;
-            blinkInterval = setInterval(() => {
-                document.title = isOriginalTitle ? '🔔 Reminder: Send Ads!' : originalTitle;
-                isOriginalTitle = !isOriginalTitle;
-            }, 1000);
         }
 
         // Blink browser icon
@@ -1203,25 +1179,11 @@
             }
         });
 
-        // Confirm before closing the window
-        window.onbeforeunload = function (e) {
+        // Handle window close event
+        window.addEventListener('beforeunload', function (e) {
             e.preventDefault();
-            const message = 'If you close the window you will lose reminder notifications. Please minimize the window instead.';
-            if (e) e.returnValue = message;
-            return message;
-        };
-
-        // Logout functionality
-        document.getElementById('usernameSpan').addEventListener('click', function () {
-            const logoutButton = document.getElementById('logoutButton');
-            logoutButton.style.display = logoutButton.style.display === 'block' ? 'none' : 'block';
+            e.returnValue = 'Are you sure you want to close? You will lose the reminder notifications. Please minimize instead.';
         });
-
-        document.getElementById('logoutButton').addEventListener('click', function () {
-            currentUser = null;
-            location.reload();
-        });
-
     </script>
 </body>
 
