@@ -866,23 +866,30 @@
         }
 
         function toggleLock() {
-            const lockButton = document.getElementById('lockButton');
-            const interactiveElements = document.querySelectorAll('input, button, textarea, select');
-            isLocked = !isLocked;
+    const lockButton = document.getElementById('lockButton');
+    const interactiveElements = document.querySelectorAll('input, button, textarea, select');
+    isLocked = !isLocked;
 
-            if (isLocked) {
-                lockButton.innerHTML = '🔓 Unlock';
-                interactiveElements.forEach(element => {
-                    if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
-                        element.disabled = true;
-                    }
-                });
-            } else {
-                lockButton.innerHTML = '🔒 Lock';
-                interactiveElements.forEach(element => {
-                    if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
-                        element.disabled = false;
-                    }
+    if (isLocked) {
+        lockButton.innerHTML = '🔓 Unlock';
+        interactiveElements.forEach(element => {
+            if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
+                element.disabled = true;
+            }
+        });
+        // Disable scrolling
+        document.body.style.overflow = 'hidden';
+    } else {
+        lockButton.innerHTML = '🔒 Lock';
+        interactiveElements.forEach(element => {
+            if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
+                element.disabled = false;
+            }
+        });
+        // Enable scrolling
+        document.body.style.overflow = 'auto';
+    }
+}
                 });
             }
         }
