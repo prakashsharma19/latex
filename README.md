@@ -12,6 +12,7 @@
             margin: 0;
             color: #333;
             position: relative;
+            overflow-y: auto; /* Ensure scrolling is enabled by default */
         }
 
         h1 {
@@ -103,13 +104,16 @@
         }
 
         #loginButton {
-            background-color: #28a745;
+            background-color: #0069d9;
             margin-top: 10px;
             font-size: 16px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.1s ease;
         }
 
         #loginButton:hover {
-            background-color: #218838;
+            background-color: #0056b3;
+            transform: scale(1.05);
         }
 
         #loginButton:active {
@@ -119,6 +123,11 @@
         #lockButton {
             margin-left: 20px;
             background-color: #1171ba;
+        }
+
+        #lockButton:hover {
+            background-color: #0e619f;
+            cursor: pointer;
         }
 
         #undoButton {
@@ -135,6 +144,7 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 20px;
+            flex-direction: column;
         }
 
         .input-container textarea {
@@ -211,8 +221,9 @@
 
         #credits {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             font-size: 16px;
             color: #34495e;
         }
@@ -389,6 +400,42 @@
             border-radius: 2px;
             margin-top: 10px;
         }
+
+        /* Style for error entries box */
+        #errorEntriesContainer {
+            display: none;
+            margin-top: 20px;
+        }
+
+        #errorEntriesHeader {
+            background-color: #1171ba;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #errorEntries {
+            background-color: #ffffff;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
+            display: none;
+        }
+
+        #errorEntriesToggle {
+            font-weight: bold;
+        }
+
+        #errorEntries .copy-button {
+            background-color: #28a745;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -398,7 +445,13 @@
     <!-- Clear memory button -->
     <button class="clear-memory-button" onclick="clearMemory()">Clear Memory</button>
 
-    <!-- Credits in upper-right corner -->
+    <!-- Username and Logout -->
+    <div id="usernameDisplay" style="position: absolute; top: 20px; right: 20px; cursor: pointer;">
+        <span id="usernameSpan"></span>
+        <div id="logoutButton" style="display: none;">Logout</div>
+    </div>
+
+    <!-- Credits in bottom-center -->
     <div id="credits">
         This tool is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
     </div>
@@ -418,6 +471,7 @@
     <div class="login-container">
         <input type="text" id="username" placeholder="Enter your name">
         <input type="password" id="password" placeholder="Enter your password">
+        <input type="text" id="journal" placeholder="Enter journal abbreviation" autocomplete="off">
         <button id="loginButton" onclick="login()">Login</button>
     </div>
 
@@ -446,6 +500,18 @@
         </div>
     </div>
 
+    <!-- New box for incomplete entries -->
+    <div id="errorEntriesContainer">
+        <div id="errorEntriesHeader" onclick="toggleBox('errorEntries')">
+            Incomplete Entries
+            <span id="errorEntriesToggle">[+]</span>
+        </div>
+        <div id="errorEntries" class="input-boxes">
+            <!-- Error entries will be dynamically inserted here -->
+            <button class="copy-button" onclick="copyErrors()">Copy Errors</button>
+        </div>
+    </div>
+
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('roughBox')">
             Rough Work
@@ -461,17 +527,22 @@
             <div class="hourglass"></div>
         </div>
         <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
-        <button id="lockButton" style="display:none;" onclick="toggleLock()">🔒 Lock</button>
+        <button id="lockButton" style="display:none;" title="Lock to prevent accidental inputs" onclick="toggleLock()">🔒 Lock</button>
         <button id="startButton" onclick="startProcessing()">Start</button>
     </div>
 
     <div id="adCount" style="display:none;">
         Total Advertisements: <span id="totalAds">0</span>
         <span id="loadingIndicator">Loading, please wait...</span>
+        <span id="infoIcon" style="cursor: pointer;" onclick="showAdHistory()">ℹ️</span>
+        <div id="adHistory" style="display:none;">
+            <!-- Last 5 days of ad counts will be dynamically inserted here -->
+        </div>
     </div>
     <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
     <div class="progress-bar" id="progressBar"></div>
     <div id="countryCount" style="display:none;"></div>
+    <div id="journalName" style="display:none; margin-top: 10px;"></div>
 
     <div id="output" class="text-container" style="display:none;" contenteditable="true">
         <p id="cursorStart">Place your cursor here</p>
@@ -521,6 +592,43 @@
             "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
             "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U. S. A.", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire"
         ];
+
+        const journalMapping = {
+            'DM': 'Advances and Applications in Discrete Mathematics',
+            'AADM': 'Advances and Applications in Discrete Mathematics',
+            'FM': 'Advances and Applications in Fluid Mechanics',
+            'AAFM': 'Advances and Applications in Fluid Mechanics',
+            'ADAS': 'Advances and Applications in Statistics',
+            'DE': 'Advances in Differential Equations and Control Processes',
+            'ADECP': 'Advances in Differential Equations and Control Processes',
+            'AFSS': 'Advances in Fuzzy Sets and Systems',
+            'fuzzy': 'Advances in Fuzzy Sets and Systems',
+            'AM': 'Far East Journal of Applied Mathematics',
+            'FJAM': 'Far East Journal of Applied Mathematics',
+            'DS': 'Far East Journal of Dynamical Systems',
+            'FJDS': 'Far East Journal of Dynamical Systems',
+            'ME': 'Far East Journal of Mathematical Education',
+            'FJME': 'Far East Journal of Mathematical Education',
+            'MS': 'Far East Journal of Mathematical Sciences (FJMS)',
+            'FJMS': 'Far East Journal of Mathematical Sciences (FJMS)',
+            'TS': 'Far East Journal of Theoretical Statistics',
+            'FJTS': 'Far East Journal of Theoretical Statistics',
+            'MET': 'International Journal of Materials Engineering and Technology',
+            'IJMET': 'International Journal of Materials Engineering and Technology',
+            'NM': 'International Journal of Numerical Methods and Applications',
+            'IJNMA': 'International Journal of Numerical Methods and Applications',
+            'IJND': 'International Journal of Nutrition and Dietetics',
+            'ANT': 'JP Journal of Algebra, Number Theory and Applications',
+            'JPANTA': 'JP Journal of Algebra, Number Theory and Applications',
+            'Bio': 'JP Journal of Biostatistics',
+            'JPJB': 'JP Journal of Biostatistics',
+            'GT': 'JP Journal of Geometry and Topology',
+            'JPGT': 'JP Journal of Geometry and Topology',
+            'HMT': 'JP Journal of Heat and Mass Transfer',
+            'JPHMT': 'JP Journal of Heat and Mass Transfer',
+            'UJMS': 'Universal Journal of Mathematics and Mathematical Sciences',
+            'UJMMS': 'Universal Journal of Mathematics and Mathematical Sciences'
+        };
 
         let currentUser = null;
         let dailyAdCount = 0;
@@ -640,7 +748,7 @@
 
         function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
-            const maxCount = 1200; // Number of entries for the bar to be fully filled
+            const maxCount = 1500; // Number of entries for the bar to be fully filled
 
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
@@ -670,7 +778,9 @@
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
+            const errorEntriesContainer = document.getElementById('errorEntries');
             outputContainer.innerHTML = ''; // Clear existing content
+            errorEntriesContainer.innerHTML = ''; // Clear error entries
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
@@ -684,8 +794,15 @@
                     const paragraph = paragraphs[index];
                     if (paragraph.trim() !== '') {
                         const p = document.createElement('p');
-                        p.innerHTML = highlightErrors(paragraph.replace(/\n/g, '<br>'));
-                        outputContainer.appendChild(p);
+                        const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
+
+                        if (highlightedText.includes('error')) {
+                            p.innerHTML = highlightedText;
+                            errorEntriesContainer.appendChild(p); // Append to error entries
+                        } else {
+                            p.innerHTML = highlightedText;
+                            outputContainer.appendChild(p); // Append to normal output
+                        }
                     }
                 }
                 if (index < paragraphs.length) {
@@ -695,8 +812,6 @@
                     saveText();
                     document.getElementById('lockButton').style.display = 'inline-block';
 
-                    // Move error entries last, including "Russia"
-                    moveEntriesToEnd('Russia', outputContainer, true);
                     ensureProblemHeading(); // Ensure problem heading is added
 
                     document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator
@@ -866,31 +981,26 @@
         }
 
         function toggleLock() {
-    const lockButton = document.getElementById('lockButton');
-    const interactiveElements = document.querySelectorAll('input, button, textarea, select');
-    isLocked = !isLocked;
+            const lockButton = document.getElementById('lockButton');
+            const interactiveElements = document.querySelectorAll('input, button, textarea, select');
+            isLocked = !isLocked;
 
-    if (isLocked) {
-        lockButton.innerHTML = '🔓 Unlock';
-        interactiveElements.forEach(element => {
-            if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
-                element.disabled = true;
-            }
-        });
-        // Disable scrolling
-        document.body.style.overflow = 'hidden';
-    } else {
-        lockButton.innerHTML = '🔒 Lock';
-        interactiveElements.forEach(element => {
-            if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
-                element.disabled = false;
-            }
-        });
-        // Enable scrolling
-        document.body.style.overflow = 'auto';
-    }
-}
+            if (isLocked) {
+                lockButton.innerHTML = '🔓 Unlock';
+                interactiveElements.forEach(element => {
+                    if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
+                        element.disabled = true;
+                    }
                 });
+                document.body.style.overflow = 'hidden'; // Lock scrolling
+            } else {
+                lockButton.innerHTML = '🔒 Lock';
+                interactiveElements.forEach(element => {
+                    if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
+                        element.disabled = false;
+                    }
+                });
+                document.body.style.overflow = 'auto'; // Unlock scrolling
             }
         }
 
@@ -910,8 +1020,9 @@
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const journalAbbr = document.getElementById('journal').value.toUpperCase().trim();
 
-            if (username && password) {
+            if (username && password && journalAbbr) {
                 currentUser = `${username}_${password}`;
                 document.querySelector('.login-container').style.display = 'none';
                 document.querySelector('.font-controls').style.display = 'block';
@@ -922,23 +1033,67 @@
                 document.getElementById('remainingTime').style.display = 'block';
                 document.getElementById('countryCount').style.display = 'block';
                 document.getElementById('output').style.display = 'block';
+
+                // Show journal full name
+                const journalFullName = journalMapping[journalAbbr];
+                if (journalFullName) {
+                    const journalNameElem = document.getElementById('journalName');
+                    journalNameElem.innerText = `Journal Name: ${journalFullName}`;
+                    journalNameElem.style.display = 'block';
+                } else {
+                    alert('Invalid journal abbreviation');
+                    return;
+                }
+
                 loadText();
+
+                // Display username and logout option
+                document.getElementById('usernameSpan').innerText = username;
+                document.getElementById('usernameDisplay').style.display = 'block';
             } else {
-                alert('Please enter both username and password.');
+                alert('Please enter all the fields: username, password, and journal abbreviation.');
             }
         }
 
-        document.getElementById('output').addEventListener('click', function(event) {
-            if (event.target.id === 'cursorStart') {
-                startMonitoring();
-            } else {
-                handleMouseClick(event);
-            }
-        });
+        function copyErrors() {
+            const errorText = document.getElementById('errorEntries').innerText;
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = errorText;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
+            alert('Error entries copied!');
+        }
 
-        document.querySelectorAll('input[name="cutOption"]').forEach(option => {
-            option.addEventListener('change', startMonitoring);
-        });
+        function showAdHistory() {
+            const adHistoryElem = document.getElementById('adHistory');
+            const last5DaysAds = [
+                { date: '2024-08-18', count: 1000 },
+                { date: '2024-08-19', count: 1200 },
+                { date: '2024-08-20', count: 1400 },
+                { date: '2024-08-21', count: 1300 },
+                { date: '2024-08-22', count: 1250 }
+            ]; // Example data, replace with actual logic
+            adHistoryElem.innerHTML = last5DaysAds.map(day => `
+                <div>
+                    ${day.date}: ${day.count}
+                    <div class="progress-bar" style="width:${(day.count / 1500) * 100}%; background-color:${day.count > 1200 ? 'green' : 'red'};"></div>
+                </div>
+            `).join('');
+            adHistoryElem.style.display = adHistoryElem.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function dismissPopup() {
+            document.getElementById('reminderPopup').style.display = 'none';
+            document.title = originalTitle;
+            clearInterval(blinkInterval);
+        }
+
+        function showPopup() {
+            document.getElementById('reminderPopup').style.display = 'block';
+            blinkTab();
+        }
 
         function checkDailyReset() {
             const now = new Date();
@@ -983,59 +1138,6 @@
         // Check reminders every minute
         setInterval(checkReminders, 60000);
 
-        // Show the reminder popup
-        function showPopup() {
-            document.getElementById('reminderPopup').style.display = 'block';
-            blinkTab();
-        }
-
-        // Dismiss the reminder popup
-        function dismissPopup() {
-            document.getElementById('reminderPopup').style.display = 'none';
-            document.title = originalTitle;
-            clearInterval(blinkInterval);
-        }
-
-        // Handle slot selection and saving
-        document.querySelectorAll('.reminder-slots li').forEach(slot => {
-            slot.addEventListener('click', () => {
-                slot.classList.toggle('selected');
-                saveSelectedReminders();
-            });
-        });
-
-        function saveSelectedReminders() {
-            const selectedSlots = [];
-            document.querySelectorAll('.reminder-slots li.selected').forEach(slot => {
-                selectedSlots.push(slot.dataset.time);
-            });
-            localStorage.setItem(`selectedReminders_${currentUser}`, JSON.stringify(selectedSlots));
-        }
-
-        function loadSelectedReminders() {
-            const savedSlots = localStorage.getItem(`selectedReminders_${currentUser}`);
-            if (savedSlots) {
-                const selectedSlots = JSON.parse(savedSlots);
-                document.querySelectorAll('.reminder-slots li').forEach(slot => {
-                    if (selectedSlots.includes(slot.dataset.time)) {
-                        slot.classList.add('selected');
-                    }
-                });
-            }
-        }
-
-        // Blink tab title when minimized
-        let originalTitle = document.title;
-        let blinkInterval;
-
-        function blinkTab() {
-            let isOriginalTitle = true;
-            blinkInterval = setInterval(() => {
-                document.title = isOriginalTitle ? '🔔 Reminder: Send Ads!' : originalTitle;
-                isOriginalTitle = !isOriginalTitle;
-            }, 1000);
-        }
-
         // Toggle Fullscreen Mode
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
@@ -1058,6 +1160,18 @@
                     }
                 });
             }
+        }
+
+        // Blink tab title when minimized
+        let originalTitle = document.title;
+        let blinkInterval;
+
+        function blinkTab() {
+            let isOriginalTitle = true;
+            blinkInterval = setInterval(() => {
+                document.title = isOriginalTitle ? '🔔 Reminder: Send Ads!' : originalTitle;
+                isOriginalTitle = !isOriginalTitle;
+            }, 1000);
         }
 
         // Blink browser icon
@@ -1088,6 +1202,26 @@
                 Notification.requestPermission();
             }
         });
+
+        // Confirm before closing the window
+        window.onbeforeunload = function (e) {
+            e.preventDefault();
+            const message = 'If you close the window you will lose reminder notifications. Please minimize the window instead.';
+            if (e) e.returnValue = message;
+            return message;
+        };
+
+        // Logout functionality
+        document.getElementById('usernameSpan').addEventListener('click', function () {
+            const logoutButton = document.getElementById('logoutButton');
+            logoutButton.style.display = logoutButton.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', function () {
+            currentUser = null;
+            location.reload();
+        });
+
     </script>
 </body>
 
