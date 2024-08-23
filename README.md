@@ -12,7 +12,7 @@
             margin: 0;
             color: #333;
             position: relative;
-            overflow: hidden; /* Prevent scrolling when locked */
+            overflow: auto; /* Allow scrolling initially */
         }
 
         h1 {
@@ -23,7 +23,8 @@
         }
 
         .font-controls,
-        .login-container {
+        .login-container,
+        .input-container {
             background-color: #ffffff;
             padding: 20px;
             border-radius: 8px;
@@ -104,18 +105,13 @@
         }
 
         #loginButton {
-            background-color: #007bff;
+            background-color: #28a745;
             margin-top: 10px;
             font-size: 16px;
-            padding: 12px 24px;
-            font-weight: bold;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s;
         }
 
         #loginButton:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
 
         #loginButton:active {
@@ -129,6 +125,25 @@
 
         #lockButton:hover {
             background-color: #0e619f;
+        }
+
+        #lockButton:before {
+            content: "Lock to prevent accidental inputs";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            visibility: hidden;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px;
+            z-index: 1;
+        }
+
+        #lockButton:hover::before {
+            visibility: visible;
         }
 
         #undoButton {
@@ -167,8 +182,7 @@
             border-radius: 5px;
         }
 
-        .rough-container,
-        .incomplete-container {
+        .rough-container {
             width: 30%;
             margin-left: 2%;
         }
@@ -215,16 +229,6 @@
             color: #34495e;
         }
 
-        #journalName {
-            position: absolute;
-            left: 20px;
-            top: 220px;
-            font-size: 16px;
-            font-weight: bold;
-            line-height: 1.5;
-            color: #34495e;
-        }
-
         #cursorStart {
             font-weight: bold;
             color: #3498db;
@@ -232,9 +236,8 @@
 
         #credits {
             position: absolute;
-            bottom: 20px;
-            width: 100%;
-            text-align: center;
+            top: 20px;
+            right: 20px;
             font-size: 16px;
             color: #34495e;
         }
@@ -246,15 +249,6 @@
 
         #credits a:hover {
             text-decoration: underline;
-        }
-
-        #usernameDisplay {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 16px;
-            color: #34495e;
-            cursor: pointer;
         }
 
         .error {
@@ -420,40 +414,6 @@
             border-radius: 2px;
             margin-top: 10px;
         }
-
-        /* Styles for the "Incomplete Entries" box */
-        .incomplete-container {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
-        }
-
-        .incomplete-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            background-color: #e74c3c;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .copy-button {
-            background-color: #28a745;
-            margin-left: 20px;
-        }
-
-        .copy-button:hover {
-            background-color: #218838;
-        }
-
-        .copy-button:active {
-            transform: scale(0.95);
-        }
-
     </style>
 </head>
 
@@ -463,10 +423,7 @@
     <!-- Clear memory button -->
     <button class="clear-memory-button" onclick="clearMemory()">Clear Memory</button>
 
-    <!-- Username display -->
-    <div id="usernameDisplay" onclick="showLogout()"></div>
-
-    <!-- Credits in bottom-center -->
+    <!-- Credits in upper-right corner -->
     <div id="credits">
         This tool is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
     </div>
@@ -486,7 +443,6 @@
     <div class="login-container">
         <input type="text" id="username" placeholder="Enter your name">
         <input type="password" id="password" placeholder="Enter your password">
-        <input type="text" id="journalAbbr" placeholder="Enter journal abbreviation">
         <button id="loginButton" onclick="login()">Login</button>
     </div>
 
@@ -515,15 +471,15 @@
         </div>
     </div>
 
-    <!-- Incomplete Entries Box -->
+    <!-- New Incomplete Entries Container -->
     <div class="input-container" style="display:none;">
-        <div class="container-header incomplete-header" onclick="toggleBox('incompleteBox')">
+        <div class="container-header" onclick="toggleBox('incompleteBox')">
             Incomplete Entries
             <span id="incompleteBoxToggle">[+]</span>
         </div>
-        <div id="incompleteBox" class="input-boxes incomplete-container">
-            <textarea id="incompleteText" rows="5" readonly></textarea>
-            <button class="copy-button" onclick="copyIncompleteEntries()">Copy</button>
+        <div id="incompleteBox" class="input-boxes rough-container">
+            <textarea id="incompleteEntries" rows="5" readonly placeholder="Incomplete entries will appear here..."></textarea>
+            <button id="copyButton" onclick="copyIncompleteEntries()">Copy</button>
         </div>
     </div>
 
@@ -542,7 +498,7 @@
             <div class="hourglass"></div>
         </div>
         <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
-        <button id="lockButton" style="display:none;" title="Lock to prevent accidental inputs" onmouseover="showLockHint()" onclick="toggleLock()">🔒 Lock</button>
+        <button id="lockButton" style="display:none;" onclick="toggleLock()">🔒 Lock</button>
         <button id="startButton" onclick="startProcessing()">Start</button>
     </div>
 
@@ -550,10 +506,7 @@
         Total Advertisements: <span id="totalAds">0</span>
         <span id="loadingIndicator">Loading, please wait...</span>
     </div>
-    <div id="dailyAdCount" style="display:none;">
-        Total Ads Sent Today: 0
-        <span class="info-icon" onclick="showAdHistory()">ℹ️</span>
-    </div>
+    <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
     <div class="progress-bar" id="progressBar"></div>
     <div id="countryCount" style="display:none;"></div>
 
@@ -589,43 +542,6 @@
         let cutHistory = [];
         let isLocked = false;
         let isProcessing = false; // Flag to prevent multiple processing
-        let journalFullName = '';
-        const journalAbbreviations = {
-            DM: 'Advances and Applications in Discrete Mathematics',
-            AADM: 'Advances and Applications in Discrete Mathematics',
-            FM: 'Advances and Applications in Fluid Mechanics',
-            AAFM: 'Advances and Applications in Fluid Mechanics',
-            ADAS: 'Advances and Applications in Statistics',
-            DE: 'Advances in Differential Equations and Control Processes',
-            ADECP: 'Advances in Differential Equations and Control Processes',
-            AFSS: 'Advances in Fuzzy Sets and Systems',
-            fuzzy: 'Advances in Fuzzy Sets and Systems',
-            AM: 'Far East Journal of Applied Mathematics',
-            FJAM: 'Far East Journal of Applied Mathematics',
-            DS: 'Far East Journal of Dynamical Systems',
-            FJDS: 'Far East Journal of Dynamical Systems',
-            ME: 'Far East Journal of Mathematical Education',
-            FJME: 'Far East Journal of Mathematical Education',
-            MS: 'Far East Journal of Mathematical Sciences',
-            FJMS: 'Far East Journal of Mathematical Sciences',
-            TS: 'Far East Journal of Theoretical Statistics',
-            FJTS: 'Far East Journal of Theoretical Statistics',
-            MET: 'International Journal of Materials Engineering and Technology',
-            IJMET: 'International Journal of Materials Engineering and Technology',
-            NM: 'International Journal of Numerical Methods and Applications',
-            IJNMA: 'International Journal of Numerical Methods and Applications',
-            IJND: 'International Journal of Nutrition and Dietetics',
-            ANT: 'JP Journal of Algebra, Number Theory and Applications',
-            JPANTA: 'JP Journal of Algebra, Number Theory and Applications',
-            Bio: 'JP Journal of Biostatistics',
-            JPJB: 'JP Journal of Biostatistics',
-            GT: 'JP Journal of Geometry and Topology',
-            JPGT: 'JP Journal of Geometry and Topology',
-            HMT: 'JP Journal of Heat and Mass Transfer',
-            JPHMT: 'JP Journal of Heat and Mass Transfer',
-            UJMS: 'Universal Journal of Mathematics and Mathematical Sciences',
-            UJMMS: 'Universal Journal of Mathematics and Mathematical Sciences'
-        };
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -738,7 +654,7 @@
 
         function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
-            const maxCount = 1500; // Updated to 1500 ads for full bar
+            const maxCount = 1200; // Number of entries for the bar to be fully filled
 
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
@@ -768,14 +684,14 @@
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
-            const incompleteContainer = document.getElementById('incompleteText');
             outputContainer.innerHTML = ''; // Clear existing content
-            incompleteContainer.value = ''; // Clear existing incomplete entries
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
 
             let index = 0;
+
+            const incompleteEntries = []; // Collect incomplete entries here
 
             function processChunk() {
                 const chunkSize = 10; // Reduce chunk size for better separation
@@ -783,11 +699,13 @@
                 for (; index < end; index++) {
                     const paragraph = paragraphs[index];
                     if (paragraph.trim() !== '') {
+                        const p = document.createElement('p');
                         const highlightedParagraph = highlightErrors(paragraph.replace(/\n/g, '<br>'));
-                        if (highlightedParagraph.includes('error')) {
-                            incompleteContainer.value += highlightedParagraph.replace(/<[^>]*>/g, '') + '\n\n';
+
+                        // Check if the paragraph has errors
+                        if (highlightedParagraph.includes('class="error"')) {
+                            incompleteEntries.push(paragraph); // Store in incomplete entries
                         } else {
-                            const p = document.createElement('p');
                             p.innerHTML = highlightedParagraph;
                             outputContainer.appendChild(p);
                         }
@@ -799,6 +717,11 @@
                     updateCounts();
                     saveText();
                     document.getElementById('lockButton').style.display = 'inline-block';
+
+                    ensureProblemHeading(); // Ensure problem heading is added
+
+                    // Update the incomplete entries box with the stored entries
+                    document.getElementById('incompleteEntries').value = incompleteEntries.join('\n\n');
 
                     document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator
                     isProcessing = false; // Reset processing flag
@@ -942,7 +865,8 @@
                         element.disabled = true;
                     }
                 });
-                document.body.style.overflow = 'hidden'; // Lock scrolling
+                document.body.style.overflow = 'hidden'; // Disable scrolling
+                document.addEventListener('scroll', showScrollNotice, { passive: false });
             } else {
                 lockButton.innerHTML = '🔒 Lock';
                 interactiveElements.forEach(element => {
@@ -950,12 +874,14 @@
                         element.disabled = false;
                     }
                 });
-                document.body.style.overflow = ''; // Unlock scrolling
+                document.body.style.overflow = 'auto'; // Enable scrolling
+                document.removeEventListener('scroll', showScrollNotice);
             }
         }
 
-        function showLockHint() {
-            document.getElementById('lockButton').title = 'Lock to prevent accidental inputs';
+        function showScrollNotice(event) {
+            event.preventDefault(); // Prevent scrolling
+            alert("Scrolling is locked, first unlock to do scrolling.");
         }
 
         function toggleBox(boxId) {
@@ -971,14 +897,19 @@
             }
         }
 
+        function copyIncompleteEntries() {
+            const incompleteEntries = document.getElementById('incompleteEntries');
+            incompleteEntries.select();
+            document.execCommand('copy');
+            alert('Incomplete entries copied to clipboard.');
+        }
+
         function login() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            const journalAbbr = document.getElementById('journalAbbr').value.toUpperCase();
 
-            if (username && password && journalAbbr) {
+            if (username && password) {
                 currentUser = `${username}_${password}`;
-                journalFullName = journalAbbreviations[journalAbbr] || 'Unknown Journal';
                 document.querySelector('.login-container').style.display = 'none';
                 document.querySelector('.font-controls').style.display = 'block';
                 document.querySelectorAll('.input-container').forEach(container => container.style.display = 'block');
@@ -988,45 +919,23 @@
                 document.getElementById('remainingTime').style.display = 'block';
                 document.getElementById('countryCount').style.display = 'block';
                 document.getElementById('output').style.display = 'block';
-                document.getElementById('usernameDisplay').innerText = username;
-                document.getElementById('usernameDisplay').style.display = 'block';
-                document.getElementById('journalName').innerText = `Journal Name: ${journalFullName}`;
-                document.getElementById('journalName').style.display = 'block';
                 loadText();
             } else {
-                alert('Please enter username, password, and journal abbreviation.');
+                alert('Please enter both username and password.');
             }
         }
 
-        function showLogout() {
-            const logoutConfirm = confirm('Do you want to logout?');
-            if (logoutConfirm) {
-                currentUser = null;
-                document.querySelector('.login-container').style.display = 'block';
-                document.querySelector('.font-controls').style.display = 'none';
-                document.querySelectorAll('.input-container').forEach(container => container.style.display = 'none');
-                document.querySelector('.top-controls').style.display = 'none';
-                document.getElementById('adCount').style.display = 'none';
-                document.getElementById('dailyAdCount').style.display = 'none';
-                document.getElementById('remainingTime').style.display = 'none';
-                document.getElementById('countryCount').style.display = 'none';
-                document.getElementById('output').style.display = 'none';
-                document.getElementById('usernameDisplay').style.display = 'none';
-                document.getElementById('journalName').style.display = 'none';
+        document.getElementById('output').addEventListener('click', function(event) {
+            if (event.target.id === 'cursorStart') {
+                startMonitoring();
+            } else {
+                handleMouseClick(event);
             }
-        }
+        });
 
-        function copyIncompleteEntries() {
-            const incompleteText = document.getElementById('incompleteText').value;
-            navigator.clipboard.writeText(incompleteText).then(() => {
-                alert('Incomplete entries copied to clipboard.');
-            });
-        }
-
-        function showAdHistory() {
-            // Implement logic to show last 5 days "total ads sent counts"
-            alert('Last 5 days "total ads sent counts" will be displayed here with a small progress bar.');
-        }
+        document.querySelectorAll('input[name="cutOption"]').forEach(option => {
+            option.addEventListener('change', startMonitoring);
+        });
 
         function checkDailyReset() {
             const now = new Date();
@@ -1073,10 +982,8 @@
 
         // Show the reminder popup
         function showPopup() {
-            if (!isLocked) { // Only show popup if not locked
-                document.getElementById('reminderPopup').style.display = 'block';
-                blinkTab();
-            }
+            document.getElementById('reminderPopup').style.display = 'block';
+            blinkTab();
         }
 
         // Dismiss the reminder popup
@@ -1177,12 +1084,6 @@
             if (Notification.permission !== 'granted') {
                 Notification.requestPermission();
             }
-        });
-
-        // Handle window close event
-        window.addEventListener('beforeunload', function (e) {
-            e.preventDefault();
-            e.returnValue = 'Are you sure you want to close? You will lose the reminder notifications. Please minimize instead.';
         });
     </script>
 </body>
