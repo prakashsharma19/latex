@@ -157,6 +157,11 @@
             border-radius: 5px;
         }
 
+        .rough-container {
+            width: 30%;
+            margin-left: 2%;
+        }
+
         .input-boxes {
             display: none;
         }
@@ -384,54 +389,6 @@
             border-radius: 2px;
             margin-top: 10px;
         }
-
-        /* Incorrect Entries Box */
-        .incorrect-container {
-            width: 30%;
-            margin-left: 2%;
-            margin-top: 20px;
-            background-color: #f8d7da;
-            padding: 15px;
-            border-radius: 5px;
-            border: 1px solid #f5c6cb;
-        }
-
-        .incorrect-container .container-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #721c24;
-        }
-
-        #incorrectEntries {
-            width: 100%;
-            border-radius: 5px;
-            padding: 10px;
-            font-size: 16px;
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-            margin-top: 10px;
-            white-space: pre-wrap;
-            height: 200px;
-            overflow-y: auto;
-        }
-
-        #copyIncorrectButton {
-            background-color: #721c24;
-            color: white;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            border: none;
-            margin-top: 10px;
-            float: right;
-        }
-
-        #copyIncorrectButton:hover {
-            background-color: #b21f2d;
-        }
     </style>
 </head>
 
@@ -489,12 +446,14 @@
         </div>
     </div>
 
-    <div class="input-container incorrect-container" style="display:none;">
-        <div class="container-header">
-            Incorrect Entries
+    <div class="input-container" style="display:none;">
+        <div class="container-header" onclick="toggleBox('roughBox')">
+            Rough Work
+            <span id="roughBoxToggle">[+]</span>
         </div>
-        <textarea id="incorrectEntries" readonly></textarea>
-        <button id="copyIncorrectButton" onclick="copyIncorrectEntries()">Copy</button>
+        <div id="roughBox" class="input-boxes rough-container">
+            <textarea id="roughText" rows="5" placeholder="Rough Work..."></textarea>
+        </div>
     </div>
 
     <div class="top-controls" style="display:none;">
@@ -560,7 +519,7 @@
             "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
             "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
             "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
-            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "Korea", "UAE"
+            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U. S. A.", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire"
         ];
 
         let currentUser = null;
@@ -712,7 +671,6 @@
             const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
             outputContainer.innerHTML = ''; // Clear existing content
-            const incorrectEntries = [];
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
@@ -726,14 +684,8 @@
                     const paragraph = paragraphs[index];
                     if (paragraph.trim() !== '') {
                         const p = document.createElement('p');
-                        const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
-                        p.innerHTML = highlightedText;
+                        p.innerHTML = highlightErrors(paragraph.replace(/\n/g, '<br>'));
                         outputContainer.appendChild(p);
-
-                        // Add incorrect entries to the array
-                        if (highlightedText.includes('<span class="error">')) {
-                            incorrectEntries.push(paragraph);
-                        }
                     }
                 }
                 if (index < paragraphs.length) {
@@ -743,8 +695,9 @@
                     saveText();
                     document.getElementById('lockButton').style.display = 'inline-block';
 
-                    // Display incorrect entries in the dedicated box
-                    displayIncorrectEntries(incorrectEntries);
+                    // Move error entries last, including "Russia"
+                    moveEntriesToEnd('Russia', outputContainer, true);
+                    ensureProblemHeading(); // Ensure problem heading is added
 
                     document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator
                     isProcessing = false; // Reset processing flag
@@ -757,16 +710,50 @@
             processText(); // Ensure it only processes the text once
         }
 
-        function displayIncorrectEntries(entries) {
-            const incorrectEntriesBox = document.getElementById('incorrectEntries');
-            incorrectEntriesBox.value = entries.join("\n\n");
-            document.querySelector('.incorrect-container').style.display = 'block';
+        function ensureProblemHeading() {
+            const outputContainer = document.getElementById('output');
+            if (!document.querySelector('.problem-heading')) {
+                const problemHeading = document.createElement('p');
+                problemHeading.className = 'problem-heading';
+                problemHeading.innerText = 'Check before sent';
+                outputContainer.appendChild(problemHeading);
+            }
         }
 
-        function copyIncorrectEntries() {
-            const incorrectEntriesBox = document.getElementById('incorrectEntries');
-            incorrectEntriesBox.select();
-            document.execCommand('copy');
+        function moveEntriesToEnd(keyword, outputContainer, includeErrors = false) {
+            const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
+
+            const paragraphsWithKeyword = [];
+            const paragraphsWithProblems = [];
+            const otherParagraphs = [];
+
+            paragraphs.forEach(paragraph => {
+                const text = paragraph.innerText;
+                const hasError = text.includes('?') || text.includes('Missing email') || text.includes('Missing country');
+                if (text.includes(keyword) && !hasError) {
+                    paragraphsWithKeyword.push(paragraph);
+                } else if (includeErrors && hasError) {
+                    paragraphsWithProblems.push(paragraph);
+                } else {
+                    otherParagraphs.push(paragraph);
+                }
+            });
+
+            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+            otherParagraphs.forEach(paragraph => {
+                outputContainer.appendChild(paragraph);
+            });
+
+            paragraphsWithKeyword.forEach(paragraph => {
+                outputContainer.appendChild(paragraph);
+            });
+
+            if (paragraphsWithProblems.length > 0) {
+                ensureProblemHeading();
+                paragraphsWithProblems.forEach(paragraph => {
+                    outputContainer.appendChild(paragraph);
+                });
+            }
         }
 
         function cutParagraph(paragraph) {
