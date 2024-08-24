@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -390,29 +389,6 @@
             border-radius: 2px;
             margin-top: 10px;
         }
-
-        /* New styles for the Incomplete Entries box */
-        #incompleteEntries {
-            display: none;
-            background-color: #ffffff;
-            padding: 15px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            white-space: pre-wrap;
-            margin-top: 20px;
-        }
-
-        #incompleteEntries p {
-            margin: 0 0 10px;
-            border-bottom: 1px solid #e0e0e0;
-            line-height: 1.5;
-        }
-
-        #copyIncompleteButton {
-            margin-top: 10px;
-            background-color: #1171ba;
-        }
     </style>
 </head>
 
@@ -459,7 +435,7 @@
         <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
     </div>
 
-    <div class="input-container">
+    <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('pasteBox')">
             Paste your text here
             <span id="pasteBoxToggle">[+]</span>
@@ -470,15 +446,15 @@
         </div>
     </div>
 
-    <!-- New Incomplete Entries box -->
-    <div class="input-container">
-        <div class="container-header" onclick="toggleBox('incompleteEntries')">
+    <!-- Incomplete Entries Box -->
+    <div class="input-container" style="display:none;">
+        <div class="container-header" onclick="toggleBox('incompleteBox')">
             Incomplete Entries
-            <span id="incompleteEntriesToggle">[+]</span>
+            <span id="incompleteBoxToggle">[+]</span>
         </div>
-        <div id="incompleteEntries" class="input-boxes">
-            <div id="incompleteEntriesContent"></div>
-            <button id="copyIncompleteButton" onclick="copyIncompleteEntries()">Copy Incomplete Entries</button>
+        <div id="incompleteBox" class="input-boxes">
+            <textarea id="incompleteText" rows="5" placeholder="Incomplete entries will be shown here..."></textarea>
+            <button onclick="copyIncompleteEntries()">Copy</button>
         </div>
     </div>
 
@@ -535,6 +511,29 @@
     </div>
 
     <script>
+        const countryList = [
+            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
+            "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
+            "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
+            "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
+            "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
+            "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
+            "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+            "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel",
+            "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos",
+            "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
+            "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
+            "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
+            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
+            "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania",
+            "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal",
+            "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea",
+            "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
+            "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+            "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
+            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U. S. A.", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire"
+        ];
+
         let currentUser = null;
         let dailyAdCount = 0;
         let totalTimeInSeconds = 0;
@@ -556,10 +555,12 @@
             const inputText = document.getElementById('inputText').value;
             const roughText = document.getElementById('roughText').value;
             const outputText = document.getElementById('output').innerHTML;
+            const incompleteText = document.getElementById('incompleteText').value;
             if (currentUser) {
                 localStorage.setItem(`savedInput_${currentUser}`, inputText);
                 localStorage.setItem(`savedRough_${currentUser}`, roughText);
                 localStorage.setItem(`savedOutput_${currentUser}`, outputText);
+                localStorage.setItem(`savedIncomplete_${currentUser}`, incompleteText);
                 localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
                 localStorage.setItem(`lastCutTime_${currentUser}`, Date.now());
                 saveSelectedReminders();
@@ -571,6 +572,7 @@
                 const savedInput = localStorage.getItem(`savedInput_${currentUser}`);
                 const savedRough = localStorage.getItem(`savedRough_${currentUser}`);
                 const savedOutput = localStorage.getItem(`savedOutput_${currentUser}`);
+                const savedIncomplete = localStorage.getItem(`savedIncomplete_${currentUser}`);
                 const savedDailyAdCount = localStorage.getItem(`dailyAdCount_${currentUser}`);
                 const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
                 if (savedInput) {
@@ -582,6 +584,9 @@
                 if (savedOutput) {
                     document.getElementById('output').innerHTML = savedOutput;
                 }
+                if (savedIncomplete) {
+                    document.getElementById('incompleteText').value = savedIncomplete;
+                }
                 if (savedDailyAdCount && lastCutTime) {
                     const lastCutDate = new Date(parseInt(lastCutTime, 10));
                     const currentDate = new Date();
@@ -592,7 +597,6 @@
                 loadSelectedReminders();
                 updateCounts();
                 updateRemainingTime(); // Ensure remaining time is updated on login
-                ensureProblemHeading();
                 document.getElementById('lockButton').style.display = 'inline-block';
             }
         }
@@ -683,9 +687,9 @@
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
-            const incompleteEntriesContainer = document.getElementById('incompleteEntriesContent');
+            const incompleteContainer = document.getElementById('incompleteText');
             outputContainer.innerHTML = ''; // Clear existing content
-            incompleteEntriesContainer.innerHTML = ''; // Clear incomplete entries content
+            incompleteContainer.value = ''; // Clear incomplete entries
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
@@ -698,13 +702,16 @@
                 for (; index < end; index++) {
                     const paragraph = paragraphs[index];
                     if (paragraph.trim() !== '') {
-                        const p = document.createElement('p');
                         const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
-                        p.innerHTML = highlightedText;
+                        const hasError = highlightedText.includes('error');
 
-                        if (highlightedText.includes('error')) {
-                            incompleteEntriesContainer.appendChild(p);
+                        if (hasError) {
+                            // Add to incomplete entries
+                            incompleteContainer.value += paragraph + "\n\n";
                         } else {
+                            // Add to main output
+                            const p = document.createElement('p');
+                            p.innerHTML = highlightedText;
                             outputContainer.appendChild(p);
                         }
                     }
@@ -715,9 +722,6 @@
                     updateCounts();
                     saveText();
                     document.getElementById('lockButton').style.display = 'inline-block';
-
-                    ensureProblemHeading(); // Ensure problem heading is added
-
                     document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator
                     isProcessing = false; // Reset processing flag
                 }
@@ -727,52 +731,6 @@
 
         function startProcessing() {
             processText(); // Ensure it only processes the text once
-        }
-
-        function ensureProblemHeading() {
-            const outputContainer = document.getElementById('output');
-            if (!document.querySelector('.problem-heading')) {
-                const problemHeading = document.createElement('p');
-                problemHeading.className = 'problem-heading';
-                problemHeading.innerText = 'Check before sent';
-                outputContainer.appendChild(problemHeading);
-            }
-        }
-
-        function moveEntriesToEnd(keyword, outputContainer, includeErrors = false) {
-            const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
-
-            const paragraphsWithKeyword = [];
-            const paragraphsWithProblems = [];
-            const otherParagraphs = [];
-
-            paragraphs.forEach(paragraph => {
-                const text = paragraph.innerText;
-                const hasError = text.includes('?') || text.includes('Missing email') || text.includes('Missing country');
-                if (text.includes(keyword) && !hasError) {
-                    paragraphsWithKeyword.push(paragraph);
-                } else if (includeErrors && hasError) {
-                    paragraphsWithProblems.push(paragraph);
-                } else {
-                    otherParagraphs.push(paragraph);
-                }
-            });
-
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
-            otherParagraphs.forEach(paragraph => {
-                outputContainer.appendChild(paragraph);
-            });
-
-            paragraphsWithKeyword.forEach(paragraph => {
-                outputContainer.appendChild(paragraph);
-            });
-
-            if (paragraphsWithProblems.length > 0) {
-                ensureProblemHeading();
-                paragraphsWithProblems.forEach(paragraph => {
-                    outputContainer.appendChild(paragraph);
-                });
-            }
         }
 
         function cutParagraph(paragraph) {
@@ -1101,10 +1059,9 @@
             }
         });
 
-        // Copy the content of Incomplete Entries
+        // Copy incomplete entries to clipboard
         function copyIncompleteEntries() {
-            const incompleteText = document.getElementById('incompleteEntriesContent').innerText;
-
+            const incompleteText = document.getElementById('incompleteText').value;
             const tempTextarea = document.createElement('textarea');
             tempTextarea.style.position = 'fixed';
             tempTextarea.style.opacity = '0';
@@ -1113,7 +1070,6 @@
             tempTextarea.select();
             document.execCommand('copy');
             document.body.removeChild(tempTextarea);
-
             alert('Incomplete entries copied to clipboard!');
         }
     </script>
