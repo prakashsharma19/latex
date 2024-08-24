@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -12,7 +13,6 @@
             margin: 0;
             color: #333;
             position: relative;
-            overflow: auto; /* Allow scrolling initially */
         }
 
         h1 {
@@ -23,8 +23,7 @@
         }
 
         .font-controls,
-        .login-container,
-        .input-container {
+        .login-container {
             background-color: #ffffff;
             padding: 20px;
             border-radius: 8px;
@@ -121,29 +120,6 @@
         #lockButton {
             margin-left: 20px;
             background-color: #1171ba;
-        }
-
-        #lockButton:hover {
-            background-color: #0e619f;
-        }
-
-        #lockButton:before {
-            content: "Lock to prevent accidental inputs";
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            visibility: hidden;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 5px;
-            padding: 5px;
-            z-index: 1;
-        }
-
-        #lockButton:hover::before {
-            visibility: visible;
         }
 
         #undoButton {
@@ -414,6 +390,29 @@
             border-radius: 2px;
             margin-top: 10px;
         }
+
+        /* New styles for the Incomplete Entries box */
+        #incompleteEntries {
+            display: none;
+            background-color: #ffffff;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+
+        #incompleteEntries p {
+            margin: 0 0 10px;
+            border-bottom: 1px solid #e0e0e0;
+            line-height: 1.5;
+        }
+
+        #copyIncompleteButton {
+            margin-top: 10px;
+            background-color: #1171ba;
+        }
     </style>
 </head>
 
@@ -460,7 +459,7 @@
         <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
     </div>
 
-    <div class="input-container" style="display:none;">
+    <div class="input-container">
         <div class="container-header" onclick="toggleBox('pasteBox')">
             Paste your text here
             <span id="pasteBoxToggle">[+]</span>
@@ -471,15 +470,15 @@
         </div>
     </div>
 
-    <!-- New Incomplete Entries Container -->
-    <div class="input-container" style="display:none;">
-        <div class="container-header" onclick="toggleBox('incompleteBox')">
+    <!-- New Incomplete Entries box -->
+    <div class="input-container">
+        <div class="container-header" onclick="toggleBox('incompleteEntries')">
             Incomplete Entries
-            <span id="incompleteBoxToggle">[+]</span>
+            <span id="incompleteEntriesToggle">[+]</span>
         </div>
-        <div id="incompleteBox" class="input-boxes rough-container">
-            <textarea id="incompleteEntries" rows="5" readonly placeholder="Incomplete entries will appear here..."></textarea>
-            <button id="copyButton" onclick="copyIncompleteEntries()">Copy</button>
+        <div id="incompleteEntries" class="input-boxes">
+            <div id="incompleteEntriesContent"></div>
+            <button id="copyIncompleteButton" onclick="copyIncompleteEntries()">Copy Incomplete Entries</button>
         </div>
     </div>
 
@@ -684,14 +683,14 @@
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
+            const incompleteEntriesContainer = document.getElementById('incompleteEntriesContent');
             outputContainer.innerHTML = ''; // Clear existing content
+            incompleteEntriesContainer.innerHTML = ''; // Clear incomplete entries content
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
 
             let index = 0;
-
-            const incompleteEntries = []; // Collect incomplete entries here
 
             function processChunk() {
                 const chunkSize = 10; // Reduce chunk size for better separation
@@ -700,13 +699,12 @@
                     const paragraph = paragraphs[index];
                     if (paragraph.trim() !== '') {
                         const p = document.createElement('p');
-                        const highlightedParagraph = highlightErrors(paragraph.replace(/\n/g, '<br>'));
+                        const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
+                        p.innerHTML = highlightedText;
 
-                        // Check if the paragraph has errors
-                        if (highlightedParagraph.includes('class="error"')) {
-                            incompleteEntries.push(paragraph); // Store in incomplete entries
+                        if (highlightedText.includes('error')) {
+                            incompleteEntriesContainer.appendChild(p);
                         } else {
-                            p.innerHTML = highlightedParagraph;
                             outputContainer.appendChild(p);
                         }
                     }
@@ -719,9 +717,6 @@
                     document.getElementById('lockButton').style.display = 'inline-block';
 
                     ensureProblemHeading(); // Ensure problem heading is added
-
-                    // Update the incomplete entries box with the stored entries
-                    document.getElementById('incompleteEntries').value = incompleteEntries.join('\n\n');
 
                     document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator
                     isProcessing = false; // Reset processing flag
@@ -741,6 +736,42 @@
                 problemHeading.className = 'problem-heading';
                 problemHeading.innerText = 'Check before sent';
                 outputContainer.appendChild(problemHeading);
+            }
+        }
+
+        function moveEntriesToEnd(keyword, outputContainer, includeErrors = false) {
+            const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
+
+            const paragraphsWithKeyword = [];
+            const paragraphsWithProblems = [];
+            const otherParagraphs = [];
+
+            paragraphs.forEach(paragraph => {
+                const text = paragraph.innerText;
+                const hasError = text.includes('?') || text.includes('Missing email') || text.includes('Missing country');
+                if (text.includes(keyword) && !hasError) {
+                    paragraphsWithKeyword.push(paragraph);
+                } else if (includeErrors && hasError) {
+                    paragraphsWithProblems.push(paragraph);
+                } else {
+                    otherParagraphs.push(paragraph);
+                }
+            });
+
+            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+            otherParagraphs.forEach(paragraph => {
+                outputContainer.appendChild(paragraph);
+            });
+
+            paragraphsWithKeyword.forEach(paragraph => {
+                outputContainer.appendChild(paragraph);
+            });
+
+            if (paragraphsWithProblems.length > 0) {
+                ensureProblemHeading();
+                paragraphsWithProblems.forEach(paragraph => {
+                    outputContainer.appendChild(paragraph);
+                });
             }
         }
 
@@ -865,8 +896,6 @@
                         element.disabled = true;
                     }
                 });
-                document.body.style.overflow = 'hidden'; // Disable scrolling
-                document.addEventListener('scroll', showScrollNotice, { passive: false });
             } else {
                 lockButton.innerHTML = '🔒 Lock';
                 interactiveElements.forEach(element => {
@@ -874,14 +903,7 @@
                         element.disabled = false;
                     }
                 });
-                document.body.style.overflow = 'auto'; // Enable scrolling
-                document.removeEventListener('scroll', showScrollNotice);
             }
-        }
-
-        function showScrollNotice(event) {
-            event.preventDefault(); // Prevent scrolling
-            alert("Scrolling is locked, first unlock to do scrolling.");
         }
 
         function toggleBox(boxId) {
@@ -895,13 +917,6 @@
                 box.style.display = 'none';
                 toggleSymbol.innerText = '[+]';
             }
-        }
-
-        function copyIncompleteEntries() {
-            const incompleteEntries = document.getElementById('incompleteEntries');
-            incompleteEntries.select();
-            document.execCommand('copy');
-            alert('Incomplete entries copied to clipboard.');
         }
 
         function login() {
@@ -1085,6 +1100,22 @@
                 Notification.requestPermission();
             }
         });
+
+        // Copy the content of Incomplete Entries
+        function copyIncompleteEntries() {
+            const incompleteText = document.getElementById('incompleteEntriesContent').innerText;
+
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.style.position = 'fixed';
+            tempTextarea.style.opacity = '0';
+            tempTextarea.value = incompleteText;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
+
+            alert('Incomplete entries copied to clipboard!');
+        }
     </script>
 </body>
 
