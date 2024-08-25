@@ -121,6 +121,24 @@
             background-color: #1171ba;
         }
 
+        #lockButton:hover {
+            background-color: #0e619f;
+            position: relative;
+        }
+
+        #lockButton:hover::after {
+            content: "Lock to prevent accidental inputs";
+            position: absolute;
+            top: -30px;
+            left: 0;
+            background-color: #333;
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
         #undoButton {
             margin-left: 20px;
             background-color: #1171ba;
@@ -230,6 +248,10 @@
             color: #e74c3c;
             font-weight: bold;
             font-style: italic;
+        }
+
+        .highlight-added {
+            background-color: #f4e542;
         }
 
         .login-container input {
@@ -389,6 +411,23 @@
             border-radius: 2px;
             margin-top: 10px;
         }
+
+        .scroll-locked {
+            overflow: hidden;
+        }
+
+        .scroll-lock-notice {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 10000;
+            font-size: 14px;
+            display: none;
+        }
     </style>
 </head>
 
@@ -509,6 +548,9 @@
         <p>Send Ads</p>
         <button onclick="dismissPopup()">OK</button>
     </div>
+
+    <!-- Scroll Lock Notice -->
+    <div id="scrollLockNotice" class="scroll-lock-notice">Scrolling is locked. Unlock to scroll.</div>
 
     <script>
         const countryList = [
@@ -700,14 +742,18 @@
                 const chunkSize = 10; // Reduce chunk size for better separation
                 const end = Math.min(index + chunkSize, paragraphs.length);
                 for (; index < end; index++) {
-                    const paragraph = paragraphs[index];
-                    if (paragraph.trim() !== '') {
+                    let paragraph = paragraphs[index].trim();
+                    if (paragraph !== '') {
+                        if (!paragraph.toLowerCase().startsWith('professor')) {
+                            paragraph = `<span class="highlight-added">Professor</span> ${paragraph}`;
+                        }
+
                         const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
                         const hasError = highlightedText.includes('error');
 
                         if (hasError) {
                             // Add to incomplete entries
-                            incompleteContainer.value += paragraph + "\n\n";
+                            incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n')}\n\n`;
                         } else {
                             // Add to main output
                             const p = document.createElement('p');
@@ -724,6 +770,9 @@
                     document.getElementById('lockButton').style.display = 'inline-block';
                     document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator
                     isProcessing = false; // Reset processing flag
+
+                    moveEntriesToEnd('Russia', outputContainer, false); // Move Russia entries to the end
+                    moveEntriesToEnd('Russia', incompleteContainer, true); // Move Russia entries to the end in incomplete box
                 }
             }
             requestAnimationFrame(processChunk);
@@ -854,6 +903,7 @@
                         element.disabled = true;
                     }
                 });
+                document.body.classList.add('scroll-locked');
             } else {
                 lockButton.innerHTML = '🔒 Lock';
                 interactiveElements.forEach(element => {
@@ -861,6 +911,7 @@
                         element.disabled = false;
                     }
                 });
+                document.body.classList.remove('scroll-locked');
             }
         }
 
@@ -1071,6 +1122,37 @@
             document.execCommand('copy');
             document.body.removeChild(tempTextarea);
             alert('Incomplete entries copied to clipboard!');
+        }
+
+        // Handle scrolling lock and display notice
+        document.addEventListener('wheel', function(event) {
+            if (isLocked) {
+                event.preventDefault();
+                const scrollLockNotice = document.getElementById('scrollLockNotice');
+                scrollLockNotice.style.display = 'block';
+                setTimeout(() => {
+                    scrollLockNotice.style.display = 'none';
+                }, 2000);
+            }
+        }, { passive: false });
+
+        // Move entries containing a specific keyword to the end of the container
+        function moveEntriesToEnd(keyword, container, isTextArea) {
+            if (isTextArea) {
+                const lines = container.value.trim().split("\n\n");
+                const filteredLines = lines.filter(line => line.includes(keyword));
+                const remainingLines = lines.filter(line => !line.includes(keyword));
+
+                container.value = [...remainingLines, ...filteredLines].join("\n\n");
+            } else {
+                const paragraphs = Array.from(container.querySelectorAll('p'));
+                const filteredParagraphs = paragraphs.filter(paragraph => paragraph.innerText.includes(keyword));
+                const remainingParagraphs = paragraphs.filter(paragraph => !paragraph.innerText.includes(keyword));
+
+                container.innerHTML = '';
+                remainingParagraphs.forEach(paragraph => container.appendChild(paragraph));
+                filteredParagraphs.forEach(paragraph => container.appendChild(paragraph));
+            }
         }
     </script>
 </body>
