@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advertisements-PPH</title>
     <style>
-        /* Existing styles */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-color: #f4f4f4;
@@ -526,7 +525,7 @@
     <div class="progress-bar" id="progressBar"></div>
     <div id="countryCount" style="display:none;"></div>
 
-    <div id="output" class="text-container" style="display:block;" contenteditable="true">
+    <div id="output" class="text-container" style="display:none;" contenteditable="true">
         <p id="cursorStart">Place your cursor here</p>
     </div>
 
@@ -709,7 +708,7 @@
             const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
             const incompleteContainer = document.getElementById('incompleteText');
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>'; // Keep cursorStart visible
+            outputContainer.innerHTML = ''; // Clear existing content
             incompleteContainer.value = ''; // Clear incomplete entries
 
             const totalAds = countOccurrences(inputText, 'professor');
@@ -732,7 +731,7 @@
 
                         if (hasError) {
                             // Add to incomplete entries
-                            incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n')}\n\n`;
+                            incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
                         } else {
                             // Add to main output
                             const p = document.createElement('p');
@@ -928,7 +927,7 @@
             }
         }
 
-        document.getElementById('output').addEventListener('click', function (event) {
+        document.getElementById('output').addEventListener('click', function(event) {
             if (event.target.id === 'cursorStart') {
                 startMonitoring();
             } else {
@@ -1104,7 +1103,7 @@
         }
 
         // Handle scrolling lock and display notice
-        document.addEventListener('wheel', function (event) {
+        document.addEventListener('wheel', function(event) {
             if (isLocked) {
                 event.preventDefault();
                 const scrollLockNotice = document.getElementById('scrollLockNotice');
