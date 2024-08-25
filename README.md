@@ -707,9 +707,7 @@
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
-            const incompleteContainer = document.getElementById('incompleteText');
             outputContainer.innerHTML = ''; // Clear existing content
-            incompleteContainer.value = ''; // Clear incomplete entries
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
