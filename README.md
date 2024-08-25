@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -5,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advertisements-PPH</title>
     <style>
+        /* Existing styles */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-color: #f4f4f4;
@@ -225,7 +227,6 @@
         #cursorStart {
             font-weight: bold;
             color: #3498db;
-            margin-bottom: 20px;
         }
 
         #credits {
@@ -525,7 +526,7 @@
     <div class="progress-bar" id="progressBar"></div>
     <div id="countryCount" style="display:none;"></div>
 
-    <div id="output" class="text-container" style="display:none;" contenteditable="true">
+    <div id="output" class="text-container" style="display:block;" contenteditable="true">
         <p id="cursorStart">Place your cursor here</p>
     </div>
 
@@ -707,7 +708,9 @@
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
-            outputContainer.innerHTML = ''; // Clear existing content
+            const incompleteContainer = document.getElementById('incompleteText');
+            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>'; // Keep cursorStart visible
+            incompleteContainer.value = ''; // Clear incomplete entries
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
@@ -925,7 +928,7 @@
             }
         }
 
-        document.getElementById('output').addEventListener('click', function(event) {
+        document.getElementById('output').addEventListener('click', function (event) {
             if (event.target.id === 'cursorStart') {
                 startMonitoring();
             } else {
@@ -1101,7 +1104,7 @@
         }
 
         // Handle scrolling lock and display notice
-        document.addEventListener('wheel', function(event) {
+        document.addEventListener('wheel', function (event) {
             if (isLocked) {
                 event.preventDefault();
                 const scrollLockNotice = document.getElementById('scrollLockNotice');
