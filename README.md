@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -488,7 +489,7 @@
     <!-- Incomplete Entries Box -->
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('incompleteBox')">
-            Incomplete Entries
+            Incomplete Entries <span id="incompleteCount">(0)</span>
             <span id="incompleteBoxToggle">[+]</span>
         </div>
         <div id="incompleteBox" class="input-boxes">
@@ -582,6 +583,7 @@
         let cutHistory = [];
         let isLocked = false;
         let isProcessing = false; // Flag to prevent multiple processing
+        let incompleteEntriesCount = 0; // Count for incorrect entries
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -732,6 +734,7 @@
             const incompleteContainer = document.getElementById('incompleteText');
             outputContainer.innerHTML = ''; // Clear existing content
             incompleteContainer.value = ''; // Clear incomplete entries
+            incompleteEntriesCount = 0; // Reset incomplete entries count
 
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
@@ -752,8 +755,11 @@
                         const hasError = highlightedText.includes('error');
 
                         if (hasError) {
-                            // Add to incomplete entries
-                            incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n')}\n\n`;
+                            // Convert HTML to plain text and add to incomplete entries
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = highlightedText;
+                            incompleteContainer.value += `${tempDiv.innerText}\n\n`;
+                            incompleteEntriesCount++;
                         } else {
                             // Add to main output
                             const p = document.createElement('p');
@@ -773,6 +779,9 @@
 
                     moveEntriesToEnd('Russia', outputContainer, false); // Move Russia entries to the end
                     moveEntriesToEnd('Russia', incompleteContainer, true); // Move Russia entries to the end in incomplete box
+
+                    // Update the incomplete entries count
+                    document.getElementById('incompleteCount').innerText = `(${incompleteEntriesCount})`;
                 }
             }
             requestAnimationFrame(processChunk);
@@ -1158,3 +1167,6 @@
 </body>
 
 </html>
+
+
+
