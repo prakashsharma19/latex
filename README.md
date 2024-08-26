@@ -699,7 +699,7 @@
 
         function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
-            const maxCount = 1200; // Number of entries for the bar to be fully filled
+            const maxCount = 1500; // Number of entries for the bar to be fully filled
 
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
