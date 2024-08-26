@@ -19,6 +19,14 @@
             text-align: center;
             margin-bottom: 30px;
             font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 img {
+            margin-right: 10px;
+            height: 28px; /* Match the height to the font size of the title */
         }
 
         .font-controls,
@@ -227,21 +235,38 @@
             color: #3498db;
         }
 
-        #credits {
+        #userControls {
             position: absolute;
             top: 20px;
             right: 20px;
             font-size: 16px;
             color: #34495e;
+            display: flex;
+            align-items: center;
         }
 
-        #credits a {
-            color: #1171ba;
-            text-decoration: none;
+        #userControls img {
+            margin-right: 10px;
+            height: 28px; /* Match the height to the font size */
         }
 
-        #credits a:hover {
-            text-decoration: underline;
+        #userControls span {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        #logoutButton {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #logoutButton:hover {
+            background-color: #c0392b;
         }
 
         .error {
@@ -432,14 +457,19 @@
 </head>
 
 <body>
-    <h1>Advertisements-PPH</h1>
+    <h1>
+        <img src="https://raw.githubusercontent.com/prakashsharma19/hosted-images/main/pphlogo.png" alt="PPH Logo">
+        Advertisements-PPH
+    </h1>
 
     <!-- Clear memory button -->
     <button class="clear-memory-button" onclick="clearMemory()">Clear Memory</button>
 
-    <!-- Credits in upper-right corner -->
-    <div id="credits">
-        This tool is developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
+    <!-- User Controls in upper-right corner -->
+    <div id="userControls" style="display: none;">
+        <img src="https://raw.githubusercontent.com/prakashsharma19/hosted-images/main/pphlogo.png" alt="PPH Logo">
+        <span id="loggedInUser"></span>
+        <button id="logoutButton" onclick="logout()">Logout</button>
     </div>
 
     <!-- Option to choose cut method -->
@@ -699,7 +729,7 @@
 
         function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
-            const maxCount = 1500; // Number of entries for the bar to be fully filled
+            const maxCount = 1200; // Number of entries for the bar to be fully filled
 
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
@@ -943,10 +973,26 @@
                 document.getElementById('remainingTime').style.display = 'block';
                 document.getElementById('countryCount').style.display = 'block';
                 document.getElementById('output').style.display = 'block';
+                document.getElementById('userControls').style.display = 'flex';
+                document.getElementById('loggedInUser').innerText = username;
                 loadText();
             } else {
                 alert('Please enter both username and password.');
             }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.querySelector('.login-container').style.display = 'block';
+            document.querySelector('.font-controls').style.display = 'none';
+            document.querySelectorAll('.input-container').forEach(container => container.style.display = 'none');
+            document.querySelector('.top-controls').style.display = 'none';
+            document.getElementById('adCount').style.display = 'none';
+            document.getElementById('dailyAdCount').style.display = 'none';
+            document.getElementById('remainingTime').style.display = 'none';
+            document.getElementById('countryCount').style.display = 'none';
+            document.getElementById('output').style.display = 'none';
+            document.getElementById('userControls').style.display = 'none';
         }
 
         document.getElementById('output').addEventListener('click', function(event) {
