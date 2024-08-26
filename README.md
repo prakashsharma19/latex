@@ -730,7 +730,7 @@
             const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
             const incompleteContainer = document.getElementById('incompleteText');
-            outputContainer.innerHTML = ''; // Clear existing content
+            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>'; // Reset output content with the cursorStart paragraph
             incompleteContainer.value = ''; // Clear incomplete entries
 
             const totalAds = countOccurrences(inputText, 'professor');
