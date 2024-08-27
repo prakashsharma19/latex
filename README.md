@@ -26,7 +26,7 @@
 
         h1 img {
             margin-right: 10px;
-            height: 28px; /* Match the height to the font size of the title */
+            height: 28px;
         }
 
         .font-controls,
@@ -247,7 +247,7 @@
 
         #userControls img {
             margin-right: 10px;
-            height: 28px; /* Match the height to the font size */
+            height: 28px;
         }
 
         #userControls span {
@@ -501,6 +501,15 @@
         </select>
         <label for="fontSize">Font Size:</label>
         <input type="number" id="fontSize" value="16" onchange="updateFont()">px
+
+        <!-- Line Gap Option -->
+        <label for="lineGap">Line Gap:</label>
+        <select id="lineGap">
+            <option value="1">1 Line</option>
+            <option value="2">2 Lines</option>
+            <option value="3">3 Lines</option>
+        </select>
+        
         <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
     </div>
 
@@ -766,6 +775,7 @@
             const totalAds = countOccurrences(inputText, 'professor');
             totalTimeInSeconds = totalAds * 8;
 
+            const lineGap = parseInt(document.getElementById('lineGap').value, 10);
             let index = 0;
 
             function processChunk() {
@@ -788,6 +798,12 @@
                             // Add to main output
                             const p = document.createElement('p');
                             p.innerHTML = highlightedText;
+
+                            // Extract the last name for the "Dear Professor" line
+                            const lastName = paragraph.match(/Professor\s+\S+\s+(\S+)/)[1];
+                            const dearLine = `<br>${'<br>'.repeat(lineGap)}Dear Professor ${lastName},`;
+
+                            p.innerHTML += dearLine;
                             outputContainer.appendChild(p);
                         }
                     }
