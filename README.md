@@ -800,7 +800,8 @@
                             p.innerHTML = highlightedText;
 
                             // Extract the last name for the "Dear Professor" line
-                            const lastName = paragraph.match(/Professor\s+\S+\s+(\S+)/)[1];
+                            let nameMatch = paragraph.match(/Professor\s+(\S+)\s*(\S*)/);
+                            let lastName = nameMatch[2] || nameMatch[1];  // Use last name if available, otherwise use first name
                             const dearLine = `<br>${'<br>'.repeat(lineGap)}Dear Professor ${lastName},`;
 
                             p.innerHTML += dearLine;
