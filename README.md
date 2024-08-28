@@ -744,8 +744,9 @@
             progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
         }
 
-        function updateRemainingTime(adCount) {
-            const remainingTimeInMinutes = (1200 - adCount) / 9;
+        function updateRemainingTime() {
+            const adCount = document.getElementById('totalAds').innerText;
+            const remainingTimeInMinutes = adCount / 9; // Calculating based on total ads (9 ads/min)
             const remainingTimeInSeconds = remainingTimeInMinutes * 60;
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
