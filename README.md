@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -39,11 +38,12 @@
             margin-bottom: 20px;
             display: flex;
             align-items: center;
+            flex-direction: column;
         }
 
         .font-controls select,
         .font-controls input {
-            margin-left: 10px;
+            margin: 10px;
         }
 
         .fullscreen-button {
@@ -162,6 +162,8 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 20px;
+            flex-direction: column;
+            align-items: center;
         }
 
         .input-container textarea {
@@ -621,7 +623,8 @@
         let totalTimeInSeconds = 0;
         let cutHistory = [];
         let isLocked = false;
-        let isProcessing = false; // Flag to prevent multiple processing
+        let isProcessing = false;
+        let professorCount = 0;
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -678,7 +681,7 @@
                 }
                 loadSelectedReminders();
                 updateCounts();
-                updateRemainingTime(); // Ensure remaining time is updated on login
+                updateRemainingTime();
                 document.getElementById('lockButton').style.display = 'inline-block';
             }
         }
@@ -721,7 +724,7 @@
         function updateCounts() {
             const outputContainer = document.getElementById('output');
             const text = outputContainer.innerText;
-            const adCount = countOccurrences(text, 'professor');
+            const adCount = countOccurrences(text, 'Professor');
             document.getElementById('totalAds').innerText = adCount;
             document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
 
@@ -739,12 +742,11 @@
 
         function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
-            const maxCount = 1200; // Number of entries for the bar to be fully filled
+            const maxCount = 1200;
 
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
 
-            // RGB transition from red to green
             const red = Math.max(255 - Math.floor((dailyAdCount / maxCount) * 255), 0);
             const green = Math.min(Math.floor((dailyAdCount / maxCount) * 255), 255);
             progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
@@ -752,7 +754,7 @@
 
         function updateRemainingTime() {
             const adCount = document.getElementById('totalAds').innerText;
-            const remainingTimeInMinutes = adCount / 9; // Calculating based on total ads (9 ads/min)
+            const remainingTimeInMinutes = adCount / 9;
             const remainingTimeInSeconds = remainingTimeInMinutes * 60;
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
@@ -761,26 +763,26 @@
         }
 
         function processText() {
-            if (isProcessing) return; // Prevent multiple processing
+            if (isProcessing) return;
 
             isProcessing = true;
-            document.getElementById('loadingIndicator').style.display = 'inline'; // Show loading indicator
+            document.getElementById('loadingIndicator').style.display = 'inline';
 
             const inputText = document.getElementById('inputText').value;
-            const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
+            const paragraphs = inputText.split(/\n\n/);
             const outputContainer = document.getElementById('output');
             const incompleteContainer = document.getElementById('incompleteText');
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>'; // Reset output content with the cursorStart paragraph
-            incompleteContainer.value = ''; // Clear incomplete entries
+            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+            incompleteContainer.value = '';
 
-            const totalAds = countOccurrences(inputText, 'professor');
+            const totalAds = countOccurrences(inputText, 'Professor');
             totalTimeInSeconds = totalAds * 8;
 
             const lineGap = parseInt(document.getElementById('lineGap').value, 10);
             let index = 0;
 
             function processChunk() {
-                const chunkSize = 10; // Reduce chunk size for better separation
+                const chunkSize = 10;
                 const end = Math.min(index + chunkSize, paragraphs.length);
                 for (; index < end; index++) {
                     let paragraph = paragraphs[index].trim();
@@ -793,16 +795,12 @@
                         const hasError = highlightedText.includes('error');
 
                         if (hasError) {
-                            // Add to incomplete entries
                             incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
                         } else {
-                            // Add to main output
                             const p = document.createElement('p');
                             p.innerHTML = highlightedText;
 
-                            // Extract the first and last name for the "Dear Professor" line
-                            let nameMatch = paragraph.match(/Professor\s+(\S+)\s*(\S*)/);
-                            let lastName = nameMatch[2] || nameMatch[1];  // Use last name if available, otherwise use first name
+                            const lastName = paragraph.match(/Professor\s+\S+\s+(\S+)/)[1];
                             const dearLine = `<br>${'<br>'.repeat(lineGap)}Dear Professor ${lastName},`;
 
                             p.innerHTML += dearLine;
@@ -816,18 +814,18 @@
                     updateCounts();
                     saveText();
                     document.getElementById('lockButton').style.display = 'inline-block';
-                    document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator
-                    isProcessing = false; // Reset processing flag
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                    isProcessing = false;
 
-                    moveEntriesToEnd('Russia', outputContainer, false); // Move Russia entries to the end
-                    moveEntriesToEnd('Russia', incompleteContainer, true); // Move Russia entries to the end in incomplete box
+                    moveEntriesToEnd('Russia', outputContainer, false);
+                    moveEntriesToEnd('Russia', incompleteContainer, true);
                 }
             }
             requestAnimationFrame(processChunk);
         }
 
         function startProcessing() {
-            processText(); // Ensure it only processes the text once
+            processText();
         }
 
         function cutParagraph(paragraph) {
@@ -856,7 +854,7 @@
             const updatedText = inputText.replace(textToCopy, '').trim();
             document.getElementById('inputText').value = updatedText ? updatedText + "\n\n" : updatedText;
 
-            dailyAdCount--;
+            dailyAdCount++;
 
             updateCounts();
             saveText();
@@ -876,7 +874,7 @@
                 const inputText = document.getElementById('inputText').value;
                 document.getElementById('inputText').value = `${lastCutText}\n\n${inputText}`.trim();
 
-                dailyAdCount++;
+                dailyAdCount--;
 
                 updateCounts();
                 saveText();
@@ -1060,7 +1058,7 @@
                 if (slot.dataset.time === currentTime) {
                     showPopup();
                     showNotification('Ad Reminder', `It's time to send ads for ${slot.dataset.time}`);
-                    blinkBrowserIcon(); // Blink browser icon for attention
+                    blinkBrowserIcon();
                 }
             });
         }
