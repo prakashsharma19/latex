@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -728,25 +727,25 @@
             });
             document.getElementById('countryCount').innerHTML = countryCountText.trim();
 
-            updateProgressBar(adCount);
-            updateRemainingTime(adCount);
+            updateProgressBar(dailyAdCount);
+            updateRemainingTime(dailyAdCount);
         }
 
-        function updateProgressBar(adCount) {
+        function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
             const maxCount = 1200;
 
-            const percentage = Math.min(adCount / maxCount, 1) * 100;
+            const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
 
-            const red = Math.max(255 - Math.floor((adCount / maxCount) * 255), 0);
-            const green = Math.min(Math.floor((adCount / maxCount) * 255), 255);
+            const red = Math.max(255 - Math.floor((dailyAdCount / maxCount) * 255), 0);
+            const green = Math.min(Math.floor((dailyAdCount / maxCount) * 255), 255);
             progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
         }
 
-        function updateRemainingTime() {
-            const adCount = document.getElementById('totalAds').innerText;
-            const remainingTimeInMinutes = adCount / 9; // Calculating based on total ads (9 ads/min)
+        function updateRemainingTime(dailyAdCount) {
+            const remainingEntries = 1200 - dailyAdCount;
+            const remainingTimeInMinutes = remainingEntries / 15;
             const remainingTimeInSeconds = remainingTimeInMinutes * 60;
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
@@ -769,6 +768,8 @@
 
             const lineGap = parseInt(document.getElementById('lineGap').value, 10);
             let index = 0;
+            const nonRussiaEntries = [];
+            const russiaEntries = [];
 
             function processChunk() {
                 const chunkSize = 5;
@@ -790,13 +791,21 @@
                         } else {
                             const p = document.createElement('p');
                             p.innerHTML = highlightedText + greeting;
-                            outputContainer.appendChild(p);
+
+                            if (paragraph.includes('Russia')) {
+                                russiaEntries.push(p);
+                            } else {
+                                nonRussiaEntries.push(p);
+                            }
                         }
                     }
                 }
                 if (index < paragraphs.length) {
                     requestAnimationFrame(processChunk);
                 } else {
+                    nonRussiaEntries.forEach(entry => outputContainer.appendChild(entry));
+                    russiaEntries.forEach(entry => outputContainer.appendChild(entry));
+
                     updateCounts();
                     saveText();
                     document.getElementById('lockButton').style.display = 'inline-block';
