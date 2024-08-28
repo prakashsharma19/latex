@@ -39,12 +39,11 @@
             margin-bottom: 20px;
             display: flex;
             align-items: center;
-            flex-direction: column;
         }
 
         .font-controls select,
         .font-controls input {
-            margin: 10px;
+            margin-left: 10px;
         }
 
         .fullscreen-button {
@@ -133,6 +132,20 @@
 
         #lockButton:hover {
             background-color: #0e619f;
+            position: relative;
+        }
+
+        #lockButton:hover::after {
+            content: "Lock to prevent accidental inputs";
+            position: absolute;
+            top: -30px;
+            left: 0;
+            background-color: #333;
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
         }
 
         #undoButton {
@@ -149,8 +162,6 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 20px;
-            flex-direction: column;
-            align-items: center;
         }
 
         .input-container textarea {
@@ -607,10 +618,10 @@
 
         let currentUser = null;
         let dailyAdCount = 0;
+        let totalTimeInSeconds = 0;
         let cutHistory = [];
         let isLocked = false;
-        let isProcessing = false;
-        let professorCount = 0;
+        let isProcessing = false; // Flag to prevent multiple processing
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -667,6 +678,7 @@
                 }
                 loadSelectedReminders();
                 updateCounts();
+                updateRemainingTime(); // Ensure remaining time is updated on login
                 document.getElementById('lockButton').style.display = 'inline-block';
             }
         }
@@ -709,7 +721,7 @@
         function updateCounts() {
             const outputContainer = document.getElementById('output');
             const text = outputContainer.innerText;
-            const adCount = document.querySelectorAll('#output p').length;
+            const adCount = countOccurrences(text, 'professor');
             document.getElementById('totalAds').innerText = adCount;
             document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
 
@@ -721,61 +733,81 @@
             });
             document.getElementById('countryCount').innerHTML = countryCountText.trim();
 
+            updateRemainingTime();
             updateProgressBar(dailyAdCount);
         }
 
         function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
-            const maxCount = 1200;
+            const maxCount = 1200; // Number of entries for the bar to be fully filled
 
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
 
+            // RGB transition from red to green
             const red = Math.max(255 - Math.floor((dailyAdCount / maxCount) * 255), 0);
             const green = Math.min(Math.floor((dailyAdCount / maxCount) * 255), 255);
             progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
         }
 
+        function updateRemainingTime() {
+            const adCount = document.getElementById('totalAds').innerText;
+            const remainingTimeInMinutes = adCount / 9; // Calculating based on total ads (9 ads/min)
+            const remainingTimeInSeconds = remainingTimeInMinutes * 60;
+            const hours = Math.floor(remainingTimeInSeconds / 3600);
+            const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
+
+            document.getElementById('remainingTimeText').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+        }
+
         function processText() {
-            if (isProcessing) return;
+            if (isProcessing) return; // Prevent multiple processing
 
             isProcessing = true;
-            document.getElementById('loadingIndicator').style.display = 'inline';
+            document.getElementById('loadingIndicator').style.display = 'inline'; // Show loading indicator
 
             const inputText = document.getElementById('inputText').value;
-            const paragraphs = inputText.split(/\n\s*\n/);
+            const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
             const outputContainer = document.getElementById('output');
             const incompleteContainer = document.getElementById('incompleteText');
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
-            incompleteContainer.value = '';
+            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>'; // Reset output content with the cursorStart paragraph
+            incompleteContainer.value = ''; // Clear incomplete entries
+
+            const totalAds = countOccurrences(inputText, 'professor');
+            totalTimeInSeconds = totalAds * 8;
 
             const lineGap = parseInt(document.getElementById('lineGap').value, 10);
             let index = 0;
 
             function processChunk() {
-                const chunkSize = 5;
+                const chunkSize = 10; // Reduce chunk size for better separation
                 const end = Math.min(index + chunkSize, paragraphs.length);
                 for (; index < end; index++) {
                     let paragraph = paragraphs[index].trim();
                     if (paragraph !== '') {
-                        const lines = paragraph.split('\n');
-                        const firstLine = lines[0].trim();
-                        const lastName = firstLine.split(' ').pop();
-
-                        const greeting = `\n\nDear Professor ${lastName},\n`;
+                        if (!paragraph.toLowerCase().startsWith('professor')) {
+                            paragraph = `<span class="highlight-added">Professor</span> ${paragraph}`;
+                        }
 
                         const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
                         const hasError = highlightedText.includes('error');
 
                         if (hasError) {
+                            // Add to incomplete entries
                             incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
                         } else {
+                            // Add to main output
                             const p = document.createElement('p');
-                            p.innerHTML = highlightedText + greeting;
+                            p.innerHTML = highlightedText;
+
+                            // Extract the first and last name for the "Dear Professor" line
+                            let nameMatch = paragraph.match(/Professor\s+(\S+)\s*(\S*)/);
+                            let lastName = nameMatch[2] || nameMatch[1];  // Use last name if available, otherwise use first name
+                            const dearLine = `<br>${'<br>'.repeat(lineGap)}Dear Professor ${lastName},`;
+
+                            p.innerHTML += dearLine;
                             outputContainer.appendChild(p);
                         }
-
-                        professorCount += 1;
                     }
                 }
                 if (index < paragraphs.length) {
@@ -784,23 +816,18 @@
                     updateCounts();
                     saveText();
                     document.getElementById('lockButton').style.display = 'inline-block';
-                    document.getElementById('loadingIndicator').style.display = 'none';
-                    isProcessing = false;
-                    dailyAdCount += professorCount;
-                    reduceInputTextArea();
+                    document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator
+                    isProcessing = false; // Reset processing flag
+
+                    moveEntriesToEnd('Russia', outputContainer, false); // Move Russia entries to the end
+                    moveEntriesToEnd('Russia', incompleteContainer, true); // Move Russia entries to the end in incomplete box
                 }
             }
             requestAnimationFrame(processChunk);
         }
 
-        function reduceInputTextArea() {
-            const inputText = document.getElementById('inputText');
-            const remainingText = inputText.value.trim();
-            inputText.value = remainingText.split(/\n\s*\n/).slice(professorCount).join('\n\n');
-        }
-
         function startProcessing() {
-            processText();
+            processText(); // Ensure it only processes the text once
         }
 
         function cutParagraph(paragraph) {
@@ -829,7 +856,7 @@
             const updatedText = inputText.replace(textToCopy, '').trim();
             document.getElementById('inputText').value = updatedText ? updatedText + "\n\n" : updatedText;
 
-            dailyAdCount++;
+            dailyAdCount--;
 
             updateCounts();
             saveText();
@@ -849,7 +876,7 @@
                 const inputText = document.getElementById('inputText').value;
                 document.getElementById('inputText').value = `${lastCutText}\n\n${inputText}`.trim();
 
-                dailyAdCount--;
+                dailyAdCount++;
 
                 updateCounts();
                 saveText();
@@ -1033,7 +1060,7 @@
                 if (slot.dataset.time === currentTime) {
                     showPopup();
                     showNotification('Ad Reminder', `It's time to send ads for ${slot.dataset.time}`);
-                    blinkBrowserIcon();
+                    blinkBrowserIcon(); // Blink browser icon for attention
                 }
             });
         }
