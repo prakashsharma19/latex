@@ -743,12 +743,12 @@
             progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
         }
 
-        function updateRemainingTime(dailyAdCount) {
-            const remainingEntries = 1200 - dailyAdCount;
-            const remainingTimeInMinutes = remainingEntries / 15;
-            const remainingTimeInSeconds = remainingTimeInMinutes * 60;
-            const hours = Math.floor(remainingTimeInSeconds / 3600);
-            const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
+        function updateRemainingTime() {
+        const adCount = document.getElementById('totalAds').innerText;
+        const remainingTimeInMinutes = adCount / 9; // Calculating based on total ads (9 ads/min)
+        const remainingTimeInSeconds = remainingTimeInMinutes * 60;
+        const hours = Math.floor(remainingTimeInSeconds / 3600);
+        const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
 
             document.getElementById('remainingTimeText').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
         }
