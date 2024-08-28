@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -132,20 +133,6 @@
 
         #lockButton:hover {
             background-color: #0e619f;
-            position: relative;
-        }
-
-        #lockButton:hover::after {
-            content: "Lock to prevent accidental inputs";
-            position: absolute;
-            top: -30px;
-            left: 0;
-            background-color: #333;
-            color: #fff;
-            padding: 5px;
-            border-radius: 5px;
-            font-size: 12px;
-            white-space: nowrap;
         }
 
         #undoButton {
@@ -620,7 +607,6 @@
 
         let currentUser = null;
         let dailyAdCount = 0;
-        let totalTimeInSeconds = 0;
         let cutHistory = [];
         let isLocked = false;
         let isProcessing = false;
@@ -681,7 +667,6 @@
                 }
                 loadSelectedReminders();
                 updateCounts();
-                updateRemainingTime();
                 document.getElementById('lockButton').style.display = 'inline-block';
             }
         }
@@ -724,7 +709,7 @@
         function updateCounts() {
             const outputContainer = document.getElementById('output');
             const text = outputContainer.innerText;
-            const adCount = countOccurrences(text, 'Professor');
+            const adCount = document.querySelectorAll('#output p').length;
             document.getElementById('totalAds').innerText = adCount;
             document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
 
@@ -736,7 +721,6 @@
             });
             document.getElementById('countryCount').innerHTML = countryCountText.trim();
 
-            updateRemainingTime();
             updateProgressBar(dailyAdCount);
         }
 
@@ -752,16 +736,6 @@
             progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
         }
 
-        function updateRemainingTime() {
-            const adCount = document.getElementById('totalAds').innerText;
-            const remainingTimeInMinutes = adCount / 9;
-            const remainingTimeInSeconds = remainingTimeInMinutes * 60;
-            const hours = Math.floor(remainingTimeInSeconds / 3600);
-            const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
-
-            document.getElementById('remainingTimeText').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-        }
-
         function processText() {
             if (isProcessing) return;
 
@@ -769,27 +743,26 @@
             document.getElementById('loadingIndicator').style.display = 'inline';
 
             const inputText = document.getElementById('inputText').value;
-            const paragraphs = inputText.split(/\n\n/);
+            const paragraphs = inputText.split(/\n\s*\n/);
             const outputContainer = document.getElementById('output');
             const incompleteContainer = document.getElementById('incompleteText');
             outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
             incompleteContainer.value = '';
 
-            const totalAds = countOccurrences(inputText, 'Professor');
-            totalTimeInSeconds = totalAds * 8;
-
             const lineGap = parseInt(document.getElementById('lineGap').value, 10);
             let index = 0;
 
             function processChunk() {
-                const chunkSize = 10;
+                const chunkSize = 5;
                 const end = Math.min(index + chunkSize, paragraphs.length);
                 for (; index < end; index++) {
                     let paragraph = paragraphs[index].trim();
                     if (paragraph !== '') {
-                        if (!paragraph.toLowerCase().startsWith('professor')) {
-                            paragraph = `<span class="highlight-added">Professor</span> ${paragraph}`;
-                        }
+                        const lines = paragraph.split('\n');
+                        const firstLine = lines[0].trim();
+                        const lastName = firstLine.split(' ').pop();
+
+                        const greeting = `\n\nDear Professor ${lastName},\n`;
 
                         const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
                         const hasError = highlightedText.includes('error');
@@ -798,14 +771,11 @@
                             incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
                         } else {
                             const p = document.createElement('p');
-                            p.innerHTML = highlightedText;
-
-                            const lastName = paragraph.match(/Professor\s+\S+\s+(\S+)/)[1];
-                            const dearLine = `<br>${'<br>'.repeat(lineGap)}Dear Professor ${lastName},`;
-
-                            p.innerHTML += dearLine;
+                            p.innerHTML = highlightedText + greeting;
                             outputContainer.appendChild(p);
                         }
+
+                        professorCount += 1;
                     }
                 }
                 if (index < paragraphs.length) {
@@ -816,12 +786,17 @@
                     document.getElementById('lockButton').style.display = 'inline-block';
                     document.getElementById('loadingIndicator').style.display = 'none';
                     isProcessing = false;
-
-                    moveEntriesToEnd('Russia', outputContainer, false);
-                    moveEntriesToEnd('Russia', incompleteContainer, true);
+                    dailyAdCount += professorCount;
+                    reduceInputTextArea();
                 }
             }
             requestAnimationFrame(processChunk);
+        }
+
+        function reduceInputTextArea() {
+            const inputText = document.getElementById('inputText');
+            const remainingText = inputText.value.trim();
+            inputText.value = remainingText.split(/\n\s*\n/).slice(professorCount).join('\n\n');
         }
 
         function startProcessing() {
