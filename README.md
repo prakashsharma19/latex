@@ -610,7 +610,6 @@
         let cutHistory = [];
         let isLocked = false;
         let isProcessing = false;
-        let professorCount = 0;
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -708,11 +707,19 @@
 
         function updateCounts() {
             const outputContainer = document.getElementById('output');
-            const text = outputContainer.innerText;
-            const adCount = document.querySelectorAll('#output p').length;
+            const paragraphs = outputContainer.querySelectorAll('p');
+            let adCount = 0;
+
+            paragraphs.forEach(paragraph => {
+                if (paragraph.innerText.split('\n')[0].startsWith('Professor')) {
+                    adCount += 1;
+                }
+            });
+
             document.getElementById('totalAds').innerText = adCount;
             document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
 
+            const text = outputContainer.innerText;
             const countryCounts = countCountryOccurrences(text);
             const sortedCountries = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]);
             let countryCountText = 'Country Counts:<br>';
@@ -721,19 +728,29 @@
             });
             document.getElementById('countryCount').innerHTML = countryCountText.trim();
 
-            updateProgressBar(dailyAdCount);
+            updateProgressBar(adCount);
+            updateRemainingTime(adCount);
         }
 
-        function updateProgressBar(dailyAdCount) {
+        function updateProgressBar(adCount) {
             const progressBar = document.getElementById('progressBar');
             const maxCount = 1200;
 
-            const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
+            const percentage = Math.min(adCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
 
-            const red = Math.max(255 - Math.floor((dailyAdCount / maxCount) * 255), 0);
-            const green = Math.min(Math.floor((dailyAdCount / maxCount) * 255), 255);
+            const red = Math.max(255 - Math.floor((adCount / maxCount) * 255), 0);
+            const green = Math.min(Math.floor((adCount / maxCount) * 255), 255);
             progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
+        }
+
+        function updateRemainingTime(adCount) {
+            const remainingTimeInMinutes = (1200 - adCount) / 9;
+            const remainingTimeInSeconds = remainingTimeInMinutes * 60;
+            const hours = Math.floor(remainingTimeInSeconds / 3600);
+            const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
+
+            document.getElementById('remainingTimeText').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
         }
 
         function processText() {
@@ -774,8 +791,6 @@
                             p.innerHTML = highlightedText + greeting;
                             outputContainer.appendChild(p);
                         }
-
-                        professorCount += 1;
                     }
                 }
                 if (index < paragraphs.length) {
@@ -786,21 +801,9 @@
                     document.getElementById('lockButton').style.display = 'inline-block';
                     document.getElementById('loadingIndicator').style.display = 'none';
                     isProcessing = false;
-                    dailyAdCount += professorCount;
-                    reduceInputTextArea();
                 }
             }
             requestAnimationFrame(processChunk);
-        }
-
-        function reduceInputTextArea() {
-            const inputText = document.getElementById('inputText');
-            const remainingText = inputText.value.trim();
-            inputText.value = remainingText.split(/\n\s*\n/).slice(professorCount).join('\n\n');
-        }
-
-        function startProcessing() {
-            processText();
         }
 
         function cutParagraph(paragraph) {
@@ -826,8 +829,8 @@
             cleanupSpaces();
 
             const inputText = document.getElementById('inputText').value;
-            const updatedText = inputText.replace(textToCopy, '').trim();
-            document.getElementById('inputText').value = updatedText ? updatedText + "\n\n" : updatedText;
+            const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+            document.getElementById('inputText').value = remainingText;
 
             dailyAdCount++;
 
