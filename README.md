@@ -800,7 +800,7 @@
                             const p = document.createElement('p');
                             p.innerHTML = highlightedText;
 
-                            // Extract the last name for the "Dear Professor" line
+                            // Extract the first and last name for the "Dear Professor" line
                             let nameMatch = paragraph.match(/Professor\s+(\S+)\s*(\S*)/);
                             let lastName = nameMatch[2] || nameMatch[1];  // Use last name if available, otherwise use first name
                             const dearLine = `<br>${'<br>'.repeat(lineGap)}Dear Professor ${lastName},`;
@@ -856,7 +856,7 @@
             const updatedText = inputText.replace(textToCopy, '').trim();
             document.getElementById('inputText').value = updatedText ? updatedText + "\n\n" : updatedText;
 
-            dailyAdCount++;
+            dailyAdCount--;
 
             updateCounts();
             saveText();
@@ -876,7 +876,7 @@
                 const inputText = document.getElementById('inputText').value;
                 document.getElementById('inputText').value = `${lastCutText}\n\n${inputText}`.trim();
 
-                dailyAdCount--;
+                dailyAdCount++;
 
                 updateCounts();
                 saveText();
@@ -1043,7 +1043,7 @@
         function updateTime() {
             const now = new Date();
             const hours = now.getHours().toString().padStart(2, '0');
-                        const minutes = now.getMinutes().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
             const seconds = now.getSeconds().toString().padStart(2, '0');
             document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
         }
