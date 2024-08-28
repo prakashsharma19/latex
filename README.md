@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -38,11 +39,12 @@
             margin-bottom: 20px;
             display: flex;
             align-items: center;
+            flex-direction: column;
         }
 
         .font-controls select,
         .font-controls input {
-            margin-left: 10px;
+            margin: 10px;
         }
 
         .fullscreen-button {
@@ -131,20 +133,6 @@
 
         #lockButton:hover {
             background-color: #0e619f;
-            position: relative;
-        }
-
-        #lockButton:hover::after {
-            content: "Lock to prevent accidental inputs";
-            position: absolute;
-            top: -30px;
-            left: 0;
-            background-color: #333;
-            color: #fff;
-            padding: 5px;
-            border-radius: 5px;
-            font-size: 12px;
-            white-space: nowrap;
         }
 
         #undoButton {
@@ -161,6 +149,8 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 20px;
+            flex-direction: column;
+            align-items: center;
         }
 
         .input-container textarea {
@@ -592,12 +582,35 @@
     <div id="scrollLockNotice" class="scroll-lock-notice">Scrolling is locked. Unlock to scroll.</div>
 
     <script>
+        const countryList = [
+            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
+            "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
+            "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
+            "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
+            "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
+            "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
+            "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+            "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel",
+            "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos",
+            "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
+            "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
+            "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
+            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
+            "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania",
+            "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal",
+            "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea",
+            "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
+            "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+            "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
+            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U. S. A.", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire"
+        ];
+
         let currentUser = null;
         let dailyAdCount = 0;
-        let totalTimeInSeconds = 0;
         let cutHistory = [];
         let isLocked = false;
-        let isProcessing = false; // Flag to prevent multiple processing
+        let isProcessing = false;
+        let professorCount = 0;
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -654,7 +667,6 @@
                 }
                 loadSelectedReminders();
                 updateCounts();
-                updateRemainingTime(); // Ensure remaining time is updated on login
                 document.getElementById('lockButton').style.display = 'inline-block';
             }
         }
@@ -697,7 +709,7 @@
         function updateCounts() {
             const outputContainer = document.getElementById('output');
             const text = outputContainer.innerText;
-            const adCount = countOccurrences(text, 'professor') - countOccurrences(text, 'Dear Professor'); // Exclude "Dear Professor"
+            const adCount = document.querySelectorAll('#output p').length;
             document.getElementById('totalAds').innerText = adCount;
             document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
 
@@ -709,86 +721,61 @@
             });
             document.getElementById('countryCount').innerHTML = countryCountText.trim();
 
-            updateRemainingTime();
             updateProgressBar(dailyAdCount);
         }
 
         function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
-            const maxCount = 1200; // Number of entries for the bar to be fully filled
+            const maxCount = 1200;
 
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
 
-            // RGB transition from red to green
             const red = Math.max(255 - Math.floor((dailyAdCount / maxCount) * 255), 0);
             const green = Math.min(Math.floor((dailyAdCount / maxCount) * 255), 255);
             progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
         }
 
-        function updateRemainingTime() {
-            const adCount = document.getElementById('totalAds').innerText;
-            const remainingTimeInMinutes = adCount / 9; // Calculating based on total ads (9 ads/min)
-            const remainingTimeInSeconds = remainingTimeInMinutes * 60;
-            const hours = Math.floor(remainingTimeInSeconds / 3600);
-            const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
-
-            document.getElementById('remainingTimeText').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-        }
-
         function processText() {
-            if (isProcessing) return; // Prevent multiple processing
+            if (isProcessing) return;
 
             isProcessing = true;
-            document.getElementById('loadingIndicator').style.display = 'inline'; // Show loading indicator
+            document.getElementById('loadingIndicator').style.display = 'inline';
 
             const inputText = document.getElementById('inputText').value;
-            const paragraphs = inputText.split(/\n\n/); // Separate paragraphs more reliably
+            const paragraphs = inputText.split(/\n\s*\n/);
             const outputContainer = document.getElementById('output');
             const incompleteContainer = document.getElementById('incompleteText');
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>'; // Reset output content with the cursorStart paragraph
-            incompleteContainer.value = ''; // Clear incomplete entries
-
-            const totalAds = countOccurrences(inputText, 'professor');
-            totalTimeInSeconds = totalAds * 8;
+            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+            incompleteContainer.value = '';
 
             const lineGap = parseInt(document.getElementById('lineGap').value, 10);
             let index = 0;
 
             function processChunk() {
-                const chunkSize = 10; // Reduce chunk size for better separation
+                const chunkSize = 5;
                 const end = Math.min(index + chunkSize, paragraphs.length);
                 for (; index < end; index++) {
                     let paragraph = paragraphs[index].trim();
                     if (paragraph !== '') {
-                        if (!paragraph.toLowerCase().startsWith('professor')) {
-                            paragraph = `<span class="highlight-added">Professor</span> ${paragraph}`;
-                        }
+                        const lines = paragraph.split('\n');
+                        const firstLine = lines[0].trim();
+                        const lastName = firstLine.split(' ').pop();
+
+                        const greeting = `\n\nDear Professor ${lastName},\n`;
 
                         const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
                         const hasError = highlightedText.includes('error');
 
                         if (hasError) {
-                            // Add to incomplete entries
                             incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
                         } else {
-                            // Add to main output
                             const p = document.createElement('p');
-                            p.innerHTML = highlightedText;
-
-                            // Extract the first and last name for the "Dear Professor" line
-                            let nameMatch = paragraph.match(/Professor\s+(\S+)\s*(\S*)/);
-                            let lastName = nameMatch[2] || nameMatch[1];  // Use last name if available, otherwise use first name
-
-                            // Get the last word from the first line of the paragraph
-                            let firstLine = paragraph.split('<br>')[0].trim();
-                            let lastWord = firstLine.split(' ').pop();
-
-                            const dearLine = `<br>${'<br>'.repeat(lineGap)}Dear Professor ${lastName} ${lastWord},`;
-
-                            p.innerHTML += dearLine;
+                            p.innerHTML = highlightedText + greeting;
                             outputContainer.appendChild(p);
                         }
+
+                        professorCount += 1;
                     }
                 }
                 if (index < paragraphs.length) {
@@ -797,18 +784,23 @@
                     updateCounts();
                     saveText();
                     document.getElementById('lockButton').style.display = 'inline-block';
-                    document.getElementById('loadingIndicator').style.display = 'none'; // Hide loading indicator
-                    isProcessing = false; // Reset processing flag
-
-                    moveEntriesToEnd('Russia', outputContainer, false); // Move Russia entries to the end
-                    moveEntriesToEnd('Russia', incompleteContainer, true); // Move Russia entries to the end in incomplete box
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                    isProcessing = false;
+                    dailyAdCount += professorCount;
+                    reduceInputTextArea();
                 }
             }
             requestAnimationFrame(processChunk);
         }
 
+        function reduceInputTextArea() {
+            const inputText = document.getElementById('inputText');
+            const remainingText = inputText.value.trim();
+            inputText.value = remainingText.split(/\n\s*\n/).slice(professorCount).join('\n\n');
+        }
+
         function startProcessing() {
-            processText(); // Ensure it only processes the text once
+            processText();
         }
 
         function cutParagraph(paragraph) {
@@ -1041,7 +1033,7 @@
                 if (slot.dataset.time === currentTime) {
                     showPopup();
                     showNotification('Ad Reminder', `It's time to send ads for ${slot.dataset.time}`);
-                    blinkBrowserIcon(); // Blink browser icon for attention
+                    blinkBrowserIcon();
                 }
             });
         }
