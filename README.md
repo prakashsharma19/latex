@@ -781,7 +781,7 @@
                         const firstLine = lines[0].trim();
                         const lastName = firstLine.split(' ').pop();
 
-                        const greeting = `\n\nDear Professor ${lastName},n\`;
+                        const greeting = `\n\nDear Professor ${lastName},\n`;
 
                         const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
                         const hasError = highlightedText.includes('error');
