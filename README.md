@@ -113,13 +113,19 @@
         }
 
         #loginButton {
-            background-color: #28a745;
+            background-color: #007bff;
             margin-top: 10px;
             font-size: 16px;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
 
         #loginButton:hover {
-            background-color: #218838;
+            background-color: #0056b3;
         }
 
         #loginButton:active {
@@ -418,13 +424,21 @@
         }
 
         /* Progress bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
         .progress-bar {
-            height: 5px;
+            height: 100%;
             width: 0;
-            background-color: red;
+            background-color: #28a745;
             transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
-            border-radius: 2px;
-            margin-top: 10px;
+            border-radius: 5px;
         }
 
         .scroll-locked {
@@ -465,12 +479,42 @@
             }
         }
 
+        @keyframes slideRight {
+            0% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes shrink {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+        }
+
         .fadeOut {
             animation: fadeOut 0.5s forwards;
         }
 
         .vanish {
             animation: vanish 0.5s forwards;
+        }
+
+        .slideRight {
+            animation: slideRight 0.5s forwards;
+        }
+
+        .shrink {
+            animation: shrink 0.5s forwards;
         }
     </style>
 </head>
@@ -489,31 +533,6 @@
         <img src="https://raw.githubusercontent.com/prakashsharma19/hosted-images/main/pphlogo.png" alt="PPH Logo">
         <span id="loggedInUser"></span>
         <button id="logoutButton" onclick="logout()">Logout</button>
-    </div>
-
-    <!-- Option to choose cut method -->
-    <div class="option-buttons">
-        <label>
-            <input type="radio" name="cutOption" value="keyboard" checked>
-            Operate by Keyboard (Down Arrow Key)
-        </label>
-        <label>
-            <input type="radio" name="cutOption" value="mouse">
-            Operate by Mouse (Left Button)
-        </label>
-    </div>
-
-    <!-- Effects Options -->
-    <div class="option-buttons">
-        <label for="effectsToggle">Enable Effects:</label>
-        <input type="checkbox" id="effectsToggle" onchange="toggleEffects()">
-
-        <label for="effectType">Choose Effect:</label>
-        <select id="effectType" onchange="saveEffectPreferences()">
-            <option value="none">None</option>
-            <option value="fadeOut">Fade Out</option>
-            <option value="vanish">Vanish</option>
-        </select>
     </div>
 
     <div class="login-container">
@@ -587,12 +606,39 @@
         <button id="startButton" onclick="startProcessing()">Start</button>
     </div>
 
+    <div class="option-buttons" style="display:none;">
+        <!-- Option to choose cut method -->
+        <label>
+            <input type="radio" name="cutOption" value="keyboard" checked>
+            Operate by Keyboard (Down Arrow Key)
+        </label>
+        <label>
+            <input type="radio" name="cutOption" value="mouse">
+            Operate by Mouse (Left Button)
+        </label>
+
+        <!-- Effects Options -->
+        <label for="effectsToggle">Enable Effects:</label>
+        <input type="checkbox" id="effectsToggle" onchange="toggleEffects()">
+
+        <label for="effectType">Choose Effect:</label>
+        <select id="effectType" onchange="saveEffectPreferences()">
+            <option value="none">None</option>
+            <option value="fadeOut">Fade Out</option>
+            <option value="vanish">Vanish</option>
+            <option value="slideRight">Slide Right</option>
+            <option value="shrink">Shrink</option>
+        </select>
+    </div>
+
     <div id="adCount" style="display:none;">
         Total Advertisements: <span id="totalAds">0</span>
         <span id="loadingIndicator">Loading, please wait...</span>
     </div>
     <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
-    <div class="progress-bar" id="progressBar"></div>
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
     <div id="countryCount" style="display:none;"></div>
 
     <div id="output" class="text-container" style="display:none;" contenteditable="true">
@@ -677,6 +723,7 @@
                 localStorage.setItem(`lastCutTime_${currentUser}`, Date.now());
                 saveSelectedReminders();
                 saveEffectPreferences();
+                saveOperationPreferences();
             }
         }
 
@@ -708,6 +755,7 @@
                     }
                 }
                 loadEffectPreferences();
+                loadOperationPreferences();
                 loadSelectedReminders();
                 updateCounts();
                 document.getElementById('lockButton').style.display = 'inline-block';
@@ -871,14 +919,23 @@
             if (effectsEnabled && effectType !== 'none') {
                 paragraph.classList.add(effectType);
                 paragraph.addEventListener('animationend', () => {
-                    removeParagraph(paragraph, textToCopy);
+                    copyAndRemoveParagraph(paragraph, textToCopy);
                 });
             } else {
-                removeParagraph(paragraph, textToCopy);
+                copyAndRemoveParagraph(paragraph, textToCopy);
             }
         }
 
-        function removeParagraph(paragraph, textToCopy) {
+        function copyAndRemoveParagraph(paragraph, textToCopy) {
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.style.position = 'fixed';
+            tempTextarea.style.opacity = '0';
+            tempTextarea.value = textToCopy;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
+
             paragraph.remove();
             cleanupSpaces();
 
@@ -1016,6 +1073,7 @@
                 document.querySelector('.font-controls').style.display = 'block';
                 document.querySelectorAll('.input-container').forEach(container => container.style.display = 'block');
                 document.querySelector('.top-controls').style.display = 'flex';
+                document.querySelector('.option-buttons').style.display = 'block';
                 document.getElementById('adCount').style.display = 'block';
                 document.getElementById('dailyAdCount').style.display = 'block';
                 document.getElementById('remainingTime').style.display = 'block';
@@ -1035,6 +1093,7 @@
             document.querySelector('.font-controls').style.display = 'none';
             document.querySelectorAll('.input-container').forEach(container => container.style.display = 'none');
             document.querySelector('.top-controls').style.display = 'none';
+            document.querySelector('.option-buttons').style.display = 'none';
             document.getElementById('adCount').style.display = 'none';
             document.getElementById('dailyAdCount').style.display = 'none';
             document.getElementById('remainingTime').style.display = 'none';
@@ -1052,7 +1111,7 @@
         });
 
         document.querySelectorAll('input[name="cutOption"]').forEach(option => {
-            option.addEventListener('change', startMonitoring);
+            option.addEventListener('change', saveOperationPreferences);
         });
 
         function checkDailyReset() {
@@ -1247,6 +1306,20 @@
             }
             if (savedEffectType) {
                 document.getElementById('effectType').value = savedEffectType;
+            }
+        }
+
+        function saveOperationPreferences() {
+            const selectedOption = document.querySelector('input[name="cutOption"]:checked').value;
+            if (currentUser) {
+                localStorage.setItem(`operationMode_${currentUser}`, selectedOption);
+            }
+        }
+
+        function loadOperationPreferences() {
+            const savedOperationMode = localStorage.getItem(`operationMode_${currentUser}`);
+            if (savedOperationMode) {
+                document.querySelector(`input[name="cutOption"][value="${savedOperationMode}"]`).checked = true;
             }
         }
     </script>
