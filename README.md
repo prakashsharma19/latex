@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -442,6 +443,35 @@
             font-size: 14px;
             display: none;
         }
+
+        /* Animations */
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes vanish {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        .fadeOut {
+            animation: fadeOut 0.5s forwards;
+        }
+
+        .vanish {
+            animation: vanish 0.5s forwards;
+        }
     </style>
 </head>
 
@@ -471,6 +501,19 @@
             <input type="radio" name="cutOption" value="mouse">
             Operate by Mouse (Left Button)
         </label>
+    </div>
+
+    <!-- Effects Options -->
+    <div class="option-buttons">
+        <label for="effectsToggle">Enable Effects:</label>
+        <input type="checkbox" id="effectsToggle" onchange="toggleEffects()">
+
+        <label for="effectType">Choose Effect:</label>
+        <select id="effectType" onchange="saveEffectPreferences()">
+            <option value="none">None</option>
+            <option value="fadeOut">Fade Out</option>
+            <option value="vanish">Vanish</option>
+        </select>
     </div>
 
     <div class="login-container">
@@ -633,6 +676,7 @@
                 localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
                 localStorage.setItem(`lastCutTime_${currentUser}`, Date.now());
                 saveSelectedReminders();
+                saveEffectPreferences();
             }
         }
 
@@ -663,6 +707,7 @@
                         dailyAdCount = parseInt(savedDailyAdCount, 10);
                     }
                 }
+                loadEffectPreferences();
                 loadSelectedReminders();
                 updateCounts();
                 document.getElementById('lockButton').style.display = 'inline-block';
@@ -733,7 +778,7 @@
 
         function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
-            const maxCount = 1800;
+            const maxCount = 1200;
 
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
@@ -743,12 +788,12 @@
             progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
         }
 
-        function updateRemainingTime() {
-        const adCount = document.getElementById('totalAds').innerText;
-        const remainingTimeInMinutes = adCount / 9; // Calculating based on total ads (9 ads/min)
-        const remainingTimeInSeconds = remainingTimeInMinutes * 60;
-        const hours = Math.floor(remainingTimeInSeconds / 3600);
-        const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
+        function updateRemainingTime(dailyAdCount) {
+            const remainingEntries = 1200 - dailyAdCount;
+            const remainingTimeInMinutes = remainingEntries / 15;
+            const remainingTimeInSeconds = remainingTimeInMinutes * 60;
+            const hours = Math.floor(remainingTimeInSeconds / 3600);
+            const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
 
             document.getElementById('remainingTimeText').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
         }
@@ -820,21 +865,20 @@
             const textToCopy = paragraph.innerText;
             cutHistory.push(textToCopy);
 
-            const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNodeContents(paragraph);
-            selection.removeAllRanges();
-            selection.addRange(range);
+            const effectType = document.getElementById('effectType').value;
+            const effectsEnabled = document.getElementById('effectsToggle').checked;
 
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.style.position = 'fixed';
-            tempTextarea.style.opacity = '0';
-            tempTextarea.value = textToCopy;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
+            if (effectsEnabled && effectType !== 'none') {
+                paragraph.classList.add(effectType);
+                paragraph.addEventListener('animationend', () => {
+                    removeParagraph(paragraph, textToCopy);
+                });
+            } else {
+                removeParagraph(paragraph, textToCopy);
+            }
+        }
 
+        function removeParagraph(paragraph, textToCopy) {
             paragraph.remove();
             cleanupSpaces();
 
@@ -1186,22 +1230,23 @@
             }
         }, { passive: false });
 
-        // Move entries containing a specific keyword to the end of the container
-        function moveEntriesToEnd(keyword, container, isTextArea) {
-            if (isTextArea) {
-                const lines = container.value.trim().split("\n\n");
-                const filteredLines = lines.filter(line => line.includes(keyword));
-                const remainingLines = lines.filter(line => !line.includes(keyword));
+        function saveEffectPreferences() {
+            const effectsEnabled = document.getElementById('effectsToggle').checked;
+            const effectType = document.getElementById('effectType').value;
+            if (currentUser) {
+                localStorage.setItem(`effectsEnabled_${currentUser}`, effectsEnabled);
+                localStorage.setItem(`effectType_${currentUser}`, effectType);
+            }
+        }
 
-                container.value = [...remainingLines, ...filteredLines].join("\n\n");
-            } else {
-                const paragraphs = Array.from(container.querySelectorAll('p'));
-                const filteredParagraphs = paragraphs.filter(paragraph => paragraph.innerText.includes(keyword));
-                const remainingParagraphs = paragraphs.filter(paragraph => !paragraph.innerText.includes(keyword));
-
-                container.innerHTML = '';
-                remainingParagraphs.forEach(paragraph => container.appendChild(paragraph));
-                filteredParagraphs.forEach(paragraph => container.appendChild(paragraph));
+        function loadEffectPreferences() {
+            const savedEffectsEnabled = localStorage.getItem(`effectsEnabled_${currentUser}`);
+            const savedEffectType = localStorage.getItem(`effectType_${currentUser}`);
+            if (savedEffectsEnabled) {
+                document.getElementById('effectsToggle').checked = savedEffectsEnabled === 'true';
+            }
+            if (savedEffectType) {
+                document.getElementById('effectType').value = savedEffectType;
             }
         }
     </script>
