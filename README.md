@@ -39,16 +39,13 @@
             margin-bottom: 20px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            align-items: flex-start;
         }
 
+        .font-controls label,
         .font-controls select,
-        .font-controls input,
-        .font-controls label {
-            margin: 10px 0;
-            width: 100%;
-            text-align: left;
+        .font-controls input {
+            margin-bottom: 10px;
         }
 
         .fullscreen-button {
@@ -59,7 +56,6 @@
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
-            margin-left: 10px;
         }
 
         .fullscreen-button:hover {
@@ -296,6 +292,12 @@
             margin-left: 10px;
         }
 
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .right-content {
             position: absolute;
             top: 250px;
@@ -416,7 +418,7 @@
             width: 100%;
             height: 5px;
             background-color: #e0e0e0;
-            border-radius: 2px;
+            border-radius: 5px;
             margin-top: 20px;
             overflow: hidden;
         }
@@ -424,7 +426,7 @@
         .progress-bar {
             height: 100%;
             width: 0;
-            background-color: #ff0000;
+            background-color: #f00;
             transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
         }
 
@@ -466,13 +468,13 @@
             }
         }
 
-        @keyframes slideRight {
+        @keyframes burst {
             0% {
-                transform: translateX(0);
+                transform: scale(1);
                 opacity: 1;
             }
             100% {
-                transform: translateX(100%);
+                transform: scale(1.5);
                 opacity: 0;
             }
         }
@@ -496,28 +498,29 @@
             animation: vanish 0.5s forwards;
         }
 
-        .slideRight {
-            animation: slideRight 0.5s forwards;
+        .burst {
+            animation: burst 0.5s forwards;
         }
 
         .shrink {
             animation: shrink 0.5s forwards;
         }
 
-        .credit {
-            position: absolute;
+        /* Credit Section */
+        #credit {
+            position: fixed;
             bottom: 10px;
             right: 10px;
             font-size: 12px;
-            color: #666;
+            color: #34495e;
         }
 
-        .credit a {
-            color: #007bff;
+        #credit a {
+            color: #1171ba;
             text-decoration: none;
         }
 
-        .credit a:hover {
+        #credit a:hover {
             text-decoration: underline;
         }
     </style>
@@ -564,21 +567,8 @@
             <option value="2">2 Lines</option>
             <option value="3">3 Lines</option>
         </select>
-        
-        <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
 
-        <!-- Operate by Keyboard or Mouse Option -->
-        <label for="cutOption">Operate by:</label>
-        <label>
-            <input type="radio" name="cutOption" value="keyboard" checked>
-            Keyboard (Down Arrow Key)
-        </label>
-        <label>
-            <input type="radio" name="cutOption" value="mouse">
-            Mouse (Left Button)
-        </label>
-
-        <!-- Effects Options -->
+        <!-- Effects and Operation Mode -->
         <label for="effectsToggle">Enable Effects:</label>
         <input type="checkbox" id="effectsToggle" onchange="toggleEffects()">
 
@@ -587,9 +577,21 @@
             <option value="none">None</option>
             <option value="fadeOut">Fade Out</option>
             <option value="vanish">Vanish</option>
-            <option value="slideRight">Slide Right</option>
+            <option value="burst">Burst</option>
             <option value="shrink">Shrink</option>
         </select>
+
+        <!-- Option to choose cut method -->
+        <label>
+            <input type="radio" name="cutOption" value="keyboard" checked>
+            Operate by Keyboard (Down Arrow Key)
+        </label>
+        <label>
+            <input type="radio" name="cutOption" value="mouse">
+            Operate by Mouse (Left Button)
+        </label>
+
+        <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
     </div>
 
     <div class="input-container" style="display:none;">
@@ -626,7 +628,7 @@
     </div>
 
     <div class="top-controls" style="display:none;">
-        <div id="remainingTime">File completed by: <span id="remainingTimeText"></span>
+        <div id="remainingTime">File completed by: <span id="remainingTimeText"></span> (<span id="completionPercentage">0%</span>)
             <div class="hourglass"></div>
         </div>
         <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
@@ -672,8 +674,9 @@
     <!-- Scroll Lock Notice -->
     <div id="scrollLockNotice" class="scroll-lock-notice">Scrolling is locked. Unlock to scroll.</div>
 
-    <div class="credit">
-        This Web-App is made by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>.
+    <!-- Credit Section -->
+    <div id="credit">
+        This Web-App is Developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>.
     </div>
 
     <script>
@@ -702,10 +705,10 @@
 
         let currentUser = null;
         let dailyAdCount = 0;
-        let initialTextCount = 0; // For percentage calculation
         let cutHistory = [];
         let isLocked = false;
         let isProcessing = false;
+        let totalParagraphs = 0;
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -728,8 +731,8 @@
                 localStorage.setItem(`savedOutput_${currentUser}`, outputText);
                 localStorage.setItem(`savedIncomplete_${currentUser}`, incompleteText);
                 localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
-                localStorage.setItem(`initialTextCount_${currentUser}`, initialTextCount);
                 localStorage.setItem(`lastCutTime_${currentUser}`, Date.now());
+                localStorage.setItem(`totalParagraphs_${currentUser}`, totalParagraphs);
                 saveSelectedReminders();
                 saveEffectPreferences();
                 saveOperationPreferences();
@@ -743,8 +746,8 @@
                 const savedOutput = localStorage.getItem(`savedOutput_${currentUser}`);
                 const savedIncomplete = localStorage.getItem(`savedIncomplete_${currentUser}`);
                 const savedDailyAdCount = localStorage.getItem(`dailyAdCount_${currentUser}`);
-                const savedInitialTextCount = localStorage.getItem(`initialTextCount_${currentUser}`);
                 const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
+                const savedTotalParagraphs = localStorage.getItem(`totalParagraphs_${currentUser}`);
                 if (savedInput) {
                     document.getElementById('inputText').value = savedInput;
                 }
@@ -764,8 +767,8 @@
                         dailyAdCount = parseInt(savedDailyAdCount, 10);
                     }
                 }
-                if (savedInitialTextCount) {
-                    initialTextCount = parseInt(savedInitialTextCount, 10);
+                if (savedTotalParagraphs) {
+                    totalParagraphs = parseInt(savedTotalParagraphs, 10);
                 }
                 loadEffectPreferences();
                 loadOperationPreferences();
@@ -844,30 +847,28 @@
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
 
-            if (percentage < 25) {
-                progressBar.style.backgroundColor = '#ff0000'; // Red
-            } else if (percentage < 50) {
-                progressBar.style.backgroundColor = '#0000ff'; // Blue
-            } else if (percentage < 75) {
-                progressBar.style.backgroundColor = '#ffff00'; // Yellow
+            if (percentage <= 25) {
+                progressBar.style.backgroundColor = '#f00'; // Red
+            } else if (percentage <= 50) {
+                progressBar.style.backgroundColor = '#00f'; // Blue
+            } else if (percentage <= 75) {
+                progressBar.style.backgroundColor = '#ff0'; // Yellow
             } else {
-                progressBar.style.backgroundColor = '#00ff00'; // Green
+                progressBar.style.backgroundColor = '#0f0'; // Green
             }
         }
 
         function updateRemainingTime(dailyAdCount) {
-            const remainingEntries = 1200 - dailyAdCount;
+            const remainingEntries = totalParagraphs - dailyAdCount;
             const remainingTimeInMinutes = remainingEntries / 15;
             const remainingTimeInSeconds = remainingTimeInMinutes * 60;
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
 
-            document.getElementById('remainingTimeText').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+            const percentageCompleted = Math.min((dailyAdCount / totalParagraphs) * 100, 100).toFixed(2);
 
-            if (initialTextCount > 0) {
-                const percentageCompleted = Math.round((dailyAdCount / initialTextCount) * 100);
-                document.getElementById('remainingTimeText').innerText += ` (${percentageCompleted}%)`;
-            }
+            document.getElementById('remainingTimeText').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+            document.getElementById('completionPercentage').innerText = `${percentageCompleted}%`;
         }
 
         function processText() {
@@ -878,12 +879,11 @@
 
             const inputText = document.getElementById('inputText').value;
             const paragraphs = inputText.split(/\n\s*\n/);
+            totalParagraphs = paragraphs.length;
             const outputContainer = document.getElementById('output');
             const incompleteContainer = document.getElementById('incompleteText');
             outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
             incompleteContainer.value = '';
-
-            initialTextCount = paragraphs.length;
 
             const lineGap = parseInt(document.getElementById('lineGap').value, 10);
             let index = 0;
@@ -906,7 +906,7 @@
                         const hasError = highlightedText.includes('error');
 
                         if (hasError) {
-                            incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
+                            incompleteContainer.value += `${paragraph}\n\n`;
                         } else {
                             const p = document.createElement('p');
                             p.innerHTML = highlightedText + greeting;
@@ -976,7 +976,7 @@
 
             document.getElementById('undoButton').style.display = 'block';
 
-            // Ensure the cursor remains in place for the next cut
+            // Keep the cursor in the same position for the next cut
             document.getElementById('output').focus();
         }
 
@@ -1027,7 +1027,6 @@
                 if (paragraph && paragraph.textContent.includes('Professor')) {
                     cutParagraph(paragraph);
 
-                    // Ensure the cursor remains in place for the next cut
                     document.getElementById('output').focus();
                 }
             }
