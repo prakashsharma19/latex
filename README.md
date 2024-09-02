@@ -29,6 +29,7 @@
             height: 28px;
         }
 
+        .font-controls,
         .login-container {
             background-color: #ffffff;
             padding: 20px;
@@ -40,63 +41,53 @@
             align-items: flex-start;
         }
 
-        .clear-memory-button,
-        .fullscreen-button {
-            background-color: #1171ba;
-            color: white;
-            padding: 8px 16px;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 5px;
-            border: none;
-            margin-top: 10px;
-            width: 150px;
-            display: block;
-        }
-
-        .clear-memory-button:hover,
-        .fullscreen-button:hover {
-            background-color: #0e619f;
-        }
-
-        .font-controls {
-            background-color: #ffffff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-            width: 300px;
-        }
-
         .font-controls label,
         .font-controls select,
         .font-controls input {
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        #effectsToggle {
             margin-bottom: 10px;
         }
 
-        #effectType {
-            width: 100%;
-            margin-bottom: 5px;
-        }
-
-        .operate-by-options {
+        .font-controls .control-group {
             display: flex;
+            flex-direction: row;
             justify-content: space-between;
             width: 100%;
         }
 
-        .operate-by-options label {
-            font-size: 14px;
-            margin-right: 10px;
+        .fullscreen-button {
+            background-color: #1171ba;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .fullscreen-button:hover {
+            background-color: #0e619f;
+        }
+
+        .clear-memory-button {
+            background-color: red;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            border: none;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .fullscreen-button {
+            margin-top: 20px;
+            margin-left: 20px;
+        }
+
+        .clear-memory-button:hover {
+            background-color: darkred;
         }
 
         .text-container {
@@ -114,6 +105,60 @@
             margin: 0 0 10px;
             border-bottom: 1px solid #e0e0e0;
             line-height: 1.5;
+        }
+
+        .copy-button,
+        #okButton,
+        #undoButton,
+        #lockButton,
+        #startButton {
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.1s ease;
+            margin-top: 10px;
+        }
+
+        #loginButton {
+            background-color: #007bff;
+            margin-top: 10px;
+            font-size: 16px;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #loginButton:hover {
+            background-color: #0056b3;
+        }
+
+        #loginButton:active {
+            transform: scale(0.95);
+        }
+
+        #lockButton {
+            margin-left: 20px;
+            background-color: #1171ba;
+        }
+
+        #lockButton:hover {
+            background-color: #0e619f;
+        }
+
+        #undoButton {
+            margin-left: 20px;
+            background-color: #1171ba;
+        }
+
+        #startButton {
+            margin-left: 20px;
+            background-color: #28a745;
         }
 
         .input-container {
@@ -153,6 +198,12 @@
             display: none;
         }
 
+        #okButton {
+            align-self: flex-end;
+            margin-top: 10px;
+            background-color: #1171ba;
+        }
+
         #adCount,
         #dailyAdCount,
         #remainingTime,
@@ -169,6 +220,10 @@
             font-size: 16px;
             font-weight: bold;
             display: none;
+        }
+
+        #remainingTime .hourglass {
+            vertical-align: middle;
         }
 
         #countryCount {
@@ -473,8 +528,10 @@
         Advertisements-PPH
     </h1>
 
-    <!-- Clear memory and Full screen buttons -->
+    <!-- Clear memory button -->
     <button class="clear-memory-button" onclick="clearMemory()">Clear Memory</button>
+
+    <!-- Full screen button -->
     <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
 
     <!-- User Controls in upper-right corner -->
@@ -491,38 +548,43 @@
     </div>
 
     <div class="font-controls" style="display:none;">
-        <label for="fontStyle">Font Style:</label>
-        <select id="fontStyle" onchange="updateFont()">
-            <option value="Arial">Arial</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Calibri Light">Calibri Light</option>
-        </select>
-        <label for="fontSize">Font Size:</label>
-        <input type="number" id="fontSize" value="16" onchange="updateFont()">px
-
-        <!-- Effects and Operation Mode -->
-        <label for="effectsToggle">Enable Effects:</label>
-        <input type="checkbox" id="effectsToggle" onchange="saveEffectPreferences()">
-
-        <label for="effectType">Choose Effect:</label>
-        <select id="effectType" onchange="saveEffectPreferences()">
-            <option value="none">None</option>
-            <option value="fadeOut">Fade Out</option>
-            <option value="vanish">Vanish</option>
-            <option value="shrink">Shrink</option>
-        </select>
-
-        <div class="operate-by-options">
+        <div class="control-group">
+            <!-- Option to choose cut method -->
             <label>
                 <input type="radio" name="cutOption" value="keyboard" checked>
-                Operate by Keyboard
+                Operate by Keyboard (Down Arrow Key)
             </label>
             <label>
                 <input type="radio" name="cutOption" value="mouse">
-                Operate by Mouse
+                Operate by Mouse (Left Button)
             </label>
+        </div>
+
+        <div class="control-group">
+            <label for="effectsToggle">Enable Effects:</label>
+            <input type="checkbox" id="effectsToggle" onchange="toggleEffects()">
+
+            <label for="effectType">Choose Effect:</label>
+            <select id="effectType" onchange="saveEffectPreferences()">
+                <option value="none">None</option>
+                <option value="fadeOut">Fade Out</option>
+                <option value="vanish">Vanish</option>
+                <option value="shrink">Shrink</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="fontStyle">Font Style:</label>
+            <select id="fontStyle" onchange="updateFont()">
+                <option value="Arial">Arial</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Calibri Light">Calibri Light</option>
+            </select>
+
+            <label for="fontSize">Font Size:</label>
+            <input type="number" id="fontSize" value="16" onchange="updateFont()">px
         </div>
     </div>
 
@@ -817,9 +879,9 @@
             outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
             incompleteContainer.value = '';
 
+            let index = 0;
             const nonRussiaEntries = [];
             const russiaEntries = [];
-            let index = 0;
 
             function processChunk() {
                 const chunkSize = 5;
@@ -837,7 +899,7 @@
                         const hasError = highlightedText.includes('error');
 
                         if (hasError) {
-                            incompleteContainer.value += `${paragraph}\n\n`;
+                            incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
                         } else {
                             const p = document.createElement('p');
                             p.innerHTML = highlightedText + greeting;
