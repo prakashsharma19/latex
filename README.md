@@ -38,13 +38,17 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             display: flex;
-            align-items: center;
             flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .font-controls select,
-        .font-controls input {
-            margin: 10px;
+        .font-controls input,
+        .font-controls label {
+            margin: 10px 0;
+            width: 100%;
+            text-align: left;
         }
 
         .fullscreen-button {
@@ -84,7 +88,6 @@
             padding: 15px;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             white-space: pre-wrap;
             position: relative;
             margin-top: 20px;
@@ -293,21 +296,6 @@
             margin-left: 10px;
         }
 
-        .option-buttons {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .option-buttons label {
-            margin-right: 20px;
-        }
-
-        .top-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
         .right-content {
             position: absolute;
             top: 250px;
@@ -426,9 +414,9 @@
         /* Progress bar */
         .progress-bar-container {
             width: 100%;
-            height: 10px;
+            height: 5px;
             background-color: #e0e0e0;
-            border-radius: 5px;
+            border-radius: 2px;
             margin-top: 20px;
             overflow: hidden;
         }
@@ -436,9 +424,8 @@
         .progress-bar {
             height: 100%;
             width: 0;
-            background-color: #28a745;
+            background-color: #ff0000;
             transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
-            border-radius: 5px;
         }
 
         .scroll-locked {
@@ -516,6 +503,23 @@
         .shrink {
             animation: shrink 0.5s forwards;
         }
+
+        .credit {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .credit a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .credit a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -562,6 +566,30 @@
         </select>
         
         <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
+
+        <!-- Operate by Keyboard or Mouse Option -->
+        <label for="cutOption">Operate by:</label>
+        <label>
+            <input type="radio" name="cutOption" value="keyboard" checked>
+            Keyboard (Down Arrow Key)
+        </label>
+        <label>
+            <input type="radio" name="cutOption" value="mouse">
+            Mouse (Left Button)
+        </label>
+
+        <!-- Effects Options -->
+        <label for="effectsToggle">Enable Effects:</label>
+        <input type="checkbox" id="effectsToggle" onchange="toggleEffects()">
+
+        <label for="effectType">Choose Effect:</label>
+        <select id="effectType" onchange="saveEffectPreferences()">
+            <option value="none">None</option>
+            <option value="fadeOut">Fade Out</option>
+            <option value="vanish">Vanish</option>
+            <option value="slideRight">Slide Right</option>
+            <option value="shrink">Shrink</option>
+        </select>
     </div>
 
     <div class="input-container" style="display:none;">
@@ -606,31 +634,6 @@
         <button id="startButton" onclick="startProcessing()">Start</button>
     </div>
 
-    <div class="option-buttons" style="display:none;">
-        <!-- Option to choose cut method -->
-        <label>
-            <input type="radio" name="cutOption" value="keyboard" checked>
-            Operate by Keyboard (Down Arrow Key)
-        </label>
-        <label>
-            <input type="radio" name="cutOption" value="mouse">
-            Operate by Mouse (Left Button)
-        </label>
-
-        <!-- Effects Options -->
-        <label for="effectsToggle">Enable Effects:</label>
-        <input type="checkbox" id="effectsToggle" onchange="toggleEffects()">
-
-        <label for="effectType">Choose Effect:</label>
-        <select id="effectType" onchange="saveEffectPreferences()">
-            <option value="none">None</option>
-            <option value="fadeOut">Fade Out</option>
-            <option value="vanish">Vanish</option>
-            <option value="slideRight">Slide Right</option>
-            <option value="shrink">Shrink</option>
-        </select>
-    </div>
-
     <div id="adCount" style="display:none;">
         Total Advertisements: <span id="totalAds">0</span>
         <span id="loadingIndicator">Loading, please wait...</span>
@@ -669,6 +672,10 @@
     <!-- Scroll Lock Notice -->
     <div id="scrollLockNotice" class="scroll-lock-notice">Scrolling is locked. Unlock to scroll.</div>
 
+    <div class="credit">
+        This Web-App is made by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>.
+    </div>
+
     <script>
         const countryList = [
             "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
@@ -695,6 +702,7 @@
 
         let currentUser = null;
         let dailyAdCount = 0;
+        let initialTextCount = 0; // For percentage calculation
         let cutHistory = [];
         let isLocked = false;
         let isProcessing = false;
@@ -720,6 +728,7 @@
                 localStorage.setItem(`savedOutput_${currentUser}`, outputText);
                 localStorage.setItem(`savedIncomplete_${currentUser}`, incompleteText);
                 localStorage.setItem(`dailyAdCount_${currentUser}`, dailyAdCount);
+                localStorage.setItem(`initialTextCount_${currentUser}`, initialTextCount);
                 localStorage.setItem(`lastCutTime_${currentUser}`, Date.now());
                 saveSelectedReminders();
                 saveEffectPreferences();
@@ -734,6 +743,7 @@
                 const savedOutput = localStorage.getItem(`savedOutput_${currentUser}`);
                 const savedIncomplete = localStorage.getItem(`savedIncomplete_${currentUser}`);
                 const savedDailyAdCount = localStorage.getItem(`dailyAdCount_${currentUser}`);
+                const savedInitialTextCount = localStorage.getItem(`initialTextCount_${currentUser}`);
                 const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
                 if (savedInput) {
                     document.getElementById('inputText').value = savedInput;
@@ -753,6 +763,9 @@
                     if (lastCutDate.toDateString() === currentDate.toDateString()) {
                         dailyAdCount = parseInt(savedDailyAdCount, 10);
                     }
+                }
+                if (savedInitialTextCount) {
+                    initialTextCount = parseInt(savedInitialTextCount, 10);
                 }
                 loadEffectPreferences();
                 loadOperationPreferences();
@@ -831,9 +844,15 @@
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
 
-            const red = Math.max(255 - Math.floor((dailyAdCount / maxCount) * 255), 0);
-            const green = Math.min(Math.floor((dailyAdCount / maxCount) * 255), 255);
-            progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
+            if (percentage < 25) {
+                progressBar.style.backgroundColor = '#ff0000'; // Red
+            } else if (percentage < 50) {
+                progressBar.style.backgroundColor = '#0000ff'; // Blue
+            } else if (percentage < 75) {
+                progressBar.style.backgroundColor = '#ffff00'; // Yellow
+            } else {
+                progressBar.style.backgroundColor = '#00ff00'; // Green
+            }
         }
 
         function updateRemainingTime(dailyAdCount) {
@@ -844,6 +863,11 @@
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
 
             document.getElementById('remainingTimeText').innerText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+
+            if (initialTextCount > 0) {
+                const percentageCompleted = Math.round((dailyAdCount / initialTextCount) * 100);
+                document.getElementById('remainingTimeText').innerText += ` (${percentageCompleted}%)`;
+            }
         }
 
         function processText() {
@@ -858,6 +882,8 @@
             const incompleteContainer = document.getElementById('incompleteText');
             outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
             incompleteContainer.value = '';
+
+            initialTextCount = paragraphs.length;
 
             const lineGap = parseInt(document.getElementById('lineGap').value, 10);
             let index = 0;
@@ -949,6 +975,9 @@
             saveText();
 
             document.getElementById('undoButton').style.display = 'block';
+
+            // Ensure the cursor remains in place for the next cut
+            document.getElementById('output').focus();
         }
 
         function undoLastCut() {
@@ -998,6 +1027,7 @@
                 if (paragraph && paragraph.textContent.includes('Professor')) {
                     cutParagraph(paragraph);
 
+                    // Ensure the cursor remains in place for the next cut
                     document.getElementById('output').focus();
                 }
             }
@@ -1073,7 +1103,6 @@
                 document.querySelector('.font-controls').style.display = 'block';
                 document.querySelectorAll('.input-container').forEach(container => container.style.display = 'block');
                 document.querySelector('.top-controls').style.display = 'flex';
-                document.querySelector('.option-buttons').style.display = 'block';
                 document.getElementById('adCount').style.display = 'block';
                 document.getElementById('dailyAdCount').style.display = 'block';
                 document.getElementById('remainingTime').style.display = 'block';
@@ -1093,7 +1122,6 @@
             document.querySelector('.font-controls').style.display = 'none';
             document.querySelectorAll('.input-container').forEach(container => container.style.display = 'none');
             document.querySelector('.top-controls').style.display = 'none';
-            document.querySelector('.option-buttons').style.display = 'none';
             document.getElementById('adCount').style.display = 'none';
             document.getElementById('dailyAdCount').style.display = 'none';
             document.getElementById('remainingTime').style.display = 'none';
