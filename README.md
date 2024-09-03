@@ -32,38 +32,58 @@
         .font-controls,
         .login-container {
             background-color: #ffffff;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-        }
-
-        .font-controls label,
-        .font-controls select,
-        .font-controls input {
-            margin-right: 10px;
-            margin-bottom: 0;
+            width: 100%;
         }
 
         .font-controls .control-group {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 10px;
+        }
+
+        .font-controls label {
+            margin-right: 10px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .font-controls select,
+        .font-controls input {
+            border-radius: 5px;
+            padding: 5px;
+            border: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        .font-controls input[type="number"] {
+            width: 50px;
+        }
+
+        .font-controls .control-group > div {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .fullscreen-button {
             background-color: #1171ba;
             border: none;
             color: white;
-            padding: 10px 20px;
+            padding: 10px 15px;
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
-            margin-top: 20px;
-            margin-left: 20px;
+            margin-left: 10px;
         }
 
         .fullscreen-button:hover {
@@ -73,7 +93,7 @@
         .clear-memory-button {
             background-color: red;
             color: white;
-            padding: 10px 20px;
+            padding: 10px 15px;
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
@@ -111,7 +131,7 @@
         #startButton {
             border: none;
             color: white;
-            padding: 10px 20px;
+            padding: 10px 15px;
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
@@ -125,7 +145,7 @@
             font-size: 16px;
             border: none;
             color: white;
-            padding: 10px 20px;
+            padding: 10px 15px;
             cursor: pointer;
             border-radius: 5px;
             transition: background-color 0.3s ease;
@@ -140,8 +160,8 @@
         }
 
         #lockButton {
-            margin-left: 20px;
             background-color: #1171ba;
+            margin-right: 10px;
         }
 
         #lockButton:hover {
@@ -149,13 +169,13 @@
         }
 
         #undoButton {
-            margin-left: 20px;
             background-color: #1171ba;
+            margin-right: 10px;
         }
 
         #startButton {
-            margin-left: 20px;
             background-color: #28a745;
+            margin-right: 10px;
         }
 
         .input-container {
@@ -302,8 +322,10 @@
 
         .top-controls {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .right-content {
@@ -487,16 +509,46 @@
             }
         }
 
+        @keyframes particleBurst {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes bubbleBurst {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(50px) scale(0);
+                opacity: 0;
+            }
+        }
+
         .fadeOut {
-            animation: fadeOut 0.5s forwards;
+            animation: fadeOut 0.3s forwards;
         }
 
         .vanish {
-            animation: vanish 0.5s forwards;
+            animation: vanish 0.3s forwards;
         }
 
         .shrink {
-            animation: shrink 0.5s forwards;
+            animation: shrink 0.3s forwards;
+        }
+
+        .particleBurst {
+            animation: particleBurst 0.3s forwards;
+        }
+
+        .bubbleBurst {
+            animation: bubbleBurst 0.3s forwards;
         }
 
         /* Credit Section */
@@ -528,9 +580,6 @@
     <!-- Clear memory button -->
     <button class="clear-memory-button" onclick="clearMemory()">Clear Memory</button>
 
-    <!-- Full screen button -->
-    <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
-
     <!-- User Controls in upper-right corner -->
     <div id="userControls" style="display: none;">
         <img src="https://raw.githubusercontent.com/prakashsharma19/hosted-images/main/pphlogo.png" alt="PPH Logo">
@@ -546,37 +595,49 @@
 
     <div class="font-controls" style="display:none;">
         <div class="control-group">
-            <label>
-                <input type="radio" name="cutOption" value="keyboard" checked>
-                Keyboard
-            </label>
-            <label>
-                <input type="radio" name="cutOption" value="mouse">
-                Mouse
-            </label>
+            <div>
+                <label>
+                    <input type="radio" name="cutOption" value="keyboard" checked>
+                    Keyboard
+                </label>
+                <label>
+                    <input type="radio" name="cutOption" value="mouse">
+                    Mouse
+                </label>
+            </div>
 
-            <label for="effectsToggle">Effects:</label>
-            <input type="checkbox" id="effectsToggle" onchange="saveEffectPreferences()">
+            <div>
+                <label for="effectsToggle">Effects:</label>
+                <input type="checkbox" id="effectsToggle" onchange="saveEffectPreferences()">
+            </div>
 
-            <label for="effectType">Select Effect:</label>
-            <select id="effectType" onchange="saveEffectPreferences()">
-                <option value="none">None</option>
-                <option value="fadeOut">Fade Out</option>
-                <option value="vanish">Vanish</option>
-                <option value="shrink">Shrink</option>
-            </select>
+            <div>
+                <label for="effectType">Effect:</label>
+                <select id="effectType" onchange="saveEffectPreferences()">
+                    <option value="none">None</option>
+                    <option value="fadeOut">Fade Out</option>
+                    <option value="vanish">Vanish</option>
+                    <option value="shrink">Shrink</option>
+                    <option value="particleBurst">Particle Burst</option>
+                    <option value="bubbleBurst">Bubble Burst</option>
+                </select>
+            </div>
 
-            <label for="fontStyle">Font Style:</label>
-            <select id="fontStyle" onchange="updateFont()">
-                <option value="Arial">Arial</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Calibri Light">Calibri Light</option>
-            </select>
+            <div>
+                <label for="fontStyle">Font:</label>
+                <select id="fontStyle" onchange="updateFont()">
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Calibri Light">Calibri Light</option>
+                </select>
+            </div>
 
-            <label for="fontSize">Font Size:</label>
-            <input type="number" id="fontSize" value="16" onchange="updateFont()">px
+            <div>
+                <label for="fontSize">Size:</label>
+                <input type="number" id="fontSize" value="16" onchange="updateFont()">px
+            </div>
         </div>
     </div>
 
@@ -614,12 +675,13 @@
     </div>
 
     <div class="top-controls" style="display:none;">
+        <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
+        <button id="lockButton" style="display:none;" onclick="toggleLock()">🔒 Lock</button>
+        <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
+        <button id="startButton" onclick="startProcessing()">Start</button>
         <div id="remainingTime">File completed by: <span id="remainingTimeText"></span> (<span id="completionPercentage">0%</span>)
             <div class="hourglass"></div>
         </div>
-        <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
-        <button id="lockButton" style="display:none;" onclick="toggleLock()">🔒 Lock</button>
-        <button id="startButton" onclick="startProcessing()">Start</button>
     </div>
 
     <div id="adCount" style="display:none;">
@@ -876,7 +938,7 @@
             const russiaEntries = [];
 
             function processChunk() {
-                const chunkSize = 5;
+                const chunkSize = 10;
                 const end = Math.min(index + chunkSize, paragraphs.length);
                 for (; index < end; index++) {
                     let paragraph = paragraphs[index].trim();
