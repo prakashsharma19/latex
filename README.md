@@ -44,14 +44,14 @@
         .font-controls label,
         .font-controls select,
         .font-controls input {
-            margin-bottom: 10px;
+            margin-right: 10px;
+            margin-bottom: 0;
         }
 
         .font-controls .control-group {
             display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            width: 100%;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
         .fullscreen-button {
@@ -62,6 +62,8 @@
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
+            margin-top: 20px;
+            margin-left: 20px;
         }
 
         .fullscreen-button:hover {
@@ -79,11 +81,6 @@
             position: absolute;
             top: 20px;
             left: 20px;
-        }
-
-        .fullscreen-button {
-            margin-top: 20px;
-            margin-left: 20px;
         }
 
         .clear-memory-button:hover {
@@ -549,31 +546,18 @@
 
     <div class="font-controls" style="display:none;">
         <div class="control-group">
-            <!-- Option to choose cut method -->
             <label>
                 <input type="radio" name="cutOption" value="keyboard" checked>
-                Operate by Keyboard (Down Arrow Key)
+                Operate by Keyboard
             </label>
             <label>
                 <input type="radio" name="cutOption" value="mouse">
-                Operate by Mouse (Left Button)
+                Operate by Mouse
             </label>
-        </div>
 
-        <div class="control-group">
             <label for="effectsToggle">Enable Effects:</label>
             <input type="checkbox" id="effectsToggle" onchange="toggleEffects()">
 
-            <label for="effectType">Choose Effect:</label>
-            <select id="effectType" onchange="saveEffectPreferences()">
-                <option value="none">None</option>
-                <option value="fadeOut">Fade Out</option>
-                <option value="vanish">Vanish</option>
-                <option value="shrink">Shrink</option>
-            </select>
-        </div>
-
-        <div class="control-group">
             <label for="fontStyle">Font Style:</label>
             <select id="fontStyle" onchange="updateFont()">
                 <option value="Arial">Arial</option>
