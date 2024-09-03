@@ -548,15 +548,23 @@
         <div class="control-group">
             <label>
                 <input type="radio" name="cutOption" value="keyboard" checked>
-                Operate by Keyboard
+                Keyboard
             </label>
             <label>
                 <input type="radio" name="cutOption" value="mouse">
-                Operate by Mouse
+                Mouse
             </label>
 
-            <label for="effectsToggle">Enable Effects:</label>
-            <input type="checkbox" id="effectsToggle" onchange="toggleEffects()">
+            <label for="effectsToggle">Effects:</label>
+            <input type="checkbox" id="effectsToggle" onchange="saveEffectPreferences()">
+
+            <label for="effectType">Select Effect:</label>
+            <select id="effectType" onchange="saveEffectPreferences()">
+                <option value="none">None</option>
+                <option value="fadeOut">Fade Out</option>
+                <option value="vanish">Vanish</option>
+                <option value="shrink">Shrink</option>
+            </select>
 
             <label for="fontStyle">Font Style:</label>
             <select id="fontStyle" onchange="updateFont()">
