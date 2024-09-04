@@ -83,7 +83,8 @@
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
-            margin-left: 10px;
+            margin-top: 10px;
+            width: 100%;
         }
 
         .fullscreen-button:hover {
@@ -124,11 +125,8 @@
             line-height: 1.5;
         }
 
-        .copy-button,
-        #okButton,
         #undoButton,
-        #lockButton,
-        #startButton {
+        #lockButton {
             border: none;
             color: white;
             padding: 10px 15px;
@@ -137,6 +135,7 @@
             border-radius: 5px;
             transition: background-color 0.3s, transform 0.1s ease;
             margin-top: 10px;
+            width: 100%;
         }
 
         #loginButton {
@@ -161,7 +160,10 @@
 
         #lockButton {
             background-color: #1171ba;
-            margin-right: 10px;
+        }
+
+        #lockButton.locked {
+            background-color: #d9534f;
         }
 
         #lockButton:hover {
@@ -170,12 +172,6 @@
 
         #undoButton {
             background-color: #1171ba;
-            margin-right: 10px;
-        }
-
-        #startButton {
-            background-color: #28a745;
-            margin-right: 10px;
         }
 
         .input-container {
@@ -482,6 +478,7 @@
             0% {
                 opacity: 1;
             }
+
             100% {
                 opacity: 0;
             }
@@ -492,6 +489,7 @@
                 transform: scale(1);
                 opacity: 1;
             }
+
             100% {
                 transform: scale(0);
                 opacity: 0;
@@ -503,6 +501,7 @@
                 transform: scale(1);
                 opacity: 1;
             }
+
             100% {
                 transform: scale(0.5);
                 opacity: 0;
@@ -514,6 +513,7 @@
                 transform: scale(1);
                 opacity: 1;
             }
+
             100% {
                 transform: translateY(-50px) scale(0);
                 opacity: 0;
@@ -525,6 +525,7 @@
                 transform: scale(1);
                 opacity: 1;
             }
+
             100% {
                 transform: translateY(50px) scale(0);
                 opacity: 0;
@@ -568,6 +569,21 @@
         #credit a:hover {
             text-decoration: underline;
         }
+
+        /* Right Sidebar for Buttons */
+        #rightSidebar {
+            position: absolute;
+            right: -160px;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 10px;
+            width: 140px;
+        }
+
     </style>
 </head>
 
@@ -675,10 +691,6 @@
     </div>
 
     <div class="top-controls" style="display:none;">
-        <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
-        <button id="lockButton" style="display:none;" onclick="toggleLock()">🔒 Lock</button>
-        <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
-        <button id="startButton" onclick="startProcessing()">Start</button>
         <div id="remainingTime">File completed by: <span id="remainingTimeText"></span> (<span id="completionPercentage">0%</span>)
             <div class="hourglass"></div>
         </div>
@@ -696,6 +708,12 @@
 
     <div id="output" class="text-container" style="display:none;" contenteditable="true">
         <p id="cursorStart">Place your cursor here</p>
+    </div>
+
+    <div id="rightSidebar">
+        <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
+        <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
+        <button id="lockButton" onclick="toggleLock()">🔒 Lock</button>
     </div>
 
     <div class="right-content">
@@ -784,6 +802,7 @@
                 saveSelectedReminders();
                 saveEffectPreferences();
                 saveOperationPreferences();
+                saveFontPreferences();
             }
         }
 
@@ -796,6 +815,8 @@
                 const savedDailyAdCount = localStorage.getItem(`dailyAdCount_${currentUser}`);
                 const lastCutTime = localStorage.getItem(`lastCutTime_${currentUser}`);
                 const savedTotalParagraphs = localStorage.getItem(`totalParagraphs_${currentUser}`);
+                const savedFontStyle = localStorage.getItem(`fontStyle_${currentUser}`);
+                const savedFontSize = localStorage.getItem(`fontSize_${currentUser}`);
                 if (savedInput) {
                     document.getElementById('inputText').value = savedInput;
                 }
@@ -818,11 +839,27 @@
                 if (savedTotalParagraphs) {
                     totalParagraphs = parseInt(savedTotalParagraphs, 10);
                 }
+                if (savedFontStyle) {
+                    document.getElementById('fontStyle').value = savedFontStyle;
+                }
+                if (savedFontSize) {
+                    document.getElementById('fontSize').value = savedFontSize;
+                }
                 loadEffectPreferences();
                 loadOperationPreferences();
                 loadSelectedReminders();
                 updateCounts();
+                updateFont();
                 document.getElementById('lockButton').style.display = 'inline-block';
+            }
+        }
+
+        function saveFontPreferences() {
+            const fontStyle = document.getElementById('fontStyle').value;
+            const fontSize = document.getElementById('fontSize').value;
+            if (currentUser) {
+                localStorage.setItem(`fontStyle_${currentUser}`, fontStyle);
+                localStorage.setItem(`fontSize_${currentUser}`, fontSize);
             }
         }
 
@@ -1100,6 +1137,7 @@
             const fontSize = document.getElementById('fontSize').value;
             document.getElementById('output').style.fontFamily = fontStyle;
             document.getElementById('output').style.fontSize = `${fontSize}px`;
+            saveFontPreferences();
         }
 
         function toggleLock() {
@@ -1109,6 +1147,7 @@
 
             if (isLocked) {
                 lockButton.innerHTML = '🔓 Unlock';
+                lockButton.classList.add('locked');
                 interactiveElements.forEach(element => {
                     if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
                         element.disabled = true;
@@ -1117,6 +1156,7 @@
                 document.body.classList.add('scroll-locked');
             } else {
                 lockButton.innerHTML = '🔒 Lock';
+                lockButton.classList.remove('locked');
                 interactiveElements.forEach(element => {
                     if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
                         element.disabled = false;
