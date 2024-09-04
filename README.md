@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -573,8 +574,8 @@
         /* Right Sidebar for Buttons */
         #rightSidebar {
             position: absolute;
-            right: 10px;
-            top: 20px;
+            right: 20px;
+            top: 450px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -708,12 +709,6 @@
         <p id="cursorStart">Place your cursor here</p>
     </div>
 
-    <div id="rightSidebar">
-        <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
-        <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
-        <button id="lockButton" onclick="toggleLock()">🔒 Lock</button>
-    </div>
-
     <div class="right-content">
         <div id="currentTime"></div>
         <div class="reminder-heading">Ad Slots:</div>
@@ -727,6 +722,12 @@
             <li data-time="16:50">4:50-5:00 PM</li>
         </ul>
         <div class="reminder-note">(Select your slots to get reminder)</div>
+    </div>
+
+    <div id="rightSidebar">
+        <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
+        <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
+        <button id="lockButton" onclick="toggleLock()">🔒 Lock</button>
     </div>
 
     <div id="reminderPopup" class="popup">
