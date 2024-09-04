@@ -573,15 +573,13 @@
         /* Right Sidebar for Buttons */
         #rightSidebar {
             position: absolute;
-            right: -160px;
-            top: 0;
-            bottom: 0;
+            right: 10px;
+            top: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
             gap: 10px;
-            width: 140px;
+            align-items: flex-end;
+            z-index: 999;
         }
 
     </style>
