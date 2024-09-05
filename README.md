@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -68,12 +67,6 @@
 
         .font-controls input[type="number"] {
             width: 50px;
-        }
-
-        .font-controls .control-group > div {
-            display: flex;
-            align-items: center;
-            gap: 5px;
         }
 
         .fullscreen-button {
@@ -497,26 +490,14 @@
             }
         }
 
-        @keyframes particleBurst {
+        @keyframes explode {
             0% {
                 transform: scale(1);
                 opacity: 1;
             }
 
             100% {
-                transform: translateY(-50px) scale(0);
-                opacity: 0;
-            }
-        }
-
-        @keyframes bubbleBurst {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            100% {
-                transform: translateY(50px) scale(0);
+                transform: scale(3);
                 opacity: 0;
             }
         }
@@ -529,18 +510,8 @@
             animation: vanish 0.3s forwards;
         }
 
-        .particleBurst {
-            animation: particleBurst 0.3s forwards;
-        }
-
-        .bubbleBurst {
-            animation: bubbleBurst 0.3s forwards;
-        }
-
-        /* Debounce for multiple clicks */
-        .debounced {
-            pointer-events: none;
-            opacity: 0.5;
+        .explode {
+            animation: explode 0.3s forwards;
         }
 
         /* Credit Section */
@@ -619,8 +590,7 @@
                     <option value="none">None</option>
                     <option value="fadeOut">Fade Out</option>
                     <option value="vanish">Vanish</option>
-                    <option value="particleBurst">Particle Burst</option>
-                    <option value="bubbleBurst">Bubble Burst</option>
+                    <option value="explode">Explode</option>
                 </select>
             </div>
 
@@ -710,7 +680,7 @@
         <div class="reminder-note">(Select your slots to get reminder)</div>
 
         <!-- Button Container -->
-        <div id="rightSidebar">
+        <div id="rightSidebar" style="display:none;">
             <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
             <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
             <button id="lockButton" onclick="toggleLock()">🔒 Lock</button>
@@ -761,7 +731,7 @@
         let isLocked = false;
         let isProcessing = false;
         let totalParagraphs = 0;
-        let isDebounced = false;
+        let cutCooldown = false; // To prevent accidental double cuts
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -837,6 +807,7 @@
                 loadSelectedReminders();
                 updateCounts();
                 updateFont();
+                document.getElementById('rightSidebar').style.display = 'block'; // Show buttons after login
                 document.getElementById('lockButton').style.display = 'inline-block';
             }
         }
@@ -919,7 +890,6 @@
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
 
-            // RGB transition from red to green
             const red = Math.max(255 - Math.floor((dailyAdCount / maxCount) * 255), 0);
             const green = Math.min(Math.floor((dailyAdCount / maxCount) * 255), 255);
             progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
@@ -1002,8 +972,8 @@
         }
 
         function cutParagraph(paragraph) {
-            if (isDebounced) return;
-            isDebounced = true;
+            if (cutCooldown) return; // Prevent double cut
+            cutCooldown = true;
 
             const textToCopy = paragraph.innerText;
             cutHistory.push(textToCopy);
@@ -1015,12 +985,15 @@
                 paragraph.classList.add(effectType);
                 paragraph.addEventListener('animationend', () => {
                     copyAndRemoveParagraph(paragraph, textToCopy);
-                    isDebounced = false;
                 });
             } else {
                 copyAndRemoveParagraph(paragraph, textToCopy);
-                isDebounced = false;
             }
+
+            // Reset the cooldown after a short delay
+            setTimeout(() => {
+                cutCooldown = false;
+            }, 500);
         }
 
         function copyAndRemoveParagraph(paragraph, textToCopy) {
