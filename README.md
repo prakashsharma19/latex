@@ -496,18 +496,6 @@
             }
         }
 
-        @keyframes shrink {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            100% {
-                transform: scale(0.5);
-                opacity: 0;
-            }
-        }
-
         @keyframes particleBurst {
             0% {
                 transform: scale(1);
@@ -540,16 +528,18 @@
             animation: vanish 0.3s forwards;
         }
 
-        .shrink {
-            animation: shrink 0.3s forwards;
-        }
-
         .particleBurst {
             animation: particleBurst 0.3s forwards;
         }
 
         .bubbleBurst {
             animation: bubbleBurst 0.3s forwards;
+        }
+
+        /* Debounce for multiple clicks */
+        .debounced {
+            pointer-events: none;
+            opacity: 0.5;
         }
 
         /* Credit Section */
@@ -579,7 +569,6 @@
             align-items: flex-end;
             z-index: 999;
         }
-
     </style>
 </head>
 
@@ -629,7 +618,6 @@
                     <option value="none">None</option>
                     <option value="fadeOut">Fade Out</option>
                     <option value="vanish">Vanish</option>
-                    <option value="shrink">Shrink</option>
                     <option value="particleBurst">Particle Burst</option>
                     <option value="bubbleBurst">Bubble Burst</option>
                 </select>
@@ -772,6 +760,7 @@
         let isLocked = false;
         let isProcessing = false;
         let totalParagraphs = 0;
+        let isDebounced = false;
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -929,15 +918,10 @@
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
 
-            if (percentage <= 25) {
-                progressBar.style.backgroundColor = '#f00'; // Red
-            } else if (percentage <= 50) {
-                progressBar.style.backgroundColor = '#00f'; // Blue
-            } else if (percentage <= 75) {
-                progressBar.style.backgroundColor = '#ff0'; // Yellow
-            } else {
-                progressBar.style.backgroundColor = '#0f0'; // Green
-            }
+            // RGB transition from red to green
+            const red = Math.max(255 - Math.floor((dailyAdCount / maxCount) * 255), 0);
+            const green = Math.min(Math.floor((dailyAdCount / maxCount) * 255), 255);
+            progressBar.style.backgroundColor = `rgb(${red},${green},0)`;
         }
 
         function updateRemainingTime(dailyAdCount) {
@@ -1017,6 +1001,9 @@
         }
 
         function cutParagraph(paragraph) {
+            if (isDebounced) return;
+            isDebounced = true;
+
             const textToCopy = paragraph.innerText;
             cutHistory.push(textToCopy);
 
@@ -1027,9 +1014,11 @@
                 paragraph.classList.add(effectType);
                 paragraph.addEventListener('animationend', () => {
                     copyAndRemoveParagraph(paragraph, textToCopy);
+                    isDebounced = false;
                 });
             } else {
                 copyAndRemoveParagraph(paragraph, textToCopy);
+                isDebounced = false;
             }
         }
 
