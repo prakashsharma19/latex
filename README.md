@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -514,6 +515,10 @@
             animation: explode 0.3s forwards;
         }
 
+        .highlight-added {
+            background-color: #f4e542;
+        }
+
         /* Credit Section */
         #credit {
             position: fixed;
@@ -540,6 +545,14 @@
             gap: 10px;
             align-items: flex-end;
             z-index: 999;
+        }
+
+        /* Options in the font control pane */
+        .gap-control {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -608,6 +621,14 @@
             <div>
                 <label for="fontSize">Size:</label>
                 <input type="number" id="fontSize" value="16" onchange="updateFont()">px
+            </div>
+
+            <div class="gap-control">
+                <label for="gapOption">Gap:</label>
+                <select id="gapOption" onchange="saveGapPreferences()">
+                    <option value="default">Default</option>
+                    <option value="nil">Nil</option>
+                </select>
             </div>
         </div>
     </div>
@@ -760,6 +781,7 @@
                 saveEffectPreferences();
                 saveOperationPreferences();
                 saveFontPreferences();
+                saveGapPreferences();
             }
         }
 
@@ -774,6 +796,7 @@
                 const savedTotalParagraphs = localStorage.getItem(`totalParagraphs_${currentUser}`);
                 const savedFontStyle = localStorage.getItem(`fontStyle_${currentUser}`);
                 const savedFontSize = localStorage.getItem(`fontSize_${currentUser}`);
+                const savedGapOption = localStorage.getItem(`gapOption_${currentUser}`);
                 if (savedInput) {
                     document.getElementById('inputText').value = savedInput;
                 }
@@ -801,6 +824,9 @@
                 }
                 if (savedFontSize) {
                     document.getElementById('fontSize').value = savedFontSize;
+                }
+                if (savedGapOption) {
+                    document.getElementById('gapOption').value = savedGapOption;
                 }
                 loadEffectPreferences();
                 loadOperationPreferences();
@@ -926,6 +952,8 @@
             const nonRussiaEntries = [];
             const russiaEntries = [];
 
+            const gapOption = document.getElementById('gapOption').value;
+
             function processChunk() {
                 const chunkSize = 10;
                 const end = Math.min(index + chunkSize, paragraphs.length);
@@ -934,9 +962,13 @@
                     if (paragraph !== '') {
                         const lines = paragraph.split('\n');
                         const firstLine = lines[0].trim();
-                        const lastName = firstLine.split(' ').pop();
+                        let lastName = firstLine.split(' ').pop();
 
-                        const greeting = `\n\nDear Professor ${lastName},\n`;
+                        if (!firstLine.toLowerCase().startsWith('professor')) {
+                            lastName = `<span class="highlight-added">Professor</span> ${firstLine.split(' ')[1]}`;
+                        }
+
+                        const greeting = gapOption === 'nil' ? `Dear Professor ${lastName},\n` : `\n\nDear Professor ${lastName},\n`;
 
                         const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
                         const hasError = highlightedText.includes('error');
@@ -1098,6 +1130,13 @@
             document.getElementById('output').style.fontFamily = fontStyle;
             document.getElementById('output').style.fontSize = `${fontSize}px`;
             saveFontPreferences();
+        }
+
+        function saveGapPreferences() {
+            const gapOption = document.getElementById('gapOption').value;
+            if (currentUser) {
+                localStorage.setItem(`gapOption_${currentUser}`, gapOption);
+            }
         }
 
         function toggleLock() {
