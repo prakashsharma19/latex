@@ -932,7 +932,7 @@
 
         function updateRemainingTime(dailyAdCount) {
             const remainingEntries = totalParagraphs - dailyAdCount;
-            const remainingTimeInMinutes = remainingEntries / 30;
+            const remainingTimeInMinutes = remainingEntries / 40;
             const remainingTimeInSeconds = remainingTimeInMinutes * 60;
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
