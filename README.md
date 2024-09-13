@@ -970,16 +970,20 @@
                         }
 
                         const processedParagraph = lines.join('\n');
-                        const greeting = gapOption === 'nil' ? `Dear Professor ${lastName},\n` : `\n\nDear Professor ${lastName},\n`;
+                        const greeting = `Dear Professor ${lastName},\n`;
 
-                        const highlightedText = highlightErrors(processedParagraph.replace(/\n/g, '<br>'));
+                        // Check the gap option and apply it appropriately
+                        const fullText = gapOption === 'nil' ?
+                            processedParagraph + '\n' + greeting : processedParagraph + '\n\n' + greeting;
+
+                        const highlightedText = highlightErrors(fullText.replace(/\n/g, '<br>'));
                         const hasError = highlightedText.includes('error');
 
                         if (hasError) {
                             incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
                         } else {
                             const p = document.createElement('p');
-                            p.innerHTML = highlightedText + greeting;
+                            p.innerHTML = highlightedText;
 
                             if (paragraph.includes('Russia')) {
                                 russiaEntries.push(p);
