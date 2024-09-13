@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -752,7 +751,7 @@
         let isLocked = false;
         let isProcessing = false;
         let totalParagraphs = 0;
-        let cutCooldown = false; // To prevent accidental double cuts
+        let cutCooldown = false;
 
         function clearMemory() {
             const password = prompt('Please enter the password to clear memory:');
@@ -833,7 +832,7 @@
                 loadSelectedReminders();
                 updateCounts();
                 updateFont();
-                document.getElementById('rightSidebar').style.display = 'block'; // Show buttons after login
+                document.getElementById('rightSidebar').style.display = 'block';
                 document.getElementById('lockButton').style.display = 'inline-block';
             }
         }
@@ -961,16 +960,19 @@
                     let paragraph = paragraphs[index].trim();
                     if (paragraph !== '') {
                         const lines = paragraph.split('\n');
-                        const firstLine = lines[0].trim();
+                        let firstLine = lines[0].trim();
                         let lastName = firstLine.split(' ').pop();
 
                         if (!firstLine.toLowerCase().startsWith('professor')) {
-                            lastName = `<span class="highlight-added">Professor</span> ${firstLine.split(' ')[1]}`;
+                            // Add "Professor" if it's missing, and highlight it in yellow
+                            firstLine = `<span class="highlight-added">Professor</span> ${firstLine}`;
+                            lines[0] = firstLine;
                         }
 
+                        const processedParagraph = lines.join('\n');
                         const greeting = gapOption === 'nil' ? `Dear Professor ${lastName},\n` : `\n\nDear Professor ${lastName},\n`;
 
-                        const highlightedText = highlightErrors(paragraph.replace(/\n/g, '<br>'));
+                        const highlightedText = highlightErrors(processedParagraph.replace(/\n/g, '<br>'));
                         const hasError = highlightedText.includes('error');
 
                         if (hasError) {
@@ -1004,7 +1006,7 @@
         }
 
         function cutParagraph(paragraph) {
-            if (cutCooldown) return; // Prevent double cut
+            if (cutCooldown) return;
             cutCooldown = true;
 
             const textToCopy = paragraph.innerText;
@@ -1022,7 +1024,6 @@
                 copyAndRemoveParagraph(paragraph, textToCopy);
             }
 
-            // Reset the cooldown after a short delay
             setTimeout(() => {
                 cutCooldown = false;
             }, 500);
@@ -1052,7 +1053,6 @@
 
             document.getElementById('undoButton').style.display = 'block';
 
-            // Keep the cursor in the same position for the next cut
             document.getElementById('output').focus();
         }
 
