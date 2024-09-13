@@ -198,7 +198,7 @@
 
         .rough-container {
             width: 30%;
-            margin-left: 2%;
+            margin-left: 0%;
         }
 
         .input-boxes {
@@ -683,7 +683,7 @@
 
     <div id="adCount" style="display:none;">
         Total Advertisements: <span id="totalAds">0</span>
-        <span id="loadingIndicator">Loading, please wait...</span>
+        <span id="loadingIndicator">Processing, please wait...</span>
     </div>
     <div id="dailyAdCount" style="display:none;">Total Ads Sent Today: 0</div>
     <div class="progress-bar-container">
@@ -728,7 +728,7 @@
 
     <!-- Credit Section -->
     <div id="credit">
-        This Web-App is Developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>.
+        This Web-App is Developed by <a href="https://prakashsharma19.github.io/prakash/" target="_blank">Prakash</a>
     </div>
 
     <script>
@@ -752,7 +752,7 @@
             "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
             "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
             "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
-            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U. S. A.", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire"
+            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U. S. A.", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Macau", "Macao", "Macedonia"
         ];
 
         let currentUser = null;
