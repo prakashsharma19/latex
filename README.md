@@ -211,7 +211,7 @@
     border: none;
     color: white;
     padding: 10px 20px; /* Smaller padding */
-    font-size: 18px; /* Smaller font size */
+    font-size: 14px; /* Smaller font size */
     cursor: pointer;
     border-radius: 5px;
     margin-top: 10px;
