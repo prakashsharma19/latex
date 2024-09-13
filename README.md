@@ -207,19 +207,18 @@
 
         #okButton {
     align-self: flex-end;
-    background-color: #1171ba;
+    background-color: #28a745; /* Green color */
     border: none;
     color: white;
-    padding: 10px 15px;
-    font-size: 16px;
+    padding: 5px 10px; /* Smaller padding */
+    font-size: 14px; /* Smaller font size */
     cursor: pointer;
     border-radius: 5px;
     margin-top: 10px;
-    width: 100%; /* Optional: Remove if you don't want it to be full-width */
 }
 
 #okButton:hover {
-    background-color: #0e619f;
+    background-color: #218838; /* Darker green for hover effect */
 }
 
         #adCount,
