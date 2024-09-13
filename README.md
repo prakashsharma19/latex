@@ -920,7 +920,7 @@
 
         function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
-            const maxCount = 1200;
+            const maxCount = 1800;
 
             const percentage = Math.min(dailyAdCount / maxCount, 1) * 100;
             progressBar.style.width = `${percentage}%`;
@@ -932,7 +932,7 @@
 
         function updateRemainingTime(dailyAdCount) {
             const remainingEntries = totalParagraphs - dailyAdCount;
-            const remainingTimeInMinutes = remainingEntries / 15;
+            const remainingTimeInMinutes = remainingEntries / 30;
             const remainingTimeInSeconds = remainingTimeInMinutes * 60;
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
