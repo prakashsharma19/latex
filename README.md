@@ -206,10 +206,21 @@
         }
 
         #okButton {
-            align-self: flex-end;
-            margin-top: 10px;
-            background-color: #1171ba;
-        }
+    align-self: flex-end;
+    background-color: #1171ba;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+    width: 100%; /* Optional: Remove if you don't want it to be full-width */
+}
+
+#okButton:hover {
+    background-color: #0e619f;
+}
 
         #adCount,
         #dailyAdCount,
@@ -639,7 +650,7 @@
         </div>
         <div id="pasteBox" class="input-boxes">
             <textarea id="inputText" rows="5" placeholder="Paste your text here..."></textarea>
-            <button id="okButton" onclick="processText()">OK</button>
+            <button id="okButton" onclick="processText()">Process</button>
         </div>
     </div>
 
