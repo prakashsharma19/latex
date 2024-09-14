@@ -164,8 +164,8 @@
       return citation.match(doiPattern);
     }
 
-    // Function to search CrossRef API for a DOI based on title and journal name (exact match)
-    async function fetchDOI(query, title, journal) {
+    // Function to search CrossRef API for a DOI based on citation parts (title, journal, volume, issue, page numbers)
+    async function fetchCorrectCitation(query, title, journal, volume, issue, pages) {
       const apiUrl = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=5`;
       const response = await fetch(apiUrl);
       const data = await response.json();
@@ -174,17 +174,21 @@
         for (let item of data.message.items) {
           const itemTitle = item.title ? item.title[0].toLowerCase() : '';
           const itemJournal = item['container-title'] ? item['container-title'][0].toLowerCase() : '';
+          const itemVolume = item.volume ? item.volume : '';
+          const itemIssue = item.issue ? item.issue : '';
+          const itemPages = item.page ? item.page : '';
 
-          // Check if both title and journal match exactly
-          if (itemTitle === title.toLowerCase() && itemJournal === journal.toLowerCase()) {
-            return item.DOI;
+          // Check if title, journal, volume, issue, and pages match exactly
+          if (itemTitle === title.toLowerCase() && itemJournal === journal.toLowerCase() && 
+              itemVolume === volume && itemIssue === issue && itemPages === pages) {
+            return item;
           }
         }
       }
       return null;
     }
 
-    // Function to fix citations by adding DOI links (only on exact matches of title and journal)
+    // Function to fix citations by fetching correct data and updating the citation with correct details
     async function fixCitations() {
       const input = document.getElementById('citationInput').value.trim();
       const outputDiv = document.getElementById('citationOutput');
@@ -205,19 +209,25 @@
         let doi = extractDOI(citation);
 
         if (!doi) {
-          // Extract title and journal from the citation manually (requires proper format)
-          const titleMatch = citation.match(/, (.*?)\. /);
-          const journalMatch = citation.match(/, ([^,]+),/);
+          // Extract parts of the citation manually: title, journal, volume, issue, pages (requires proper format)
+          const titleMatch = citation.match(/, (.*?)\. /); // extract title
+          const journalMatch = citation.match(/, ([^,]+),/); // extract journal
+          const volumeMatch = citation.match(/, (\d+)\(/); // extract volume
+          const issueMatch = citation.match(/\((\d+)\)/); // extract issue
+          const pagesMatch = citation.match(/, (\d+-\d+)\./); // extract page numbers
 
-          if (titleMatch && journalMatch) {
+          if (titleMatch && journalMatch && volumeMatch && issueMatch && pagesMatch) {
             const title = titleMatch[1];
             const journal = journalMatch[1];
-            doi = await fetchDOI(citation, title, journal);
-          }
-        }
+            const volume = volumeMatch[1];
+            const issue = issueMatch[1];
+            const pages = pagesMatch[1];
 
-        if (doi) {
-          citation += ` <a href="https://doi.org/${doi}" class="doi-link" target="_blank">https://doi.org/${doi}</a>`;
+            const correctCitation = await fetchCorrectCitation(citation, title, journal, volume, issue, pages);
+            if (correctCitation) {
+              citation = `${correctCitation.author.map(a => `${a.given} ${a.family}`).join(', ')}, ${correctCitation.title[0]}, ${correctCitation['container-title'][0]}, vol. ${correctCitation.volume}(${correctCitation.issue}), pp. ${correctCitation.page}. <a href="https://doi.org/${correctCitation.DOI}" class="doi-link" target="_blank">https://doi.org/${correctCitation.DOI}</a>`;
+            }
+          }
         }
 
         fixedCitations += `<p>${citation}</p>`;
