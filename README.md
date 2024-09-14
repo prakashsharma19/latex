@@ -49,7 +49,7 @@
     }
     .button-container a {
       display: inline-block;
-      width: 60px;
+      width: 30px;
       height: 30px;
       border-radius: 8px;
       background-color: #fff;
@@ -65,12 +65,6 @@
     .button-container a:hover {
       transform: translateY(-3px);
       background-color: #f9f9f9;
-    }
-    iframe {
-      width: 100%;
-      height: 600px;
-      border: none;
-      margin-top: 20px;
     }
     .loading {
       display: none;
@@ -94,25 +88,6 @@
       font-size: 16px;
       cursor: pointer;
     }
-    input[type="file"] {
-      padding: 8px;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-    button.search-btn {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 5px;
-      margin-left: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transition: transform 0.2s ease;
-    }
-    button.search-btn:hover {
-      transform: translateY(-3px);
-    }
     textarea {
       width: 100%;
       height: 150px;
@@ -135,6 +110,18 @@
     .save-btn:hover {
       transform: translateY(-3px);
     }
+    .output {
+      margin-top: 20px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    a.doi-link {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+    a.doi-link:hover {
+      text-decoration: underline;
+    }
     h3 a {
       color: #333;
       text-decoration: none;
@@ -151,7 +138,7 @@
     <div class="left">
       <textarea id="citationInput" placeholder="Paste the citation here..."></textarea>
       <button class="save-btn" onclick="fixCitations()">Fix Citations</button>
-      <textarea id="citationOutput" placeholder="Fixed citations with DOI will appear here..." readonly></textarea>
+      <div id="citationOutput" class="output"></div>
     </div>
 
     <div class="right">
@@ -171,21 +158,30 @@
       return citation.match(doiPattern);
     }
 
-    // Function to search CrossRef API for a DOI based on citation text
-    async function fetchDOI(query) {
-      const apiUrl = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=1`;
+    // Function to search CrossRef API for a DOI based on citation text with exact title and author match
+    async function fetchDOI(query, title, authors) {
+      const apiUrl = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=5`;
       const response = await fetch(apiUrl);
       const data = await response.json();
 
-      if (data.message && data.message.items && data.message.items.length > 0) {
-        return data.message.items[0].DOI;
+      if (data.message && data.message.items) {
+        for (let item of data.message.items) {
+          const itemTitle = item.title ? item.title[0].toLowerCase() : '';
+          const itemAuthors = item.author ? item.author.map(a => `${a.given} ${a.family}`.toLowerCase()).join(', ') : '';
+
+          // Check if both title and authors match exactly
+          if (itemTitle === title.toLowerCase() && itemAuthors === authors.toLowerCase()) {
+            return item.DOI;
+          }
+        }
       }
       return null;
     }
 
-    // Function to fix citations by adding DOI links
+    // Function to fix citations by adding DOI links (only on exact matches)
     async function fixCitations() {
       const input = document.getElementById('citationInput').value.trim();
+      const outputDiv = document.getElementById('citationOutput');
       if (!input) {
         alert('Please enter at least one citation');
         return;
@@ -198,20 +194,28 @@
         let doi = extractDOI(citation);
 
         if (!doi) {
-          doi = await fetchDOI(citation);
+          // Extract title and authors from the citation manually (requires proper format, can be improved)
+          const titleMatch = citation.match(/, (.*?)\. /);
+          const authorsMatch = citation.match(/^(.*?)\,/);
+
+          if (titleMatch && authorsMatch) {
+            const title = titleMatch[1];
+            const authors = authorsMatch[1];
+            doi = await fetchDOI(citation, title, authors);
+          }
         }
 
         if (doi) {
-          citation += ` https://doi.org/${doi}`;
+          citation += ` <a href="https://doi.org/${doi}" class="doi-link" target="_blank">https://doi.org/${doi}</a>`;
         }
 
-        fixedCitations += citation + '\n';
+        fixedCitations += `<p>${citation}</p>`;
       }
 
-      document.getElementById('citationOutput').value = fixedCitations.trim();
+      outputDiv.innerHTML = fixedCitations || 'No citations found.';
     }
 
-    // Existing right-side search functionality (unchanged)
+    // Right-side functionality (unchanged, fixed to show the icons properly)
     function searchAuthor() {
       const query = document.getElementById('searchQuery').value;
       if (!query) {
@@ -235,11 +239,43 @@
           if (works.length > 0) {
             works.forEach(work => {
               const title = work.title ? work.title[0] : 'Untitled';
+              const authors = work.author || [];
               const doiLink = work.DOI || null;
+
+              const authorNames = authors.map(author => `${author.given} ${author.family}`).join(', ');
+
+              const authorSearchQuery = encodeURIComponent(authorNames);
+              const authorLinks = authors.map(author => 
+                `<a href="https://scholar.google.com/scholar?q=${authorSearchQuery}" target="_blank">${author.given} ${author.family}</a>`
+              ).join(', ');
+
+              let doiButton = '';
+              let scholarButton = '';
+              let arxivButton = '';
+              let pdfButton = '';
+
+              if (doiLink) {
+                doiButton = `<a href="https://doi.org/${doiLink}" target="_blank"><img src="https://raw.githubusercontent.com/prakashsharma19/Referee/main/Doi-removebg-preview.png" alt="DOI"></a>`;
+              }
+
+              scholarButton = `<a href="https://scholar.google.com/scholar?q=${encodeURIComponent(title)}" target="_blank"><img src="https://raw.githubusercontent.com/prakashsharma19/Referee/main/Google_scholar-removebg-preview.png" alt="Google Scholar"></a>`;
+              arxivButton = `<a href="https://arxiv.org/search/?query=${encodeURIComponent(title)}&searchtype=all" target="_blank"><img src="https://raw.githubusercontent.com/prakashsharma19/Referee/main/ArXiv%20image.png" alt="ArXiv"></a>`;
+
+              if (work['link'] && work['link'].some(link => link['content-type'] === 'application/pdf')) {
+                const pdfLink = work['link'].find(link => link['content-type'] === 'application/pdf').URL;
+                pdfButton = `<a href="${pdfLink}" target="_blank"><img src="https://raw.githubusercontent.com/prakashsharma19/Referee/main/PDf.jpg" alt="PDF"></a>`;
+              }
 
               const resultItem = `
                 <div class="result-item">
-                  <h3><a href="https://doi.org/${doiLink}" target="_blank">${title}</a></h3>
+                  <h3><a href="https://www.google.com/search?q=${encodeURIComponent(title)}" target="_blank">${title}</a></h3>
+                  <p class="author-line">by: ${authorLinks}</p>
+                  <div class="button-container">
+                    ${doiButton}
+                    ${scholarButton}
+                    ${arxivButton}
+                    ${pdfButton}
+                  </div>
                 </div>
               `;
               resultsContainer.innerHTML += resultItem;
