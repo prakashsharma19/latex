@@ -129,6 +129,11 @@
     h3 a:hover {
       text-decoration: underline;
     }
+    .loading-indicator {
+      display: none;
+      color: #4CAF50;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -139,6 +144,7 @@
       <textarea id="citationInput" placeholder="Paste the citation here..."></textarea>
       <button class="save-btn" onclick="fixCitations()">Fix Citations</button>
       <div id="citationOutput" class="output"></div>
+      <div id="loadingIndicator" class="loading-indicator">Fetching DOI, please wait...</div>
     </div>
 
     <div class="right">
@@ -158,8 +164,8 @@
       return citation.match(doiPattern);
     }
 
-    // Function to search CrossRef API for a DOI based on citation text with exact title and author match
-    async function fetchDOI(query, title, authors) {
+    // Function to search CrossRef API for a DOI based on title and journal name (exact match)
+    async function fetchDOI(query, title, journal) {
       const apiUrl = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=5`;
       const response = await fetch(apiUrl);
       const data = await response.json();
@@ -167,10 +173,10 @@
       if (data.message && data.message.items) {
         for (let item of data.message.items) {
           const itemTitle = item.title ? item.title[0].toLowerCase() : '';
-          const itemAuthors = item.author ? item.author.map(a => `${a.given} ${a.family}`.toLowerCase()).join(', ') : '';
+          const itemJournal = item['container-title'] ? item['container-title'][0].toLowerCase() : '';
 
-          // Check if both title and authors match exactly
-          if (itemTitle === title.toLowerCase() && itemAuthors === authors.toLowerCase()) {
+          // Check if both title and journal match exactly
+          if (itemTitle === title.toLowerCase() && itemJournal === journal.toLowerCase()) {
             return item.DOI;
           }
         }
@@ -178,10 +184,12 @@
       return null;
     }
 
-    // Function to fix citations by adding DOI links (only on exact matches)
+    // Function to fix citations by adding DOI links (only on exact matches of title and journal)
     async function fixCitations() {
       const input = document.getElementById('citationInput').value.trim();
       const outputDiv = document.getElementById('citationOutput');
+      const loadingIndicator = document.getElementById('loadingIndicator');
+
       if (!input) {
         alert('Please enter at least one citation');
         return;
@@ -190,18 +198,21 @@
       const citations = input.split('\n');
       let fixedCitations = '';
 
+      // Show loading indicator
+      loadingIndicator.style.display = 'block';
+
       for (let citation of citations) {
         let doi = extractDOI(citation);
 
         if (!doi) {
-          // Extract title and authors from the citation manually (requires proper format, can be improved)
+          // Extract title and journal from the citation manually (requires proper format)
           const titleMatch = citation.match(/, (.*?)\. /);
-          const authorsMatch = citation.match(/^(.*?)\,/);
+          const journalMatch = citation.match(/, ([^,]+),/);
 
-          if (titleMatch && authorsMatch) {
+          if (titleMatch && journalMatch) {
             const title = titleMatch[1];
-            const authors = authorsMatch[1];
-            doi = await fetchDOI(citation, title, authors);
+            const journal = journalMatch[1];
+            doi = await fetchDOI(citation, title, journal);
           }
         }
 
@@ -212,10 +223,12 @@
         fixedCitations += `<p>${citation}</p>`;
       }
 
+      // Hide loading indicator and show results
+      loadingIndicator.style.display = 'none';
       outputDiv.innerHTML = fixedCitations || 'No citations found.';
     }
 
-    // Right-side functionality (unchanged, fixed to show the icons properly)
+    // Right-side functionality (unchanged)
     function searchAuthor() {
       const query = document.getElementById('searchQuery').value;
       if (!query) {
