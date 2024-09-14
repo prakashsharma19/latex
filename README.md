@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Text Query Tool</title>
+  <title>DOI Citation Fixer</title>
   <style>
     body {
       font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -42,19 +42,62 @@
       background-color: #ffffff;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    textarea {
+    .button-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .button-container a {
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+      border-radius: 8px;
+      background-color: #fff;
+      border: 2px solid #ccc;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+      overflow: hidden;
+    }
+    .button-container a img {
       width: 100%;
-      height: 150px;
+      height: auto;
+    }
+    .button-container a:hover {
+      transform: translateY(-3px);
+      background-color: #f9f9f9;
+    }
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
       margin-top: 20px;
-      padding: 10px;
+    }
+    .loading {
+      display: none;
+      margin-top: 10px;
+      font-size: 18px;
+      color: #888;
+    }
+    h1 {
+      text-align: center;
+    }
+    input[type="text"] {
+      width: 75%;
+      padding: 12px;
       font-size: 16px;
       border-radius: 5px;
       border: 1px solid #ccc;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     button {
       padding: 10px;
       font-size: 16px;
       cursor: pointer;
+    }
+    input[type="file"] {
+      padding: 8px;
+      font-size: 16px;
+      margin-top: 10px;
     }
     button.search-btn {
       background-color: #4CAF50;
@@ -70,21 +113,45 @@
     button.search-btn:hover {
       transform: translateY(-3px);
     }
-    .loading {
-      display: none;
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .save-btn {
       margin-top: 10px;
-      font-size: 18px;
-      color: #888;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: transform 0.2s ease;
+    }
+    .save-btn:hover {
+      transform: translateY(-3px);
+    }
+    h3 a {
+      color: #333;
+      text-decoration: none;
+    }
+    h3 a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <h1>Simple Text Query Tool</h1>
+  <h1>DOI Citation Fixer</h1>
 
   <div class="container">
     <div class="left">
-      <textarea id="referenceBox" placeholder="Paste your references here..."></textarea>
-      <button class="search-btn" onclick="submitReferences()">Find DOIs</button>
+      <textarea id="citationInput" placeholder="Paste the citation here..."></textarea>
+      <button class="save-btn" onclick="fixCitations()">Fix Citations</button>
+      <textarea id="citationOutput" placeholder="Fixed citations with DOI will appear here..." readonly></textarea>
     </div>
 
     <div class="right">
@@ -98,64 +165,53 @@
   </div>
 
   <script>
-    function submitReferences() {
-      const references = document.getElementById('referenceBox').value.trim();
-      if (!references) {
-        alert('Please paste your references.');
+    // Helper function to extract DOI from a citation string
+    function extractDOI(citation) {
+      const doiPattern = /10\.\d{4,9}\/[-._;()/:A-Z0-9]+/i;
+      return citation.match(doiPattern);
+    }
+
+    // Function to search CrossRef API for a DOI based on citation text
+    async function fetchDOI(query) {
+      const apiUrl = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=1`;
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+
+      if (data.message && data.message.items && data.message.items.length > 0) {
+        return data.message.items[0].DOI;
+      }
+      return null;
+    }
+
+    // Function to fix citations by adding DOI links
+    async function fixCitations() {
+      const input = document.getElementById('citationInput').value.trim();
+      if (!input) {
+        alert('Please enter at least one citation');
         return;
       }
 
-      const referencesArray = references.split('\n');
-      const resultsContainer = document.getElementById('results');
-      resultsContainer.innerHTML = '';
-      document.getElementById('loading').style.display = 'block';
+      const citations = input.split('\n');
+      let fixedCitations = '';
 
-      referencesArray.forEach(ref => {
-        if (ref.trim()) {
-          searchForDOI(ref.trim());
+      for (let citation of citations) {
+        let doi = extractDOI(citation);
+
+        if (!doi) {
+          doi = await fetchDOI(citation);
         }
-      });
 
-      document.getElementById('loading').style.display = 'none';
+        if (doi) {
+          citation += ` https://doi.org/${doi}`;
+        }
+
+        fixedCitations += citation + '\n';
+      }
+
+      document.getElementById('citationOutput').value = fixedCitations.trim();
     }
 
-    function searchForDOI(reference) {
-      const sanitizedReference = reference.replace(/[.,]/g, '').split(' ').join('+');
-      const crossRefUrl = `https://api.crossref.org/works?query.bibliographic=${encodeURIComponent(sanitizedReference)}&rows=1`;
-
-      fetch(crossRefUrl)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          const resultsContainer = document.getElementById('results');
-          const works = data.message.items || [];
-
-          if (works.length > 0) {
-            const work = works[0];
-            const title = work.title ? work.title[0] : 'Untitled';
-            const doiLink = work.DOI ? `<a href="https://doi.org/${work.DOI}" target="_blank">${work.DOI}</a>` : 'DOI not found';
-
-            const resultItem = `
-              <div class="result-item">
-                <h3>${title}</h3>
-                <p>${doiLink}</p>
-              </div>
-            `;
-            resultsContainer.innerHTML += resultItem;
-          } else {
-            resultsContainer.innerHTML += `<div class="result-item"><p>No DOI found for: ${reference}</p></div>`;
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching data:', error);
-          alert('An error occurred while fetching data.');
-        });
-    }
-
+    // Existing right-side search functionality (unchanged)
     function searchAuthor() {
       const query = document.getElementById('searchQuery').value;
       if (!query) {
@@ -163,30 +219,27 @@
         return;
       }
 
-      const crossRefUrl = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=5`;
+      document.getElementById('loading').style.display = 'block';
+
+      const sanitizedQuery = query.replace(/[.,]/g, '').split(' ').join('+');
+      const crossRefUrl = `https://api.crossref.org/works?query=${encodeURIComponent(sanitizedQuery)}&rows=5`;
 
       fetch(crossRefUrl)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
+          document.getElementById('loading').style.display = 'none';
           const resultsContainer = document.getElementById('results');
           resultsContainer.innerHTML = '';
 
           const works = data.message.items || [];
-
           if (works.length > 0) {
             works.forEach(work => {
               const title = work.title ? work.title[0] : 'Untitled';
-              const doiLink = work.DOI ? `<a href="https://doi.org/${work.DOI}" target="_blank">${work.DOI}</a>` : 'DOI not found';
+              const doiLink = work.DOI || null;
 
               const resultItem = `
                 <div class="result-item">
-                  <h3>${title}</h3>
-                  <p>${doiLink}</p>
+                  <h3><a href="https://doi.org/${doiLink}" target="_blank">${title}</a></h3>
                 </div>
               `;
               resultsContainer.innerHTML += resultItem;
@@ -198,6 +251,7 @@
         .catch(error => {
           console.error('Error fetching data:', error);
           alert('An error occurred while fetching data.');
+          document.getElementById('loading').style.display = 'none';
         });
     }
   </script>
