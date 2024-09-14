@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -6,108 +5,191 @@
   <title>Simple Text Query Tool</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      margin: 20px;
+      background-color: #f0f2f5;
+      color: #333;
+    }
+    .container {
       display: flex;
     }
-    #left-side {
-      width: 50%;
-      padding: 20px;
+    .left {
+      flex: 2;
+      padding-right: 20px;
     }
-    #right-side {
-      width: 50%;
-      padding: 20px;
-      background-color: #f4f4f4;
+    .right {
+      flex: 1;
+      padding-left: 20px;
+      border-left: 2px solid #ccc;
     }
-    #query-box {
-      width: 100%;
-      height: 150px;
+    .search-container {
+      display: flex;
+      align-items: center;
       margin-bottom: 20px;
+      padding: 10px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
     }
-    #submit-btn {
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    #results {
+    .results {
       margin-top: 20px;
     }
-    .reference {
-      margin-bottom: 10px;
+    .result-item {
+      border: 1px solid #ddd;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      background-color: #ffffff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    .doi-link {
-      color: #007bff;
-      text-decoration: none;
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button.search-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      margin-left: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+    }
+    button.search-btn:hover {
+      transform: translateY(-3px);
+    }
+    .loading {
+      display: none;
+      margin-top: 10px;
+      font-size: 18px;
+      color: #888;
     }
   </style>
 </head>
 <body>
+  <h1>Simple Text Query Tool</h1>
 
-  <!-- Left Side: Simple Text Query Tool -->
-  <div id="left-side">
-    <h1>Simple Text Query Tool</h1>
-    
-    <p>Paste your references below, and we will find the corresponding DOIs:</p>
-    
-    <textarea id="query-box" placeholder="Paste your references here..."></textarea><br>
-    <button id="submit-btn">Find DOIs</button>
-    
-    <div id="results"></div>
-  </div>
+  <div class="container">
+    <div class="left">
+      <textarea id="referenceBox" placeholder="Paste your references here..."></textarea>
+      <button class="search-btn" onclick="submitReferences()">Find DOIs</button>
+    </div>
 
-  <!-- Right Side: Existing functionality (e.g., PDF viewer or other) -->
-  <div id="right-side">
-    <h1>Existing Right-Side Feature</h1>
-    <p>This is where your previous right-side functionality, such as PDF viewing or another feature, will remain intact.</p>
-    <!-- Keep your original right-side functionality here. -->
+    <div class="right">
+      <div class="search-container">
+        <input type="text" id="searchQuery" placeholder="Enter Article Details">
+        <button class="search-btn" onclick="searchAuthor()">Search</button>
+      </div>
+      <p class="loading" id="loading">Loading...</p>
+      <div class="results" id="results"></div>
+    </div>
   </div>
 
   <script>
-    document.getElementById('submit-btn').addEventListener('click', function() {
-      const queryBox = document.getElementById('query-box');
-      const references = queryBox.value.split("\n").filter(line => line.trim() !== "");
-      const resultsDiv = document.getElementById('results');
-      resultsDiv.innerHTML = "<p>Searching for DOIs...</p>";
-      resultsDiv.innerHTML = ''; // Clear the previous results
-      
-      references.forEach(reference => {
-        // Perform a fetch for each reference using CrossRef API
-        fetch(`https://api.crossref.org/works?query=${encodeURIComponent(reference)}`)
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Network response was not ok');
-            }
-            return response.json();
-          })
-          .then(data => {
-            if (data.message.items && data.message.items.length > 0) {
-              const firstItem = data.message.items[0];
-              const doi = firstItem.DOI;
-              const title = firstItem.title ? firstItem.title[0] : "No Title Found";
-              const doiLink = `https://doi.org/${doi}`;
-              
-              const referenceDiv = document.createElement('div');
-              referenceDiv.classList.add('reference');
-              referenceDiv.innerHTML = `<strong>${title}</strong><br><a href="${doiLink}" class="doi-link" target="_blank">${doiLink}</a>`;
-              resultsDiv.appendChild(referenceDiv);
-            } else {
-              const referenceDiv = document.createElement('div');
-              referenceDiv.classList.add('reference');
-              referenceDiv.innerHTML = `<strong>No DOI found for:</strong> ${reference}`;
-              resultsDiv.appendChild(referenceDiv);
-            }
-          })
-          .catch(error => {
-            console.error('Error fetching DOI:', error);
-            const errorDiv = document.createElement('div');
-            errorDiv.classList.add('reference');
-            errorDiv.innerHTML = `<strong>Error finding DOI for:</strong> ${reference}`;
-            resultsDiv.appendChild(errorDiv);
-          });
-      });
-    });
-  </script>
+    function submitReferences() {
+      const references = document.getElementById('referenceBox').value.trim();
+      if (!references) {
+        alert('Please paste your references.');
+        return;
+      }
 
+      const referencesArray = references.split('\n');
+      const resultsContainer = document.getElementById('results');
+      resultsContainer.innerHTML = '';
+      document.getElementById('loading').style.display = 'block';
+
+      referencesArray.forEach(ref => {
+        if (ref.trim()) {
+          searchForDOI(ref.trim());
+        }
+      });
+
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    function searchForDOI(reference) {
+      const sanitizedReference = reference.replace(/[.,]/g, '').split(' ').join('+');
+      const crossRefUrl = `https://api.crossref.org/works?query.bibliographic=${encodeURIComponent(sanitizedReference)}&rows=1`;
+
+      fetch(crossRefUrl)
+        .then(response => response.json())
+        .then(data => {
+          const resultsContainer = document.getElementById('results');
+          const works = data.message.items || [];
+
+          if (works.length > 0) {
+            const work = works[0];
+            const title = work.title ? work.title[0] : 'Untitled';
+            const doiLink = work.DOI ? `<a href="https://doi.org/${work.DOI}" target="_blank">${work.DOI}</a>` : 'DOI not found';
+
+            const resultItem = `
+              <div class="result-item">
+                <h3>${title}</h3>
+                <p>${doiLink}</p>
+              </div>
+            `;
+            resultsContainer.innerHTML += resultItem;
+          } else {
+            resultsContainer.innerHTML += `<div class="result-item"><p>No DOI found for: ${reference}</p></div>`;
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+          alert('An error occurred while fetching data.');
+        });
+    }
+
+    function searchAuthor() {
+      const query = document.getElementById('searchQuery').value;
+      if (!query) {
+        alert('Please enter a search query');
+        return;
+      }
+
+      const crossRefUrl = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=5`;
+
+      fetch(crossRefUrl)
+        .then(response => response.json())
+        .then(data => {
+          const resultsContainer = document.getElementById('results');
+          resultsContainer.innerHTML = '';
+
+          const works = data.message.items || [];
+
+          if (works.length > 0) {
+            works.forEach(work => {
+              const title = work.title ? work.title[0] : 'Untitled';
+              const doiLink = work.DOI ? `<a href="https://doi.org/${work.DOI}" target="_blank">${work.DOI}</a>` : 'DOI not found';
+
+              const resultItem = `
+                <div class="result-item">
+                  <h3>${title}</h3>
+                  <p>${doiLink}</p>
+                </div>
+              `;
+              resultsContainer.innerHTML += resultItem;
+            });
+          } else {
+            resultsContainer.innerHTML = `<p>No results found.</p>`;
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+          alert('An error occurred while fetching data.');
+        });
+    }
+  </script>
 </body>
 </html>
