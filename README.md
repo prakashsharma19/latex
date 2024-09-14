@@ -7,6 +7,16 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      display: flex;
+    }
+    #left-side {
+      width: 50%;
+      padding: 20px;
+    }
+    #right-side {
+      width: 50%;
+      padding: 20px;
+      background-color: #f4f4f4;
     }
     #query-box {
       width: 100%;
@@ -34,26 +44,42 @@
 </head>
 <body>
 
-  <h1>Simple Text Query Tool</h1>
-  
-  <p>Paste your references below, and we will find the corresponding DOIs:</p>
-  
-  <textarea id="query-box" placeholder="Paste your references here..."></textarea><br>
-  <button id="submit-btn">Find DOIs</button>
-  
-  <div id="results"></div>
+  <!-- Left Side: Simple Text Query Tool -->
+  <div id="left-side">
+    <h1>Simple Text Query Tool</h1>
+    
+    <p>Paste your references below, and we will find the corresponding DOIs:</p>
+    
+    <textarea id="query-box" placeholder="Paste your references here..."></textarea><br>
+    <button id="submit-btn">Find DOIs</button>
+    
+    <div id="results"></div>
+  </div>
+
+  <!-- Right Side: Existing functionality (e.g., PDF viewer or other) -->
+  <div id="right-side">
+    <h1>Existing Right-Side Feature</h1>
+    <p>This is where your previous right-side functionality, such as PDF viewing or another feature, will remain intact.</p>
+    <!-- Keep your original right-side functionality here. -->
+  </div>
 
   <script>
     document.getElementById('submit-btn').addEventListener('click', function() {
       const queryBox = document.getElementById('query-box');
       const references = queryBox.value.split("\n").filter(line => line.trim() !== "");
-      
       const resultsDiv = document.getElementById('results');
       resultsDiv.innerHTML = "<p>Searching for DOIs...</p>";
-
+      resultsDiv.innerHTML = ''; // Clear the previous results
+      
       references.forEach(reference => {
-        fetch(`https://api.crossref.org/works?query.bibliographic=${encodeURIComponent(reference)}`)
-          .then(response => response.json())
+        // Perform a fetch for each reference using CrossRef API
+        fetch(`https://api.crossref.org/works?query=${encodeURIComponent(reference)}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
           .then(data => {
             if (data.message.items && data.message.items.length > 0) {
               const firstItem = data.message.items[0];
