@@ -124,7 +124,12 @@
       const crossRefUrl = `https://api.crossref.org/works?query.bibliographic=${encodeURIComponent(sanitizedReference)}&rows=1`;
 
       fetch(crossRefUrl)
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
         .then(data => {
           const resultsContainer = document.getElementById('results');
           const works = data.message.items || [];
@@ -161,7 +166,12 @@
       const crossRefUrl = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=5`;
 
       fetch(crossRefUrl)
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
         .then(data => {
           const resultsContainer = document.getElementById('results');
           resultsContainer.innerHTML = '';
