@@ -32,13 +32,17 @@
       font-size: 16px;
     }
     button {
-      background-color: #4CAF50;
+      width: auto; /* Makes the button size fit the text */
+      padding: 8px 16px; /* Reducing the padding for a smaller button */
+      background-color: #000; /* Black background */
       color: white;
       border: none;
+      border-radius: 4px;
       cursor: pointer;
+      font-size: 14px; /* Smaller font size */
     }
     button:hover {
-      background-color: #45a049;
+      background-color: #333; /* Slightly lighter black on hover */
     }
     .required:after {
       content: "*";
