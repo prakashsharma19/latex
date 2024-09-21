@@ -314,11 +314,7 @@
             </section>
             <hr>
 
-            <section class="no-popup">
-                <h2>Contact Me</h2>
-            </section>
-        </div>
-				
+            			
             <!-- Contact Form -->
             <section>
                 <h2>Contact Me</h2>
