@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -88,17 +89,16 @@
         }
 
         section {
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
             background-color: #FFFFFF;
+            transition: box-shadow 0.3s ease, background-color 0.3s ease;
         }
 
         section:hover {
-            transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-            background-color: #7ef9ff;
+            background-color: #f0f8ff;
         }
 
         .no-popup {
@@ -203,6 +203,12 @@
             color: red;
             margin-left: 5px;
         }
+
+        /* Form Section should not change on hover */
+        section form:hover {
+            background-color: inherit;
+            box-shadow: none;
+        }
     </style>
 </head>
 
@@ -230,7 +236,7 @@
                         <img src="https://github.com/prakashsharma19/prakash/blob/main/1696902_apps_media_quora_social_icon.png?raw=true"
                             alt="Quora Logo">
                     </a>
-                    <a href="https://www.linkedin.com/in/prakash-sharma-31a80428a?original_referer=https%3A%2F%2Fwww.google%2Ecom%2F&originalSubdomain=in"
+                    <a href="https://www.linkedin.com/in/prakash-sharma-31a80428a?original_referer=https%3A%2F%2Fwww.google.com%2F&originalSubdomain=in"
                         target="_blank">
                         <img src="https://github.com/prakashsharma19/prakash/blob/main/5296501_linkedin_network_linkedin%20logo_icon.png?raw=true"
                             alt="LinkedIn Logo">
@@ -284,7 +290,6 @@
                     <button type="submit">Submit</button>
                 </form>
             </section>
-
         </div>
     </div>
 </body>
