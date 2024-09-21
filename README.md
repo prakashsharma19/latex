@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -273,7 +272,53 @@
                 </ul>
             </section>
             <hr>
+<!-- Portfolio Section -->
+            <section>
+                <h2>Portfolio</h2>
+                <p>I have successfully completed a diverse range of projects tailored to meet the unique needs of my
+                    clients. From designing and developing exceptional websites that reflect the brand identity of
+                    businesses, to creating powerful web applications that streamline workflows and enhance
+                    productivity, my work consistently delivers high-impact results.</p>
+                <p>In addition to web development, I have provided comprehensive advertising solutions across major platforms like Google, LinkedIn, and Meta, resulting in significant returns on investment for my clients. My expertise in digital marketing, coupled with a deep understanding of client goals, has enabled me to craft strategies that drive measurable success.</p>
+                <p>For more detailed insights into my work and accomplishments, please visit my <a href="https://in.linkedin.com/in/prakash-sharma-31a80428a?original_referer=https%3A%2F%2Fwww.google.com%2F">LinkedIn profile</a>.</p>
+            </section>
+            <hr>
 
+            <section>
+                <h2>Certifications</h2>
+                <ul>
+                    <li><strong>Digital Marketing:</strong> IIM Bangalore</li>
+                    <li><strong>WordPress Developer:</strong> IIIT Allahabad</li>
+                    <li><strong>Marketing Management:</strong> IIM Bangalore</li>
+                    <li><strong>Management Information Systems:</strong> IIT Kharagpur</li>
+                    <li><strong>English Proficiency (CEFR B2):</strong> Certified</li>
+                </ul>
+                <p style="font-style: italic;">(All certifications can be verified through LinkedIn profile)</p>
+            </section>
+            <hr>
+
+            <section>
+                <h2>Hobbies</h2>
+                <ul>
+                    <li>Trekking, Nature Loving, Writing, Bibliophile</li>
+                </ul>
+            </section>
+            <hr>
+
+            <section>
+                <h2>Fun Fact</h2>
+                <p>I love trekking and traveling! I’ve completed several Himalayan treks.</p>
+                <div class="quote">
+                    <p>I am bold and straightforward, engaging only in topics I thoroughly understand from every perspective. I approach my work with passion, constantly aiming for daily improvement. Your opinion won't sway me, and I don't let the thoughts of others affect me.</p>
+                </div>
+            </section>
+            <hr>
+
+            <section class="no-popup">
+                <h2>Contact Me</h2>
+            </section>
+        </div>
+				
             <!-- Contact Form -->
             <section>
                 <h2>Contact Me</h2>
