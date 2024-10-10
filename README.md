@@ -1,338 +1,93 @@
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prakash, Contact Me!</title>
+    <title>Author Details Formatter</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #FFFCF2;
-            color: #333;
-            margin: 0;
-            padding: 0;
+            margin: 20px;
+            background-color: #f9f9f9;
         }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #FFFFFF;
-            padding: 20px;
-            border-radius: 10px;
-            max-width: 100%;
-            margin: 10px auto;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .header {
-            display: flex;
-            align-items: left;
-            justify-content: space-between;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .header .details {
-            flex: 1;
-        }
-
-        .profile-pic {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-left: 20px;
-        }
-
-        h1,
         h2 {
-            color: #003366;
-            font-size: 1.8em;
-            margin: 0;
+            color: #333;
         }
-
-        p {
-            font-size: 1em;
-            line-height: 1.5;
-            margin: 5px 0;
-        }
-
-        a {
-            color: #1DA1F2;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        hr {
-            border: none;
-            border-top: 1px solid #DDDDDD;
-            margin: 10px 0;
-        }
-
-        .quote {
-            font-style: italic;
-            color: #555;
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #FFFCF2;
-            border-left: 5px solid #003366;
-        }
-
-        ul {
-            list-style-type: disc;
-            margin-left: 20px;
-        }
-
-        section {
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            background-color: #FFFFFF;
-            transition: box-shadow 0.3s ease, background-color 0.3s ease;
-        }
-
-        section:hover {
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-            background-color: #f0f8ff;
-        }
-
-        .no-popup {
-            transition: none;
-            box-shadow: none;
-            background-color: inherit;
-            transform: none;
-        }
-
-        .social-media {
-            display: flex;
-            justify-content: left;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        .social-media a {
-            margin: 0 10px;
-        }
-
-        .social-media img {
-            width: 35px;
-            height: 35px;
-            border-radius: 10px;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .social-media img:hover {
-            transform: translateY(-3px) scale(1.1);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
-
-        @media (max-width: 600px) {
-            h1,
-            h2 {
-                font-size: 1.5em;
-            }
-
-            p,
-            ul li {
-                font-size: 0.9em;
-            }
-
-            .container {
-                padding: 15px;
-            }
-
-            .header {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .profile-pic {
-                margin-left: 0;
-                margin-top: 10px;
-                width: 120px;
-                height: 120px;
-            }
-
-            .social-media img {
-                width: 35px;
-                height: 35px;
-            }
-        }
-
-        /* Contact Form Styles */
-        label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        input,
-        textarea,
-        button {
+        textarea {
             width: 100%;
-            padding: 10px;
+            height: 200px;
             margin-bottom: 20px;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 16px;
+            resize: none;
         }
-
-        button {
-            width: auto;
-            padding: 8px 16px;
-            background-color: #000;
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
         }
-
-        button:hover {
-            background-color: #333;
+        .button:hover {
+            background-color: #0056b3;
         }
-
-        .required:after {
-            content: "*";
-            color: red;
-            margin-left: 5px;
-        }
-
-        /* Form Section should not change on hover */
-        section form:hover {
-            background-color: inherit;
-            box-shadow: none;
+        .output {
+            border: 1px solid #ccc;
+            padding: 10px;
+            white-space: pre-wrap;
+            background-color: #fff;
+            border-radius: 4px;
         }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <!-- Header with Details and Profile Picture -->
-        <div class="header">
-            <div class="details">
-                <h1>Chandra Prakash Sharma</h1>
-                <h2>Web Developer</h2>
-                <p><strong>Email:</strong> <a href="mailto:contact@cpsharma.com">contact@cpsharma.com</a></p>
-                <p><strong>Location:</strong> Prayagraj, India</p>
 
-                <!-- Social Media Section -->
-                <div class="social-media">
-                    <a href="https://www.google.com" target="_blank">
-                        <img src="https://github.com/prakashsharma19/prakash/blob/main/11244080_x_twitter_elon%20musk_twitter%20new%20logo_icon.png?raw=true"
-                            alt="Twitter Logo">
-                    </a>
-                    <a href="https://www.google.com" target="_blank">
-                        <img src="https://github.com/prakashsharma19/prakash/blob/main/5296499_fb_facebook_facebook%20logo_icon.png?raw=true"
-                            alt="Facebook Logo">
-                    </a>
-                    <a href="https://www.google.com" target="_blank">
-                        <img src="https://github.com/prakashsharma19/prakash/blob/main/1696902_apps_media_quora_social_icon.png?raw=true"
-                            alt="Quora Logo">
-                    </a>
-                    <a href="https://www.linkedin.com/in/prakash-sharma-31a80428a?original_referer=https%3A%2F%2Fwww.google.com%2F&originalSubdomain=in"
-                        target="_blank">
-                        <img src="https://github.com/prakashsharma19/prakash/blob/main/5296501_linkedin_network_linkedin%20logo_icon.png?raw=true"
-                            alt="LinkedIn Logo">
-                    </a>
-                    <a href="https://www.google.com" target="_blank">
-                        <img src="https://github.com/prakashsharma19/prakash/blob/main/5296765_camera_instagram_instagram%20logo_icon.png?raw=true"
-                            alt="Instagram Logo">
-                    </a>
-                </div>
-            </div>
-            <img src="https://github.com/prakashsharma19/prakash/blob/main/my_image-removebg-preview.png?raw=true"
-                alt="Profile Picture" class="profile-pic">
-        </div>
+<h2>Author Details Formatter</h2>
 
-        <hr>
+<textarea id="inputText" placeholder="Paste author details here..."></textarea>
+<button class="button" onclick="formatDetails()">Format</button>
 
-        <div class="content">
-            <!-- About Me Section -->
-            <section>
-                <h2>About Me</h2>
-                <ul>
-                    <li><strong>Highest Education:</strong> Masters of Business Administration (MBA) in Marketing and
-                        Information Technology from AKTU</li>
-                    <li><strong>Interests:</strong> Website Development, Coding, AI, Open-Source Projects, Prompt
-                        Engineering, Psychology</li>
-                    <li><strong>Skills:</strong> Problem Solving, Programming, English Proficiency (CEFR B2), Web
-                        Development, Digital Marketing. More details available on <a
-                            href="https://in.linkedin.com/in/prakash-sharma-31a80428a?original_referer=https%3A%2F%2Fwww.google.com%2F">LinkedIn</a>.
-                    </li>
-                    <li><strong>Currently Learning:</strong> Python, Data Science, Cloud Computing, Prompt Engineering,
-                        etc.</li>
-                    <li><strong>Looking to Collaborate On:</strong> Innovative projects related to AI and sustainability
-                    </li>
-                </ul>
-            </section>
-            <hr>
-<!-- Portfolio Section -->
-            <section>
-                <h2>Portfolio</h2>
-                <p>I have successfully completed a diverse range of projects tailored to meet the unique needs of my
-                    clients. From designing and developing exceptional websites that reflect the brand identity of
-                    businesses, to creating powerful web applications that streamline workflows and enhance
-                    productivity, my work consistently delivers high-impact results.</p>
-                <p>In addition to web development, I have provided comprehensive advertising solutions across major platforms like Google, LinkedIn, and Meta, resulting in significant returns on investment for my clients. My expertise in digital marketing, coupled with a deep understanding of client goals, has enabled me to craft strategies that drive measurable success.</p>
-                <p>For more detailed insights into my work and accomplishments, please visit my <a href="https://in.linkedin.com/in/prakash-sharma-31a80428a?original_referer=https%3A%2F%2Fwww.google.com%2F">LinkedIn profile</a>.</p>
-            </section>
-            <hr>
+<h3>Formatted Output:</h3>
+<div class="output" id="outputText"></div>
 
-            <section>
-                <h2>Certifications</h2>
-                <ul>
-                    <li><strong>Digital Marketing:</strong> IIM Bangalore</li>
-                    <li><strong>WordPress Developer:</strong> IIIT Allahabad</li>
-                    <li><strong>Marketing Management:</strong> IIM Bangalore</li>
-                    <li><strong>Management Information Systems:</strong> IIT Kharagpur</li>
-                    <li><strong>English Proficiency (CEFR B2):</strong> Certified</li>
-                </ul>
-                <p style="font-style: italic;">(All certifications can be verified through LinkedIn profile)</p>
-            </section>
-            <hr>
+<script>
+    function formatDetails() {
+        // Get the input text
+        let inputText = document.getElementById("inputText").value;
 
-            <section>
-                <h2>Hobbies</h2>
-                <ul>
-                    <li>Trekking, Nature Loving, Writing, Bibliophile</li>
-                </ul>
-            </section>
-            <hr>
+        // Split the text into lines
+        let lines = inputText.split('\n').map(line => line.trim());
 
-            <section>
-                <h2>Fun Fact</h2>
-                <p>I love trekking and traveling! I’ve completed several Himalayan treks.</p>
-                <div class="quote">
-                    <p>I am bold and straightforward, engaging only in topics I thoroughly understand from every perspective. I approach my work with passion, constantly aiming for daily improvement. Your opinion won't sway me, and I don't let the thoughts of others affect me.</p>
-                </div>
-            </section>
-            <hr>
+        let formattedText = '';
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i];
 
-            			
-            <!-- Contact Form -->
-            <section>
-                <h2>Contact Me</h2>
-                <form action="https://formspree.io/f/xgvwjkqz" method="POST">
-                    <label for="name" class="required">Your Name</label>
-                    <input type="text" id="name" name="name" required>
+            if (line.includes("Department")) {
+                formattedText += line + '\n'; // Department in one line
+            } else if (line.includes("University")) {
+                formattedText += line + '\n'; // University in one line
+            } else if (line.includes("Laboratory")) {
+                formattedText += line + '\n'; // Laboratory in one line
+            } else if (line.includes(",")) {
+                // If it's an address, split it into one line
+                let parts = line.split(',');
+                formattedText += parts[0].trim() + '\n' + parts[1].trim() + '\n';
+            } else if (line.includes("USA")) {
+                formattedText += "USA\n"; // Put USA in one line before email
+            } else {
+                formattedText += line + '\n'; // Keep other lines as is
+            }
+        }
 
-                    <label for="email" class="required">Your Email</label>
-                    <input type="email" id="email" name="email" required>
+        // Set the formatted text in the output div
+        document.getElementById("outputText").innerText = formattedText;
+    }
+</script>
 
-                    <label for="message" class="required">Your Message</label>
-                    <textarea id="message" name="message" rows="4" required></textarea>
-
-                    <button type="submit">Submit</button>
-                </form>
-            </section>
-        </div>
-    </div>
 </body>
-
 </html>
