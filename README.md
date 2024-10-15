@@ -3,91 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Author Details Formatter</title>
+    <title>Author Details Sorter</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
-        h2 {
-            color: #333;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
         }
         textarea {
             width: 100%;
             height: 200px;
-            margin-bottom: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-            resize: none;
         }
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
+        button {
+            margin-top: 10px;
         }
-        .button:hover {
-            background-color: #0056b3;
-        }
-        .output {
-            border: 1px solid #ccc;
-            padding: 10px;
-            white-space: pre-wrap;
-            background-color: #fff;
-            border-radius: 4px;
+        .result {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
-<h2>Author Details Formatter</h2>
+    <h1>Author Details Sorter</h1>
+    <textarea id="authorInput" placeholder="Enter author details here..."></textarea>
+    <button id="sortButton">Sort Authors</button>
 
-<textarea id="inputText" placeholder="Paste author details here..."></textarea>
-<button class="button" onclick="formatDetails()">Format</button>
+    <div class="result" id="result"></div>
 
-<h3>Formatted Output:</h3>
-<div class="output" id="outputText"></div>
+    <script>
+        document.getElementById('sortButton').addEventListener('click', function() {
+            const inputText = document.getElementById('authorInput').value.trim();
+            const authorDetails = parseInput(inputText);
+            const sortedAuthors = sortAuthorDetails(authorDetails);
+            displayResults(sortedAuthors);
+        });
 
-<script>
-    function formatDetails() {
-        // Get the input text
-        let inputText = document.getElementById("inputText").value;
-
-        // Split the text into lines
-        let lines = inputText.split('\n').map(line => line.trim());
-
-        let formattedText = '';
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i];
-
-            if (line.includes("Department")) {
-                formattedText += line + '\n'; // Department in one line
-            } else if (line.includes("University")) {
-                formattedText += line + '\n'; // University in one line
-            } else if (line.includes("Laboratory")) {
-                formattedText += line + '\n'; // Laboratory in one line
-            } else if (line.includes(",")) {
-                // If it's an address, split it into one line
-                let parts = line.split(',');
-                formattedText += parts[0].trim() + '\n' + parts[1].trim() + '\n';
-            } else if (line.includes("USA")) {
-                formattedText += "USA\n"; // Put USA in one line before email
-            } else {
-                formattedText += line + '\n'; // Keep other lines as is
-            }
+        function parseInput(inputText) {
+            const authorBlocks = inputText.split('\n\n').filter(block => block.trim() !== '');
+            return authorBlocks.map(block => ({
+                info: block
+            }));
         }
 
-        // Set the formatted text in the output div
-        document.getElementById("outputText").innerText = formattedText;
-    }
-</script>
+        function sortAuthorDetails(authors) {
+            const sortedAuthors = authors.map(author => {
+                const lines = author.info.split('\n');
+
+                // Extract relevant information
+                const name = lines[1] ? lines[1].trim() : '';  // Assuming the second line contains the name
+                const departmentUniversity = lines[2] ? lines[2].trim() : '';  // Department/University info
+                const address = lines[3] ? lines[3].trim() : '';  // Address
+                const country = lines[4] ? lines[4].trim() : '';  // Country (assuming it's on the next line)
+                const email = lines[lines.length - 1].trim();  // Email (assuming it's the last line)
+
+                return {
+                    name,
+                    departmentUniversity,
+                    address,
+                    country,
+                    email
+                };
+            });
+
+            // Sort authors by name
+            sortedAuthors.sort((a, b) => a.name.localeCompare(b.name));
+
+            return sortedAuthors;
+        }
+
+        function displayResults(authors) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = ''; // Clear previous results
+
+            authors.forEach(author => {
+                const authorInfo = `
+                    <div>
+                        <strong>Name:</strong> ${author.name}<br>
+                        <strong>Department/University:</strong> ${author.departmentUniversity}<br>
+                        <strong>Address:</strong> ${author.address}<br>
+                        <strong>Country:</strong> ${author.country}<br>
+                        <strong>Email:</strong> ${author.email}<br>
+                        <hr>
+                    </div>
+                `;
+                resultDiv.innerHTML += authorInfo;
+            });
+        }
+    </script>
 
 </body>
 </html>
