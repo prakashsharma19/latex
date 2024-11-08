@@ -32,7 +32,9 @@
 
         .font-controls,
         .login-container,
-        .unsubscribe-container {
+        .unsubscribe-container,
+        .input-container,
+        .text-container {
             background-color: #ffffff;
             padding: 15px;
             border-radius: 8px;
@@ -137,12 +139,29 @@
             background-color: #f4e542;
         }
 
-        /* Right Sidebar for Buttons */
+        .highlight-professor {
+            background-color: yellow;
+        }
+
+        .text-container p {
+            margin: 10px 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
         #rightSidebar {
             display: flex;
             flex-direction: column;
             gap: 10px;
             align-items: flex-end;
+        }
+
+        .control-group {
+            margin-bottom: 10px;
+        }
+
+        #output {
+            display: none;
         }
     </style>
 </head>
@@ -152,10 +171,10 @@
         <img src="https://raw.githubusercontent.com/prakashsharma19/hosted-images/main/pphlogo.png" alt="PPH Logo">
         Advertisements-PPH
     </h1>
-
     <div class="login-container">
-        <input type="text" id="username" placeholder="Enter your name">
-        <input type="password" id="password" placeholder="Enter your password">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Enter Username" required><br>
+        <input type="password" id="password" placeholder="Enter Password" required><br>
         <button id="loginButton" onclick="login()">Login</button>
     </div>
 
@@ -170,6 +189,12 @@
 
     <div class="font-controls" style="display:none;">
         <div class="control-group">
+            <label for="toPrefix">Prefix "To":</label>
+            <input type="radio" name="toOption" value="yes" onchange="saveToPrefixPreference()"> Yes
+            <input type="radio" name="toOption" value="no" checked onchange="saveToPrefixPreference()"> No
+        </div>
+
+        <div class="control-group">
             <label>
                 <input type="radio" name="cutOption" value="keyboard" checked>
                 Keyboard
@@ -178,10 +203,6 @@
                 <input type="radio" name="cutOption" value="mouse">
                 Mouse
             </label>
-
-            <label for="toPrefix">Prefix "To":</label>
-            <input type="radio" name="toOption" value="yes" onchange="saveToPrefixPreference()"> Yes
-            <input type="radio" name="toOption" value="no" checked onchange="saveToPrefixPreference()"> No
         </div>
     </div>
 
@@ -210,11 +231,11 @@
             "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel",
             "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos",
             "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
-            "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
-            "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
+            "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco",
+            "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
             "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
-            "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania",
-            "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal",
+            "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia",
+            "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal",
             "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea",
             "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
             "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
@@ -271,7 +292,6 @@
                 }
             });
         }
-
         function processText() {
             const inputText = document.getElementById('inputText').value.trim();
             const paragraphs = inputText.split(/\n\s*\n/);
