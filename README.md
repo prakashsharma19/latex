@@ -649,6 +649,10 @@ body {
                     <input type="radio" name="toOption" value="withoutTo" checked> Without "To"
                 </label>
             </div>
+			<div style="display: flex; align-items: center;">
+    <input type="email" id="unsubscribedEmail" placeholder="Enter unsubscribed email" style="margin-left: 20px;">
+    <button onclick="deleteUnsubscribedEntries()" style="margin-left: 10px;">Delete Unsubscribed Address</button>
+</div>
 
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('pasteBox')">
@@ -763,6 +767,72 @@ body {
             "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U. S. A.", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Macau", "Macao", "Macedonia"
         ];
 
+// Google Sheets Configuration
+const SHEET_ID = '1aE0eQZ9CujJcIHFIFyn2hSBnCLUiN7sJNIOSymnDdsg';
+const API_KEY = 'AIzaSyAhSu2NruzWILHwK9PGv4-yXnUHkUjVQDo';
+const SHEET_NAME = 'Unsubscribed Emails';  // Ensure this matches the sheet name in Google Sheets
+
+// Fetch unsubscribed emails from Google Sheets and save to local storage
+async function fetchUnsubscribedEmails() {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A2:A?key=${API_KEY}`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.values) {
+            const unsubscribedEmails = data.values.flat().map(email => email.toLowerCase());
+            localStorage.setItem('permanentUnsubscribedEmails', JSON.stringify(unsubscribedEmails));
+            processText();  // Re-process text to apply highlighting
+        }
+    } catch (error) {
+        console.error('Error fetching unsubscribed emails:', error);
+    }
+}
+
+// Highlight unsubscribed emails in the processed text
+function highlightUnsubscribed(text) {
+    const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+    unsubscribedEmails.forEach(email => {
+        const emailRegex = new RegExp(`(${email})`, 'gi');
+        text = text.replace(emailRegex, '<span class="highlight-unsubscribed">$1</span>');
+    });
+    return text;
+}
+
+// Call fetchUnsubscribedEmails when the page loads
+document.addEventListener('DOMContentLoaded', fetchUnsubscribedEmails);
+
+// Handle unsubscribed email input and highlight entries
+document.getElementById('unsubscribedEmail').addEventListener('change', function() {
+    addUnsubscribedEmail(this.value.trim().toLowerCase());
+    this.value = '';
+    processText(); // Re-process text to apply highlighting
+});
+
+function addUnsubscribedEmail(email) {
+    if (email) {
+        const emails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+        if (!emails.includes(email)) {
+            emails.push(email);
+            localStorage.setItem('permanentUnsubscribedEmails', JSON.stringify(emails));
+        }
+    }
+}
+
+// Delete paragraphs that contain unsubscribed emails
+function deleteUnsubscribedEntries() {
+    const outputContainer = document.getElementById('output');
+    const paragraphs = outputContainer.querySelectorAll('p');
+    const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+
+    paragraphs.forEach(paragraph => {
+        unsubscribedEmails.forEach(email => {
+            if (paragraph.innerHTML.includes(email)) {
+                paragraph.remove();
+            }
+        });
+    });
+    saveText(); // Update saved state
+}
         let currentUser = null;
         let dailyAdCount = 0;
         let cutHistory = [];
@@ -952,82 +1022,84 @@ body {
         }
 
         function processText() {
-            if (isProcessing) return;
+    if (isProcessing) return;
 
-            isProcessing = true;
-            document.getElementById('loadingIndicator').style.display = 'inline';
+    isProcessing = true;
+    document.getElementById('loadingIndicator').style.display = 'inline';
 
-            const inputText = document.getElementById('inputText').value;
-            const paragraphs = inputText.split(/\n\s*\n/);
-            totalParagraphs = paragraphs.length;
-            const outputContainer = document.getElementById('output');
-            const incompleteContainer = document.getElementById('incompleteText');
-            outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
-            incompleteContainer.value = '';
+    const inputText = document.getElementById('inputText').value;
+    const paragraphs = inputText.split(/\n\s*\n/);
+    totalParagraphs = paragraphs.length;
+    const outputContainer = document.getElementById('output');
+    const incompleteContainer = document.getElementById('incompleteText');
+    outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+    incompleteContainer.value = '';
 
-            let index = 0;
-            const nonRussiaEntries = [];
-            const russiaEntries = [];
+    let index = 0;
+    const nonRussiaEntries = [];
+    const russiaEntries = [];
 
-            const gapOption = document.getElementById('gapOption').value;
-            const toOption = document.querySelector('input[name="toOption"]:checked').value; // New line for "To" option
+    const gapOption = document.getElementById('gapOption').value;
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-            function processChunk() {
-                const chunkSize = 10;
-                const end = Math.min(index + chunkSize, paragraphs.length);
-                for (; index < end; index++) {
-                    let paragraph = paragraphs[index].trim();
-                    if (paragraph !== '') {
-                        const lines = paragraph.split('\n');
-                        let firstLine = lines[0].trim();
-                        let lastName = firstLine.split(' ').pop();
+    function processChunk() {
+        const chunkSize = 10;
+        const end = Math.min(index + chunkSize, paragraphs.length);
+        for (; index < end; index++) {
+            let paragraph = paragraphs[index].trim();
+            if (paragraph !== '') {
+                const lines = paragraph.split('\n');
+                let firstLine = lines[0].trim();
+                let lastName = firstLine.split(' ').pop();
 
-                        if (!firstLine.toLowerCase().startsWith('professor')) {
-                            firstLine = `<span class="highlight-added">Professor</span> ${firstLine}`;
-                            lines[0] = firstLine;
-                        }
+                if (!firstLine.toLowerCase().startsWith('professor')) {
+                    firstLine = `<span class="highlight-added">Professor</span> ${firstLine}`;
+                    lines[0] = firstLine;
+                }
 
-                        let processedParagraph = lines.join('\n');
-                        if (toOption === 'withTo') {
-                            processedParagraph = `To\n${processedParagraph}`; // Apply "To" prefix if selected
-                        }
+                let processedParagraph = lines.join('\n');
+                if (toOption === 'withTo') {
+                    processedParagraph = `To\n${processedParagraph}`;
+                }
 
-                        const greeting = `Dear Professor ${lastName},\n`;
-                        const fullText = gapOption === 'nil' ?
-                            processedParagraph + '\n' + greeting : processedParagraph + '\n\n' + greeting;
+                const greeting = `Dear Professor ${lastName},\n`;
+                let fullText = gapOption === 'nil' ?
+                    processedParagraph + '\n' + greeting : processedParagraph + '\n\n' + greeting;
 
-                        const highlightedText = highlightErrors(fullText.replace(/\n/g, '<br>'));
-                        const hasError = highlightedText.includes('error');
+                fullText = highlightUnsubscribed(fullText); // Highlight unsubscribed emails
+                const highlightedText = highlightErrors(fullText.replace(/\n/g, '<br>'));
+                const hasError = highlightedText.includes('error');
 
-                        if (hasError) {
-                            incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
-                        } else {
-                            const p = document.createElement('p');
-                            p.innerHTML = highlightedText;
+                if (hasError) {
+                    incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
+                } else {
+                    const p = document.createElement('p');
+                    p.innerHTML = highlightedText;
 
-                            if (paragraph.includes('Russia')) {
-                                russiaEntries.push(p);
-                            } else {
-                                nonRussiaEntries.push(p);
-                            }
-                        }
+                    if (paragraph.includes('Russia')) {
+                        russiaEntries.push(p);
+                    } else {
+                        nonRussiaEntries.push(p);
                     }
                 }
-                if (index < paragraphs.length) {
-                    requestAnimationFrame(processChunk);
-                } else {
-                    nonRussiaEntries.forEach(entry => outputContainer.appendChild(entry));
-                    russiaEntries.forEach(entry => outputContainer.appendChild(entry));
-
-                    updateCounts();
-                    saveText();
-                    document.getElementById('lockButton').style.display = 'inline-block';
-                    document.getElementById('loadingIndicator').style.display = 'none';
-                    isProcessing = false;
-                }
             }
-            requestAnimationFrame(processChunk);
         }
+        if (index < paragraphs.length) {
+            requestAnimationFrame(processChunk);
+        } else {
+            nonRussiaEntries.forEach(entry => outputContainer.appendChild(entry));
+            russiaEntries.forEach(entry => outputContainer.appendChild(entry));
+
+            updateCounts();
+            saveText();
+            document.getElementById('lockButton').style.display = 'inline-block';
+            document.getElementById('loadingIndicator').style.display = 'none';
+            isProcessing = false;
+        }
+    }
+    requestAnimationFrame(processChunk);
+}
+
 
         function cutParagraph(paragraph) {
             if (cutCooldown) return;
