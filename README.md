@@ -652,6 +652,7 @@ body {
 			<div style="display: flex; align-items: center;">
     <input type="email" id="unsubscribedEmail" placeholder="Enter unsubscribed email" style="margin-left: 20px;">
     <button onclick="deleteUnsubscribedEntries()" style="margin-left: 10px;">Delete Unsubscribed Address</button>
+	<button onclick="exportUnsubscribedEmails()" style="margin-left: 10px;">Export Unsubscribed Emails</button>
 </div>
 
     <div class="input-container" style="display:none;">
@@ -773,22 +774,49 @@ const API_KEY = 'AIzaSyAhSu2NruzWILHwK9PGv4-yXnUHkUjVQDo';
 const SHEET_NAME = 'Unsubscribed Emails';  // Ensure this matches the sheet name in Google Sheets
 
 // Fetch unsubscribed emails from Google Sheets and save to local storage
+// Helper to fetch unsubscribed emails from localStorage or Google Sheets on load
 async function fetchUnsubscribedEmails() {
+    const storedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+    // Fetch from Google Sheets on load
+    const googleEmails = await fetchEmailsFromGoogleSheet();
+    const allEmails = [...new Set([...storedEmails, ...googleEmails])]; // Combine and de-duplicate
+    localStorage.setItem('permanentUnsubscribedEmails', JSON.stringify(allEmails));
+    processText();
+}
+
+// Fetch from Google Sheets only (used in fetchUnsubscribedEmails)
+async function fetchEmailsFromGoogleSheet() {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A2:A?key=${API_KEY}`;
     try {
         const response = await fetch(url);
         const data = await response.json();
-        if (data.values) {
-            const unsubscribedEmails = data.values.flat().map(email => email.toLowerCase());
-            localStorage.setItem('permanentUnsubscribedEmails', JSON.stringify(unsubscribedEmails));
-            processText();  // Re-process text to apply highlighting
-        }
+        return data.values ? data.values.flat().map(email => email.toLowerCase()) : [];
     } catch (error) {
-        console.error('Error fetching unsubscribed emails:', error);
+        console.error('Error fetching unsubscribed emails from Google Sheets:', error);
+        return [];
     }
 }
 
-// Highlight unsubscribed emails in the processed text
+// Add new unsubscribed email to local storage (on change event)
+document.getElementById('unsubscribedEmail').addEventListener('change', function() {
+    const newEmail = this.value.trim().toLowerCase();
+    if (newEmail) {
+        addUnsubscribedEmail(newEmail);
+        this.value = ''; // Clear input box after storing
+        processText(); // Re-process text to apply highlighting
+    }
+});
+
+// Store new unsubscribed email locally
+function addUnsubscribedEmail(email) {
+    const emails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+    if (!emails.includes(email)) {
+        emails.push(email);
+        localStorage.setItem('permanentUnsubscribedEmails', JSON.stringify(emails));
+    }
+}
+
+// Highlight unsubscribed emails
 function highlightUnsubscribed(text) {
     const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
     unsubscribedEmails.forEach(email => {
@@ -798,27 +826,10 @@ function highlightUnsubscribed(text) {
     return text;
 }
 
-// Call fetchUnsubscribedEmails when the page loads
+// Load unsubscribed emails when the page loads
 document.addEventListener('DOMContentLoaded', fetchUnsubscribedEmails);
 
-// Handle unsubscribed email input and highlight entries
-document.getElementById('unsubscribedEmail').addEventListener('change', function() {
-    addUnsubscribedEmail(this.value.trim().toLowerCase());
-    this.value = '';
-    processText(); // Re-process text to apply highlighting
-});
-
-function addUnsubscribedEmail(email) {
-    if (email) {
-        const emails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
-        if (!emails.includes(email)) {
-            emails.push(email);
-            localStorage.setItem('permanentUnsubscribedEmails', JSON.stringify(emails));
-        }
-    }
-}
-
-// Delete paragraphs that contain unsubscribed emails
+// Delete paragraphs containing unsubscribed emails
 function deleteUnsubscribedEntries() {
     const outputContainer = document.getElementById('output');
     const paragraphs = outputContainer.querySelectorAll('p');
@@ -831,7 +842,7 @@ function deleteUnsubscribedEntries() {
             }
         });
     });
-    saveText(); // Update saved state
+    saveText();
 }
         let currentUser = null;
         let dailyAdCount = 0;
@@ -1530,7 +1541,18 @@ function deleteUnsubscribedEntries() {
             if (savedOperationMode) {
                 document.querySelector(`input[name="cutOption"][value="${savedOperationMode}"]`).checked = true;
             }
-        }
+        // Function to export unsubscribed emails from localStorage as a JSON file
+function exportUnsubscribedEmails() {
+    const emails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(emails));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "unsubscribed_emails.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    document.body.removeChild(downloadAnchor);
+}
+		}
     </script>
 </body>
 
