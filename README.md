@@ -652,7 +652,6 @@ body {
             </div>
             <!-- Other control options -->
         </div>
-    </div>
 
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('pasteBox')">
