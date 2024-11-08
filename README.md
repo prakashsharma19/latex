@@ -726,12 +726,12 @@ body {
         <div id="rightSidebar" style="display:none;">
             <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
             <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
-            <button id="lockButton" onclick="toggleLock()">?? Lock</button>
+            <button id="lockButton" onclick="toggleLock()">🔒 Lock</button>
         </div>
     </div>
 
     <div id="reminderPopup" class="popup">
-        <span style="font-size: 50px;">??</span>
+        <span style="font-size: 50px;">🔔</span>
         <p>Send Ads</p>
         <button onclick="dismissPopup()">OK</button>
     </div>
