@@ -6,7 +6,164 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advertisements-PPH</title>
     <style>
-        /* Add your original styles here to support layout and all elements */
+        /* Style Definitions */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            margin: 0;
+            color: #333;
+            position: relative;
+        }
+
+        h1 {
+            color: #1171ba;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 img {
+            margin-right: 10px;
+            height: 28px;
+        }
+
+        .font-controls,
+        .login-container,
+        .unsubscribe-container,
+        .input-container,
+        .text-container {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .font-controls .control-group,
+        .unsubscribe-container .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .font-controls label,
+        .unsubscribe-container label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .font-controls select,
+        .font-controls input,
+        .unsubscribe-container input {
+            border-radius: 5px;
+            padding: 5px;
+            border: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        .font-controls input[type="number"] {
+            width: 50px;
+        }
+
+        #loginButton {
+            background-color: #007bff;
+            margin-top: 10px;
+            font-size: 16px;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #loginButton:hover {
+            background-color: #0056b3;
+        }
+
+        #deleteUnsubscribedButton {
+            background-color: #e74c3c;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #deleteUnsubscribedButton:hover {
+            background-color: #c0392b;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .input-container textarea {
+            width: 100%;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #e0e0e0;
+            margin-top: 10px;
+        }
+
+        .text-container {
+            background-color: #ffffff;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .highlight-unsubscribed {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .highlight-added {
+            background-color: #f4e542;
+        }
+
+        .highlight-professor {
+            background-color: yellow;
+        }
+
+        .text-container p {
+            margin: 10px 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        #rightSidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .control-group {
+            margin-bottom: 10px;
+        }
+
+        #output {
+            display: none;
+        }
     </style>
 </head>
 
