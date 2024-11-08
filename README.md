@@ -726,7 +726,7 @@ body {
         <div id="rightSidebar" style="display:none;">
             <button class="fullscreen-button" onclick="toggleFullScreen()">Full Screen</button>
             <button id="undoButton" style="display:none;" onclick="undoLastCut()">Undo Last Cut</button>
-            <button id="lockButton" onclick="toggleLock()">🔒 Lock</button>
+            <button id="lockButton" onclick="toggleLock()">Lock</button>
         </div>
     </div>
 
@@ -1252,7 +1252,7 @@ function deleteUnsubscribedEntries() {
             isLocked = !isLocked;
 
             if (isLocked) {
-                lockButton.innerHTML = '?? Unlock';
+                lockButton.innerHTML = 'Unlock';
                 lockButton.classList.add('locked');
                 interactiveElements.forEach(element => {
                     if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
