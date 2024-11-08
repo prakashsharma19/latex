@@ -32,7 +32,9 @@
 
         .font-controls,
         .login-container,
-        .unsubscribe-container {
+        .unsubscribe-container,
+        .input-container,
+        .text-container {
             background-color: #ffffff;
             padding: 15px;
             border-radius: 8px;
@@ -102,6 +104,22 @@
             background-color: #c0392b;
         }
 
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .input-container textarea {
+            width: 100%;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #e0e0e0;
+            margin-top: 10px;
+        }
+
         .text-container {
             background-color: #ffffff;
             padding: 15px;
@@ -119,6 +137,10 @@
 
         .highlight-added {
             background-color: #f4e542;
+        }
+
+        .highlight-professor {
+            background-color: yellow;
         }
 
         .text-container p {
@@ -151,9 +173,8 @@
     </h1>
 
     <div class="login-container">
-        <h2>Login</h2>
-        <input type="text" id="username" placeholder="Enter Username" required><br>
-        <input type="password" id="password" placeholder="Enter Password" required><br>
+        <input type="text" id="username" placeholder="Enter your name">
+        <input type="password" id="password" placeholder="Enter your password">
         <button id="loginButton" onclick="login()">Login</button>
     </div>
 
@@ -172,10 +193,16 @@
             <input type="radio" name="toOption" value="yes" onchange="saveToPrefixPreference()"> Yes
             <input type="radio" name="toOption" value="no" checked onchange="saveToPrefixPreference()"> No
         </div>
+
         <div class="control-group">
-            <label>Operate by:</label>
-            <input type="radio" name="cutOption" value="keyboard" checked> Keyboard
-            <input type="radio" name="cutOption" value="mouse"> Mouse
+            <label>
+                <input type="radio" name="cutOption" value="keyboard" checked>
+                Keyboard
+            </label>
+            <label>
+                <input type="radio" name="cutOption" value="mouse">
+                Mouse
+            </label>
         </div>
     </div>
 
@@ -185,6 +212,12 @@
     </div>
 
     <div id="output" class="text-container" style="display:none;"></div>
+
+    <div id="rightSidebar" style="display:none;">
+        <button onclick="toggleFullScreen()">Full Screen</button>
+        <button onclick="undoLastCut()">Undo Last Cut</button>
+        <button onclick="toggleLock()">Lock</button>
+    </div>
 
     <script>
         const countryList = [
@@ -221,8 +254,9 @@
                 document.querySelector('.login-container').style.display = 'none';
                 document.querySelector('.font-controls').style.display = 'block';
                 document.querySelector('.unsubscribe-container').style.display = 'block';
-                document.querySelector('.input-container').style.display = 'block';
+                document.querySelector('.input-container').style.display = 'flex';
                 document.getElementById('output').style.display = 'block';
+                document.getElementById('rightSidebar').style.display = 'block';
                 loadPreferences();
             } else {
                 alert('Please enter both username and password.');
