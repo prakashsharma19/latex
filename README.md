@@ -650,8 +650,6 @@ body {
                     <input type="radio" name="toOption" value="withoutTo" checked> Without "To"
                 </label>
             </div>
-            <!-- Other control options -->
-        </div>
 
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('pasteBox')">
