@@ -1554,7 +1554,7 @@ function exportUnsubscribedEmails() {
 }
 // Function to sync email with Google Sheets using the Google Apps Script web app
 function syncEmailWithGoogleSheets(email) {
-    const webAppUrl = 'YOUR_WEB_APP_URL'; // Replace with the URL from the deployment step
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbz3yehn7Fc6bDqqcEVptxwrUtl9XzFeAYM1iEte_4MBxZMPFI2D0vPfSYuMjkVb2iJg/exec'; // Replace with the URL from the deployment step
 
     fetch(webAppUrl, {
         method: 'POST',
