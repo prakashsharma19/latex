@@ -650,9 +650,9 @@ body {
                 </label>
             </div>
 			<div style="display: flex; align-items: center;">
-    <input type="email" id="unsubscribedEmail" placeholder="Enter unsubscribed email" style="margin-left: 20px;">
-    <button onclick="deleteUnsubscribedEntries()" style="margin-left: 10px;">Delete Unsubscribed Address</button>
-	<button onclick="exportUnsubscribedEmails()" style="margin-left: 10px;">Export Unsubscribed Emails</button>
+  <input type="email" id="unsubscribedEmail" placeholder="Enter unsubscribed email" style="margin-left: 20px;">
+  <button onclick="deleteUnsubscribedEntries()" style="margin-left: 10px; color: white; background-color: blue; border: none; padding: 8px 12px; cursor: pointer;">Save</button>
+  <button onclick="exportUnsubscribedEmails()" style="margin-left: 10px; color: blue; cursor: pointer;">Export Unsubscribed Emails</button>
 </div>
 
     <div class="input-container" style="display:none;">
