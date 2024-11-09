@@ -651,9 +651,45 @@ body {
             </div>
 			<div style="display: flex; align-items: center;">
   <input type="email" id="unsubscribedEmail" placeholder="Enter unsubscribed email" style="margin-left: 20px;">
+  <button onclick="saveUnsubscribedEmails()" style="margin-left: 10px; background-color: #034f9c; color: white;">Save</button>
   <button onclick="deleteUnsubscribedEntries()" style="margin-left: 10px;">Delete Unsubscribed Address</button>
-  <button onclick="exportUnsubscribedEmails()" style="margin-left: 10px; background-color: #034f9c; color: white;">Save</button>
 </div>
+
+<!-- Notification message area -->
+<div id="notificationMessage" style="margin-top: 10px; color: green;"></div>
+
+<script>
+  // Array to store unsubscribed emails (for demonstration purposes)
+  let unsubscribedEmails = ["example1@test.com", "example2@test.com", "example3@test.com"];
+  
+  function saveUnsubscribedEmails() {
+    const emailInput = document.getElementById("unsubscribedEmail").value;
+    
+    if (emailInput && !unsubscribedEmails.includes(emailInput)) {
+      unsubscribedEmails.push(emailInput); // Add the email to the array
+      document.getElementById("notificationMessage").innerText = "Saved Successfully";
+      document.getElementById("unsubscribedEmail").value = ""; // Clear input
+    } else {
+      document.getElementById("notificationMessage").innerText = "Email already exists or input is empty.";
+    }
+  }
+
+  function deleteUnsubscribedEntries() {
+    const initialCount = unsubscribedEmails.length;
+    const emailInput = document.getElementById("unsubscribedEmail").value;
+    
+    // Filter out the entered email from the array
+    unsubscribedEmails = unsubscribedEmails.filter(email => email !== emailInput);
+    
+    const deletedCount = initialCount - unsubscribedEmails.length; // Calculate deleted entries
+    document.getElementById("notificationMessage").innerText = deletedCount > 0 ? 
+      `${deletedCount} address deleted successfully` : 
+      "No matching email found to delete.";
+    
+    document.getElementById("unsubscribedEmail").value = ""; // Clear input
+  }
+</script>
+
 
 
     <div class="input-container" style="display:none;">
