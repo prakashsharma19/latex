@@ -1563,7 +1563,7 @@ function deleteUnsubscribedEntries() {
             if (savedOperationMode) {
                 document.querySelector(`input[name="cutOption"][value="${savedOperationMode}"]`).checked = true;
             }
-        // Function to export unsubscribed emails from localStorage as a JSON file
+        // Function to export unsubscribed emails and show a success message
 function exportUnsubscribedEmails() {
     const emails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(emails));
@@ -1571,16 +1571,19 @@ function exportUnsubscribedEmails() {
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", "unsubscribed_emails.json");
 
-    // Show the success message before triggering download
-    showSuccessMessage("Successfully Exported.");
+    // Use requestAnimationFrame to prioritize message display
+    requestAnimationFrame(() => {
+        showSuccessMessage("Successfully Exported.");
+    });
 
-    // Add a slightly longer delay before the download to ensure message visibility
+    // Trigger download after a 500ms delay to ensure message displays first
     setTimeout(() => {
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         document.body.removeChild(downloadAnchor);
-    }, 500);  // 500ms delay
+    }, 500);
 }
+
 
 // Function to sync email with Google Sheets using the Google Apps Script web app
 function syncEmailWithGoogleSheets(email) {
