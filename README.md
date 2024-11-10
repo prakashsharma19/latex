@@ -1571,13 +1571,16 @@ function exportUnsubscribedEmails() {
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", "unsubscribed_emails.json");
 
-    // Show the success message directly
+    // Show success message and log to console to confirm execution
     showSuccessMessage("Successfully Exported.");
+    console.log("Successfully Exported message should display.");
 
-    // Trigger the download without additional timing
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    document.body.removeChild(downloadAnchor);
+    // Trigger the download after a delay
+    setTimeout(() => {
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        document.body.removeChild(downloadAnchor);
+    }, 500);  // Delay download to ensure message displays first
 }
 
 
