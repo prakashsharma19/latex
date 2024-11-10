@@ -1574,12 +1574,12 @@ function exportUnsubscribedEmails() {
     // Show the success message before triggering download
     showSuccessMessage("Successfully Exported.");
 
-    // Trigger download after a short delay to allow the message to display
+    // Add a slightly longer delay before the download to ensure message visibility
     setTimeout(() => {
         document.body.appendChild(downloadAnchor);
         downloadAnchor.click();
         document.body.removeChild(downloadAnchor);
-    }, 100);  // 100ms delay
+    }, 500);  // 500ms delay
 }
 
 // Function to sync email with Google Sheets using the Google Apps Script web app
