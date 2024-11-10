@@ -650,13 +650,18 @@ body {
                 </label>
             </div>
 			<div style="display: flex; align-items: center;">
-  <input type="email" id="unsubscribedEmail" placeholder="Enter unsubscribed email" style="margin-left: 20px;">
-  <button onclick="saveUnsubscribedEmails()" style="margin-left: 10px; background-color: #034f9c; color: white;">Save</button>
-  <button onclick="deleteUnsubscribedEntries()" style="margin-left: 10px;">Delete Unsubscribed Address</button>
+    <input type="email" id="unsubscribedEmail" placeholder="Enter unsubscribed email" style="margin-left: 20px;">
+    <button onclick="exportUnsubscribedEmails()" style="margin-left: 10px; background-color: lightblue; cursor: pointer;">
+        Export Unsubscribed Emails
+    </button>
+    <button onclick="deleteUnsubscribedEntries()" style="margin-left: 10px; background-color: lightblue; cursor: pointer;">
+        Delete Unsubscribed Address
+    </button>
+    <button onclick="window.open('https://docs.google.com/document/d/14AIqhs3wQ_T0hV7YNH2ToBRBH1MEkzmunw2e9WNgeo8/edit?tab=t.0', '_blank')" style="margin-left: 10px; background-color: lightblue; cursor: pointer;">
+        Email List
+    </button>
 </div>
-
-<!-- Notification message area -->
-<div id="notificationMessage" style="margin-top: 10px; color: green;"></div>
+<div id="successMessage" style="color: green; font-weight: bold; margin-top: 10px;"></div>
 
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('pasteBox')">
@@ -770,10 +775,19 @@ body {
             "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
             "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U. S. A.", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Macau", "Macao", "Macedonia"
         ];
+		function showSuccessMessage(message) {
+    const successMessage = document.getElementById('successMessage');
+    successMessage.innerText = message;
+    successMessage.style.display = 'block';
+
+    setTimeout(() => {
+        successMessage.style.display = 'none';
+    }, 3000); // Hide the message after 3 seconds
+}
 
 // Google Sheets Configuration
-const SHEET_ID = 'Sheet';
-const API_KEY = 'Enter API';
+const SHEET_ID = 'SHEET-ID';
+const API_KEY = 'Enter-API';
 const SHEET_NAME = 'Unsubscribed Emails';  // Ensure this matches the sheet name in Google Sheets
 
 // Fetch unsubscribed emails from Google Sheets and save to local storage
@@ -837,16 +851,21 @@ function deleteUnsubscribedEntries() {
     const outputContainer = document.getElementById('output');
     const paragraphs = outputContainer.querySelectorAll('p');
     const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+    let deletedCount = 0;
 
     paragraphs.forEach(paragraph => {
         unsubscribedEmails.forEach(email => {
             if (paragraph.innerHTML.includes(email)) {
                 paragraph.remove();
+                deletedCount++;
             }
         });
     });
+
     saveText();
+    showSuccessMessage(`Successfully Deleted ${deletedCount} addresses.`);
 }
+
         let currentUser = null;
         let dailyAdCount = 0;
         let cutHistory = [];
@@ -1264,7 +1283,7 @@ function deleteUnsubscribedEntries() {
                 });
                 document.body.classList.add('scroll-locked');
             } else {
-                lockButton.innerHTML = '?? Lock';
+                lockButton.innerHTML = 'Lock';
                 lockButton.classList.remove('locked');
                 interactiveElements.forEach(element => {
                     if (element.id !== 'output' && element.id !== 'undoButton' && element.id !== 'lockButton') {
@@ -1554,6 +1573,8 @@ function exportUnsubscribedEmails() {
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     document.body.removeChild(downloadAnchor);
+
+    showSuccessMessage("Successfully Exported.");
 }
 // Function to sync email with Google Sheets using the Google Apps Script web app
 function syncEmailWithGoogleSheets(email) {
@@ -1576,36 +1597,7 @@ function syncEmailWithGoogleSheets(email) {
 }
 
 		}
-  // Array to store unsubscribed emails (for demonstration purposes)
-  let unsubscribedEmails = ["example1@test.com", "example2@test.com", "example3@test.com"];
-  
-  function saveUnsubscribedEmails() {
-    const emailInput = document.getElementById("unsubscribedEmail").value;
-    
-    if (emailInput && !unsubscribedEmails.includes(emailInput)) {
-      unsubscribedEmails.push(emailInput); // Add the email to the array
-      document.getElementById("notificationMessage").innerText = "Saved Successfully";
-      document.getElementById("unsubscribedEmail").value = ""; // Clear input
-    } else {
-      document.getElementById("notificationMessage").innerText = "Email already exists or input is empty.";
-    }
-  }
-
-  function deleteUnsubscribedEntries() {
-    const initialCount = unsubscribedEmails.length;
-    const emailInput = document.getElementById("unsubscribedEmail").value;
-    
-    // Filter out the entered email from the array
-    unsubscribedEmails = unsubscribedEmails.filter(email => email !== emailInput);
-    
-    const deletedCount = initialCount - unsubscribedEmails.length; // Calculate deleted entries
-    document.getElementById("notificationMessage").innerText = deletedCount > 0 ? 
-      `${deletedCount} address deleted successfully` : 
-      "No matching email found to delete.";
-    
-    document.getElementById("unsubscribedEmail").value = ""; // Clear input
-  }
-</script>
+    </script>
 </body>
 
 </html>
