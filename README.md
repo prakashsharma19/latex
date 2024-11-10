@@ -1573,7 +1573,6 @@ function exportUnsubscribedEmails() {
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     document.body.removeChild(downloadAnchor);
-
     showSuccessMessage("Successfully Exported.");
 }
 // Function to sync email with Google Sheets using the Google Apps Script web app
