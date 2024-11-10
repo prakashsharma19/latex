@@ -1570,19 +1570,12 @@ function exportUnsubscribedEmails() {
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", "unsubscribed_emails.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    document.body.removeChild(downloadAnchor);
 
-    // Show success message and log to console to confirm execution
     showSuccessMessage("Successfully Exported.");
-    console.log("Successfully Exported message should display.");
-
-    // Trigger the download after a delay
-    setTimeout(() => {
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        document.body.removeChild(downloadAnchor);
-    }, 500);  // Delay download to ensure message displays first
 }
-
 
 // Function to sync email with Google Sheets using the Google Apps Script web app
 function syncEmailWithGoogleSheets(email) {
