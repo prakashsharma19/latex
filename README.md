@@ -651,17 +651,9 @@ body {
             </div>
 			<div style="display: flex; align-items: center;">
     <input type="email" id="unsubscribedEmail" placeholder="Enter unsubscribed email" style="margin-left: 20px;">
-    <button onclick="exportUnsubscribedEmails()" style="margin-left: 10px; background-color: lightblue; cursor: pointer;">
-        Export Unsubscribed Emails
-    </button>
-    <button onclick="deleteUnsubscribedEntries()" style="margin-left: 10px; background-color: lightblue; cursor: pointer;">
-        Delete Unsubscribed Address
-    </button>
-    <button onclick="window.open('https://docs.google.com/document/d/14AIqhs3wQ_T0hV7YNH2ToBRBH1MEkzmunw2e9WNgeo8/edit?tab=t.0', '_blank')" style="margin-left: 10px; background-color: lightblue; cursor: pointer;">
-        Email List
-    </button>
+    <button onclick="deleteUnsubscribedEntries()" style="margin-left: 10px;">Delete Unsubscribed Address</button>
+	<button onclick="exportUnsubscribedEmails()" style="margin-left: 10px;">Export Unsubscribed Emails</button>
 </div>
-<div id="successMessage" style="color: green; font-weight: bold; margin-top: 10px;"></div>
 
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('pasteBox')">
@@ -775,15 +767,6 @@ body {
             "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
             "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U. S. A.", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Macau", "Macao", "Macedonia"
         ];
-		function showSuccessMessage(message) {
-    const successMessage = document.getElementById('successMessage');
-    successMessage.innerText = message;
-    successMessage.style.display = 'block';
-
-    setTimeout(() => {
-        successMessage.style.display = 'none';
-    }, 3000); // Hide the message after 3 seconds
-}
 
 // Google Sheets Configuration
 const SHEET_ID = 'SHEET-ID';
@@ -851,21 +834,16 @@ function deleteUnsubscribedEntries() {
     const outputContainer = document.getElementById('output');
     const paragraphs = outputContainer.querySelectorAll('p');
     const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
-    let deletedCount = 0;
 
     paragraphs.forEach(paragraph => {
         unsubscribedEmails.forEach(email => {
             if (paragraph.innerHTML.includes(email)) {
                 paragraph.remove();
-                deletedCount++;
             }
         });
     });
-
     saveText();
-    showSuccessMessage(`Successfully Deleted ${deletedCount} addresses.`);
 }
-
         let currentUser = null;
         let dailyAdCount = 0;
         let cutHistory = [];
@@ -1563,7 +1541,7 @@ function deleteUnsubscribedEntries() {
             if (savedOperationMode) {
                 document.querySelector(`input[name="cutOption"][value="${savedOperationMode}"]`).checked = true;
             }
-        // Function to export unsubscribed emails and show a success message
+        // Function to export unsubscribed emails from localStorage as a JSON file
 function exportUnsubscribedEmails() {
     const emails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(emails));
@@ -1573,10 +1551,7 @@ function exportUnsubscribedEmails() {
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     document.body.removeChild(downloadAnchor);
-
-    showSuccessMessage("Successfully Exported.");
 }
-
 // Function to sync email with Google Sheets using the Google Apps Script web app
 function syncEmailWithGoogleSheets(email) {
     const webAppUrl = 'https://script.google.com/macros/s/AKfycbz3yehn7Fc6bDqqcEVptxwrUtl9XzFeAYM1iEte_4MBxZMPFI2D0vPfSYuMjkVb2iJg/exec'; // Replace with the URL from the deployment step
