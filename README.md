@@ -650,9 +650,9 @@ body {
                 </label>
             </div>
 			<div style="display: flex; align-items: center;">
-    <input type="email" id="unsubscribedEmail" placeholder="Enter unsubscribed email" style="margin-left: 20px;">
+    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
     <button onclick="exportUnsubscribedEmails()" style="margin-left: 10px; background-color: lightblue; cursor: pointer;">
-        Export Unsubscribed Emails
+        Save
     </button>
     <button onclick="deleteUnsubscribedEntries()" style="margin-left: 10px; background-color: lightblue; cursor: pointer;">
         Delete Unsubscribed Address
