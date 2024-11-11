@@ -1167,47 +1167,31 @@ function deleteUnsubscribedEntries() {
             }, 500);
         }
         function copyAndRemoveParagraph(paragraph, textToCopy) {
-    const tempTextarea = document.createElement('textarea');
-    tempTextarea.style.position = 'fixed';
-    tempTextarea.style.opacity = '0';
-    tempTextarea.value = textToCopy;
-    document.body.appendChild(tempTextarea);
-    tempTextarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.style.position = 'fixed';
+            tempTextarea.style.opacity = '0';
+            tempTextarea.value = textToCopy;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
 
-    // Remove paragraph from "Place your cursor here" box
-    paragraph.remove();
-    cleanupSpaces();
+            paragraph.remove();
+            cleanupSpaces();
 
-    // Reference "Paste your text here" content
-    const inputText = document.getElementById('inputText').value;
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
+            const inputText = document.getElementById('inputText').value;
+            const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+            document.getElementById('inputText').value = remainingText;
 
-    // Determine cut text format based on "With 'To'" selection
-    let textToCut;
-    if (toOption === 'withTo') {
-        textToCut = `To\n${textToCopy}`; // Include "To" prefix for this option
-    } else {
-        textToCut = textToCopy; // Direct copy for "Without 'To'"
-    }
+            dailyAdCount++;
 
-    // Ensure text is removed consistently
-    const startIdx = inputText.indexOf(textToCut);
-    if (startIdx !== -1) {
-        const updatedText = inputText.slice(0, startIdx) + inputText.slice(startIdx + textToCut.length);
-        document.getElementById('inputText').value = updatedText.trim();
-    }
+            updateCounts();
+            saveText();
 
-    // Update counts, save, and show undo button
-    dailyAdCount++;
-    updateCounts();
-    saveText();
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-}
+            document.getElementById('undoButton').style.display = 'block';
 
-
+            document.getElementById('output').focus();
+        }
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
