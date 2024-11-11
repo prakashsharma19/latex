@@ -1024,7 +1024,6 @@ function deleteUnsubscribedEntries() {
 
     document.getElementById('totalAds').innerText = adCount;
     document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
-}
 
             const text = outputContainer.innerText;
             const countryCounts = countCountryOccurrences(text);
