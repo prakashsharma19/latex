@@ -1167,38 +1167,48 @@ function deleteUnsubscribedEntries() {
             }, 500);
         }
         function copyAndRemoveParagraph(paragraph, textToCopy) {
-    // Check the "To" option
+    // Get the "To" option status
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
-    if (toOption === 'withTo') {
-        textToCopy = `To\n${textToCopy}`; // Add "To" at the beginning for this option
+    
+    // Adjust textToCopy based on "With 'To'" option
+    let modifiedTextToCopy = textToCopy;
+    if (toOption === 'withTo' && !textToCopy.startsWith('To')) {
+        modifiedTextToCopy = `To\n${textToCopy}`;
     }
 
+    // Copy text and remove paragraph
     const tempTextarea = document.createElement('textarea');
     tempTextarea.style.position = 'fixed';
     tempTextarea.style.opacity = '0';
-    tempTextarea.value = textToCopy;
+    tempTextarea.value = modifiedTextToCopy;
     document.body.appendChild(tempTextarea);
     tempTextarea.select();
     document.execCommand('copy');
     document.body.removeChild(tempTextarea);
 
+    // Remove the paragraph from display
     paragraph.remove();
     cleanupSpaces();
 
-    // Update the text in the "Paste Your Text Here" box
+    // Update text in the "Paste Your Text Here" box
     const inputText = document.getElementById('inputText').value;
-    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+
+    // Use regex to handle flexible matching with "To" or without
+    const regexPattern = new RegExp(
+        `${toOption === 'withTo' ? 'To\\n' : ''}${textToCopy.split('\nDear Professor')[0]}`,
+        'gi'
+    );
+
+    const remainingText = inputText.replace(regexPattern, '').trim();
     document.getElementById('inputText').value = remainingText;
 
+    // Update ad count, save text, and show undo button
     dailyAdCount++;
-
     updateCounts();
     saveText();
-
     document.getElementById('undoButton').style.display = 'block';
     document.getElementById('output').focus();
 }
-
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
