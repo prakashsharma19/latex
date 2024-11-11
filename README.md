@@ -668,7 +668,6 @@ body {
         Email List
     </button>
 </div>
-</div>
 <div id="successMessage" style="color: green; font-weight: bold; margin-top: 10px;"></div>
 
     <div class="input-container" style="display:none;">
@@ -1578,13 +1577,23 @@ function exportUnsubscribedEmails() {
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", "unsubscribed_emails.json");
+
+    // Get the export button and temporarily change its color and text
+    const exportButton = document.getElementById('exportButton');
+    exportButton.style.backgroundColor = 'green';
+    exportButton.innerText = 'Saved';
+
+    // Revert button color and text after 1 second
+    setTimeout(() => {
+        exportButton.style.backgroundColor = '#1171BA'; // Original color
+        exportButton.innerText = 'Export Unsubscribed Emails'; // Original text
+    }, 1000);
+
+    // Trigger download
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     document.body.removeChild(downloadAnchor);
-
-    showSuccessMessage("Successfully Exported.");
 }
-
 // Function to sync email with Google Sheets using the Google Apps Script web app
 function syncEmailWithGoogleSheets(email) {
     const webAppUrl = 'https://script.google.com/macros/s/AKfycbz3yehn7Fc6bDqqcEVptxwrUtl9XzFeAYM1iEte_4MBxZMPFI2D0vPfSYuMjkVb2iJg/exec'; // Replace with the URL from the deployment step
