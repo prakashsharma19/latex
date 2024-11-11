@@ -1208,23 +1208,40 @@ function copyAndRemoveParagraph(paragraph, textToCopy) {
         }
 
         function handleCursorMovement(event) {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0) {
-                const range = selection.getRangeAt(0);
-                const container = range.commonAncestorContainer;
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const container = range.commonAncestorContainer;
 
-                let paragraph = container;
-                while (paragraph && paragraph.nodeName !== 'P') {
-                    paragraph = paragraph.parentNode;
-                }
-
-                if (paragraph && paragraph.textContent.includes('Professor')) {
-                    cutParagraph(paragraph);
-
-                    document.getElementById('output').focus();
-                }
-            }
+        let paragraph = container;
+        while (paragraph && paragraph.nodeName !== 'P') {
+            paragraph = paragraph.parentNode;
         }
+
+        if (paragraph && paragraph.textContent.includes('Professor')) {
+            cutParagraph(paragraph);
+
+            document.getElementById('output').focus();
+        }
+    }
+}
+
+function updateCounts() {
+    const outputContainer = document.getElementById('output');
+    const paragraphs = outputContainer.querySelectorAll('p');
+    let adCount = 0;
+
+    paragraphs.forEach(paragraph => {
+        const text = paragraph.innerText.trim();
+        // Count entries correctly for both "With 'To'" and "Without 'To'" options
+        if (text.startsWith('To\nProfessor') || text.startsWith('Professor')) {
+            adCount += 1;
+        }
+    });
+
+    document.getElementById('totalAds').innerText = adCount;
+    document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
+}
 
         function handleMouseClick(event) {
             const cutOption = document.querySelector('input[name="cutOption"]:checked').value;
