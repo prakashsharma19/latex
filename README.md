@@ -1572,6 +1572,8 @@ function deleteUnsubscribedEntries() {
             }
         // Function to export unsubscribed emails from localStorage as a JSON file
 function exportUnsubscribedEmails() {
+    console.log("Export button clicked");  // Debugging: Check if function is called
+
     const emails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(emails));
     const downloadAnchor = document.createElement('a');
@@ -1580,14 +1582,19 @@ function exportUnsubscribedEmails() {
 
     // Get the export button and temporarily change its color and text
     const exportButton = document.getElementById('exportButton');
-    exportButton.style.backgroundColor = 'green';
-    exportButton.innerText = 'Saved';
+    if (exportButton) {
+        console.log("Export button found");  // Debugging: Verify the button element was found
+        exportButton.style.backgroundColor = 'green';
+        exportButton.innerText = 'Saved';
 
-    // Revert button color and text after 1 second
-    setTimeout(() => {
-        exportButton.style.backgroundColor = '#1171BA'; // Original color
-        exportButton.innerText = 'Export Unsubscribed Emails'; // Original text
-    }, 1000);
+        // Revert button color and text after 1 second
+        setTimeout(() => {
+            exportButton.style.backgroundColor = '#1171BA'; // Original color
+            exportButton.innerText = 'Export Unsubscribed Emails'; // Original text
+        }, 1000);
+    } else {
+        console.error("Export button not found");  // Error if the button ID is incorrect
+    }
 
     // Trigger download
     document.body.appendChild(downloadAnchor);
