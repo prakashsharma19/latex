@@ -1144,28 +1144,33 @@ function deleteUnsubscribedEntries() {
 
 
         function cutParagraph(paragraph) {
-            if (cutCooldown) return;
-            cutCooldown = true;
+    if (cutCooldown) return;
+    cutCooldown = true;
 
-            const textToCopy = paragraph.innerText;
-            cutHistory.push(textToCopy);
+    const textToCopy = paragraph.innerText;
+    cutHistory.push(textToCopy);
 
-            const effectType = document.getElementById('effectType').value;
-            const effectsEnabled = document.getElementById('effectsToggle').checked;
+    const effectType = document.getElementById('effectType').value;
+    const effectsEnabled = document.getElementById('effectsToggle').checked;
 
-            if (effectsEnabled && effectType !== 'none') {
-                paragraph.classList.add(effectType);
-                paragraph.addEventListener('animationend', () => {
-                    copyAndRemoveParagraph(paragraph, textToCopy);
-                });
-            } else {
-                copyAndRemoveParagraph(paragraph, textToCopy);
-            }
+    if (effectsEnabled && effectType !== 'none') {
+        paragraph.classList.add(effectType);
+        paragraph.addEventListener('animationend', () => {
+            copyAndRemoveParagraph(paragraph, textToCopy);
+        });
+    } else {
+        copyAndRemoveParagraph(paragraph, textToCopy);
+    }
 
-            setTimeout(() => {
-                cutCooldown = false;
-            }, 500);
-        }
+    setTimeout(() => {
+        cutCooldown = false;
+    }, 500);
+
+    // Ensure deletion of text in "Paste Your Text Here" box regardless of the radio selection
+    const inputText = document.getElementById('inputText').value;
+    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+    document.getElementById('inputText').value = remainingText;
+}
         function copyAndRemoveParagraph(paragraph, textToCopy) {
             const tempTextarea = document.createElement('textarea');
             tempTextarea.style.position = 'fixed';
