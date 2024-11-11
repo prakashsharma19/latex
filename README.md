@@ -1094,16 +1094,21 @@ function deleteUnsubscribedEntries() {
                 let firstLine = lines[0].trim();
                 let lastName = firstLine.split(' ').pop();
 
-                // Add the prefix based on the selected "To" option
+                if (!firstLine.toLowerCase().startsWith('professor')) {
+                    firstLine = `<span class="highlight-added">Professor</span> ${firstLine}`;
+                    lines[0] = firstLine;
+                }
+
+                let processedParagraph = lines.join('\n');
                 if (toOption === 'withTo') {
-                    paragraph = `To\nProfessor ${firstLine}\n${lines.slice(1).join('\n')}`;
-                } else {
-                    paragraph = `Professor ${firstLine}\n${lines.slice(1).join('\n')}`;
+                    processedParagraph = `To\n${processedParagraph}`;
                 }
 
                 const greeting = `Dear Professor ${lastName},\n`;
-                const fullText = gapOption === 'nil' ? paragraph + '\n' + greeting : paragraph + '\n\n' + greeting;
+                let fullText = gapOption === 'nil' ?
+                    processedParagraph + '\n' + greeting : processedParagraph + '\n\n' + greeting;
 
+                fullText = highlightUnsubscribed(fullText); // Highlight unsubscribed emails
                 const highlightedText = highlightErrors(fullText.replace(/\n/g, '<br>'));
                 const hasError = highlightedText.includes('error');
 
@@ -1137,25 +1142,10 @@ function deleteUnsubscribedEntries() {
     requestAnimationFrame(processChunk);
 }
 
-        function cutParagraph(paragraph) {
-    if (cutCooldown) return;
-    cutCooldown = true;
 
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
-
-    if (toOption === 'withTo') {
-        cutParagraphWithTo(paragraph); // Call the specific function for "With 'To'"
-    } else {
-        cutParagraphWithoutTo(paragraph); // Call the specific function for "Without 'To'"
-    }
-
-    setTimeout(() => {
-        cutCooldown = false;
-    }, 500);
-}
-
+        // Function for cutting with "To" prefix
 function cutParagraphWithTo(paragraph) {
-    const textToCopy = `To\n${paragraph.innerText}`;  // Prepend "To" for this option
+    const textToCopy = `To\n${paragraph.innerText}`;
 
     const tempTextarea = document.createElement('textarea');
     tempTextarea.style.position = 'fixed';
@@ -1169,6 +1159,7 @@ function cutParagraphWithTo(paragraph) {
     paragraph.remove();
     cleanupSpaces();
 
+    // Update "Paste Your Text Here" box
     const inputText = document.getElementById('inputText').value;
     const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
     document.getElementById('inputText').value = remainingText;
@@ -1179,7 +1170,7 @@ function cutParagraphWithTo(paragraph) {
     document.getElementById('undoButton').style.display = 'block';
     document.getElementById('output').focus();
 }
-
+// Function for cutting without "To" prefix
 function cutParagraphWithoutTo(paragraph) {
     const textToCopy = paragraph.innerText;
 
@@ -1195,6 +1186,7 @@ function cutParagraphWithoutTo(paragraph) {
     paragraph.remove();
     cleanupSpaces();
 
+    // Update "Paste Your Text Here" box
     const inputText = document.getElementById('inputText').value;
     const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
     document.getElementById('inputText').value = remainingText;
@@ -1205,62 +1197,7 @@ function cutParagraphWithoutTo(paragraph) {
     document.getElementById('undoButton').style.display = 'block';
     document.getElementById('output').focus();
 }
-
-function cutParagraphWithTo(paragraph) {
-
-function cutParagraphWithTo(paragraph) {
-    const textToCopy = `To\n${paragraph.innerText}`;  // Prepend "To" for this option
-
-    const tempTextarea = document.createElement('textarea');
-    tempTextarea.style.position = 'fixed';
-    tempTextarea.style.opacity = '0';
-    tempTextarea.value = textToCopy;
-    document.body.appendChild(tempTextarea);
-    tempTextarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
-
-    paragraph.remove();
-    cleanupSpaces();
-
-    // Update the "Paste Your Text Here" box
-    const inputText = document.getElementById('inputText').value;
-    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
-    document.getElementById('inputText').value = remainingText;
-
-    dailyAdCount++;
-    updateCounts();
-    saveText();
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-}
-
-function cutParagraphWithoutTo(paragraph) {
-    const textToCopy = paragraph.innerText;
-
-    const tempTextarea = document.createElement('textarea');
-    tempTextarea.style.position = 'fixed';
-    tempTextarea.style.opacity = '0';
-    tempTextarea.value = textToCopy;
-    document.body.appendChild(tempTextarea);
-    tempTextarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
-
-    paragraph.remove();
-    cleanupSpaces();
-
-    // Update the "Paste Your Text Here" box
-    const inputText = document.getElementById('inputText').value;
-    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
-    document.getElementById('inputText').value = remainingText;
-
-    dailyAdCount++;
-    updateCounts();
-    saveText();
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-}
+	}
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
