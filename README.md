@@ -1178,9 +1178,17 @@ function deleteUnsubscribedEntries() {
     paragraph.remove();
     cleanupSpaces();
 
-    // Clear cut text from "Paste your text here" box
+    // Clear cut text from "Paste your text here" box, handling both "with To" and "without To"
     const inputText = document.getElementById('inputText').value;
-    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
+    let textToRemove = textToCopy.split('\nDear Professor')[0];
+
+    // Add "To" prefix if the selected option includes it
+    if (toOption === 'withTo') {
+        textToRemove = `To\n${textToRemove}`;
+    }
+
+    const remainingText = inputText.replace(textToRemove, '').trim();
     document.getElementById('inputText').value = remainingText;
 
     dailyAdCount++;
