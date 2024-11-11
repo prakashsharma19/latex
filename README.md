@@ -1176,31 +1176,32 @@ function deleteUnsubscribedEntries() {
     document.execCommand('copy');
     document.body.removeChild(tempTextarea);
 
-    // Remove paragraph in "Place your cursor here" box
+    // Remove the paragraph from the output box
     paragraph.remove();
     cleanupSpaces();
 
-    // Update the text in the "Paste your text here" box to remove corresponding cut text
+    // Update the "Paste your text here" box to remove the corresponding cut text
     const inputText = document.getElementById('inputText').value;
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Adjust cut behavior based on "With 'To'" option
+    // Adjust the text to match "With 'To'" prefix if selected
     let textToCut = textToCopy;
     if (toOption === 'withTo') {
-        // Adjust to include 'To' prefix if selected
-        textToCut = `To\n${textToCut}`;
+        // Ensure we are adding "To\n" at the beginning of the text we want to cut
+        textToCut = `To\n${textToCopy}`;
     }
 
-    const remainingText = inputText.replace(textToCut.split('\nDear Professor')[0], '').trim();
+    // Remove the corresponding text, considering "To\n" if needed
+    const remainingText = inputText.replace(new RegExp(`^${textToCut}`), '').trim();
     document.getElementById('inputText').value = remainingText;
 
+    // Increment the count, update display, and save changes
     dailyAdCount++;
-
     updateCounts();
     saveText();
 
+    // Show the undo button
     document.getElementById('undoButton').style.display = 'block';
-
     document.getElementById('output').focus();
 }
 
