@@ -1145,72 +1145,55 @@ function deleteUnsubscribedEntries() {
 
 
         function cutParagraph(paragraph) {
-    if (cutCooldown) return;
-    cutCooldown = true;
+            if (cutCooldown) return;
+            cutCooldown = true;
 
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
-    let textToCopy = paragraph.innerText;
+            const textToCopy = paragraph.innerText;
+            cutHistory.push(textToCopy);
 
-    // Adjust textToCopy based on selected toOption
-    if (toOption === 'withTo') {
-        textToCopy = `To\n${textToCopy}`;
-    }
+            const effectType = document.getElementById('effectType').value;
+            const effectsEnabled = document.getElementById('effectsToggle').checked;
 
-    cutHistory.push(textToCopy);
+            if (effectsEnabled && effectType !== 'none') {
+                paragraph.classList.add(effectType);
+                paragraph.addEventListener('animationend', () => {
+                    copyAndRemoveParagraph(paragraph, textToCopy);
+                });
+            } else {
+                copyAndRemoveParagraph(paragraph, textToCopy);
+            }
 
-    const effectType = document.getElementById('effectType').value;
-    const effectsEnabled = document.getElementById('effectsToggle').checked;
-
-    if (effectsEnabled && effectType !== 'none') {
-        paragraph.classList.add(effectType);
-        paragraph.addEventListener('animationend', () => {
-            copyAndRemoveParagraph(paragraph, textToCopy);
-        });
-    } else {
-        copyAndRemoveParagraph(paragraph, textToCopy);
-    }
-
-    setTimeout(() => {
-        cutCooldown = false;
-    }, 500);
-}
+            setTimeout(() => {
+                cutCooldown = false;
+            }, 500);
+        }
 
         function copyAndRemoveParagraph(paragraph, textToCopy) {
-    const tempTextarea = document.createElement('textarea');
-    tempTextarea.style.position = 'fixed';
-    tempTextarea.style.opacity = '0';
-    tempTextarea.value = textToCopy;
-    document.body.appendChild(tempTextarea);
-    tempTextarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.style.position = 'fixed';
+            tempTextarea.style.opacity = '0';
+            tempTextarea.value = textToCopy;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
 
-    paragraph.remove();
-    cleanupSpaces();
+            paragraph.remove();
+            cleanupSpaces();
 
-    // Update the input box based on the current `toOption`
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
-    const inputText = document.getElementById('inputText').value;
+            const inputText = document.getElementById('inputText').value;
+            const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+            document.getElementById('inputText').value = remainingText;
 
-    // Match and delete the corresponding text from input
-    let remainingText;
-    if (toOption === 'withTo') {
-        // Add "To\n" prefix for accurate matching
-        remainingText = inputText.replace(`To\n${textToCopy.split('\nDear Professor')[0]}`, '').trim();
-    } else {
-        remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
-    }
-    document.getElementById('inputText').value = remainingText;
+            dailyAdCount++;
 
-    dailyAdCount++;
+            updateCounts();
+            saveText();
 
-    updateCounts();
-    saveText();
+            document.getElementById('undoButton').style.display = 'block';
 
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-}
-
+            document.getElementById('output').focus();
+        }
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
