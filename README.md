@@ -1069,8 +1069,8 @@ function deleteUnsubscribedEntries() {
     isProcessing = true;
     document.getElementById('loadingIndicator').style.display = 'inline';
 
-    const inputText = document.getElementById('inputText').value;
-    const paragraphs = inputText.split(/\n\s*\n/);
+    const inputTextArea = document.getElementById('inputText');
+    const paragraphs = inputTextArea.value.split(/\n\s*\n/);
     totalParagraphs = paragraphs.length;
     const outputContainer = document.getElementById('output');
     const incompleteContainer = document.getElementById('incompleteText');
@@ -1124,8 +1124,12 @@ function deleteUnsubscribedEntries() {
                         nonRussiaEntries.push(p);
                     }
                 }
+
+                // Remove processed paragraph from inputText area
+                inputTextArea.value = inputTextArea.value.replace(paragraph, '').trim();
             }
         }
+
         if (index < paragraphs.length) {
             requestAnimationFrame(processChunk);
         } else {
@@ -1139,6 +1143,7 @@ function deleteUnsubscribedEntries() {
             isProcessing = false;
         }
     }
+
     requestAnimationFrame(processChunk);
 }
 
