@@ -1010,23 +1010,31 @@ function deleteUnsubscribedEntries() {
         }
 
         function updateCounts() {
-    const outputContainer = document.getElementById('output');
-    const paragraphs = outputContainer.querySelectorAll('p');
-    let adCount = 0;
+            const outputContainer = document.getElementById('output');
+            const paragraphs = outputContainer.querySelectorAll('p');
+            let adCount = 0;
 
-    paragraphs.forEach(paragraph => {
-        if (paragraph.innerText.split('\n')[0].startsWith('Professor')) {
-            adCount += 1;
+            paragraphs.forEach(paragraph => {
+                if (paragraph.innerText.split('\n')[0].startsWith('Professor')) {
+                    adCount += 1;
+                }
+            });
+
+            document.getElementById('totalAds').innerText = adCount;
+document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
+
+            const text = outputContainer.innerText;
+            const countryCounts = countCountryOccurrences(text);
+            const sortedCountries = Object.entries(countryCounts).sort((a, b) => b[1] - a[1]);
+            let countryCountText = 'Country Counts:<br>';
+            sortedCountries.forEach(([country, count]) => {
+                countryCountText += `<b>${country}</b>: ${count}<br>`;
+            });
+            document.getElementById('countryCount').innerHTML = countryCountText.trim();
+
+            updateProgressBar(dailyAdCount);
+            updateRemainingTime(dailyAdCount);
         }
-    });
-
-    // Display the total advertisement count
-    document.getElementById('totalAds').innerText = adCount;
-    document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
-    
-    // Ensure the ad count container is visible for both options
-    document.getElementById('adCount').style.display = 'block';
-}
 
         function updateProgressBar(dailyAdCount) {
             const progressBar = document.getElementById('progressBar');
@@ -1134,28 +1142,35 @@ function deleteUnsubscribedEntries() {
 
 
         function cutParagraph(paragraph) {
-            if (cutCooldown) return;
-            cutCooldown = true;
+    if (cutCooldown) return;
+    cutCooldown = true;
 
-            const textToCopy = paragraph.innerText;
-            cutHistory.push(textToCopy);
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
+    let textToCopy = paragraph.innerText;
 
-            const effectType = document.getElementById('effectType').value;
-            const effectsEnabled = document.getElementById('effectsToggle').checked;
+    // Adjust textToCopy based on selected toOption
+    if (toOption === 'withTo') {
+        textToCopy = `To\n${textToCopy}`;
+    }
 
-            if (effectsEnabled && effectType !== 'none') {
-                paragraph.classList.add(effectType);
-                paragraph.addEventListener('animationend', () => {
-                    copyAndRemoveParagraph(paragraph, textToCopy);
-                });
-            } else {
-                copyAndRemoveParagraph(paragraph, textToCopy);
-            }
+    cutHistory.push(textToCopy);
 
-            setTimeout(() => {
-                cutCooldown = false;
-            }, 500);
-        }
+    const effectType = document.getElementById('effectType').value;
+    const effectsEnabled = document.getElementById('effectsToggle').checked;
+
+    if (effectsEnabled && effectType !== 'none') {
+        paragraph.classList.add(effectType);
+        paragraph.addEventListener('animationend', () => {
+            copyAndRemoveParagraph(paragraph, textToCopy);
+        });
+    } else {
+        copyAndRemoveParagraph(paragraph, textToCopy);
+    }
+
+    setTimeout(() => {
+        cutCooldown = false;
+    }, 500);
+}
 
         function copyAndRemoveParagraph(paragraph, textToCopy) {
     const tempTextarea = document.createElement('textarea');
@@ -1167,25 +1182,22 @@ function deleteUnsubscribedEntries() {
     document.execCommand('copy');
     document.body.removeChild(tempTextarea);
 
-    // Remove the paragraph from the processed output
     paragraph.remove();
     cleanupSpaces();
 
-    // Check if "With To" or "Without To" is selected
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
-    const inputTextElement = document.getElementById('inputText');
-    const remainingText = inputTextElement.value.replace(textToCopy.split('\nDear Professor')[0], '').trim();
-    inputTextElement.value = remainingText;
+    const inputText = document.getElementById('inputText').value;
+    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+    document.getElementById('inputText').value = remainingText;
 
     dailyAdCount++;
-    updateCounts();  // Update the total count
+
+    updateCounts();
     saveText();
 
-    // Display the undo button after cutting
     document.getElementById('undoButton').style.display = 'block';
+
     document.getElementById('output').focus();
 }
-
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
