@@ -1101,7 +1101,7 @@ function deleteUnsubscribedEntries() {
 
                 let processedParagraph = lines.join('\n');
                 if (toOption === 'withTo') {
-                    processedParagraph = `To\n${processedParagraph}`;
+                    processedParagraph = `To\n${processedParagraph}`; // Add "To" if option is selected
                 }
 
                 const greeting = `Dear Professor ${lastName},\n`;
@@ -1150,15 +1150,67 @@ function deleteUnsubscribedEntries() {
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
     if (toOption === 'withTo') {
-        cutParagraphWithTo(paragraph); // Call function for "With 'To'"
+        cutParagraphWithTo(paragraph);
     } else {
-        cutParagraphWithoutTo(paragraph); // Call function for "Without 'To'"
+        cutParagraphWithoutTo(paragraph);
     }
 
     setTimeout(() => {
         cutCooldown = false;
     }, 500);
 }
+function cutParagraphWithTo(paragraph) {
+    const textToCopy = `To\n${paragraph.innerText}`;  // Prepend "To" for this option
+
+    const tempTextarea = document.createElement('textarea');
+    tempTextarea.style.position = 'fixed';
+    tempTextarea.style.opacity = '0';
+    tempTextarea.value = textToCopy;
+    document.body.appendChild(tempTextarea);
+    tempTextarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempTextarea);
+
+    paragraph.remove();
+    cleanupSpaces();
+
+    const inputText = document.getElementById('inputText').value;
+    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+    document.getElementById('inputText').value = remainingText;
+
+    dailyAdCount++;
+    updateCounts();
+    saveText();
+    document.getElementById('undoButton').style.display = 'block';
+    document.getElementById('output').focus();
+}
+
+function cutParagraphWithoutTo(paragraph) {
+    const textToCopy = paragraph.innerText;
+
+    const tempTextarea = document.createElement('textarea');
+    tempTextarea.style.position = 'fixed';
+    tempTextarea.style.opacity = '0';
+    tempTextarea.value = textToCopy;
+    document.body.appendChild(tempTextarea);
+    tempTextarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempTextarea);
+
+    paragraph.remove();
+    cleanupSpaces();
+
+    const inputText = document.getElementById('inputText').value;
+    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+    document.getElementById('inputText').value = remainingText;
+
+    dailyAdCount++;
+    updateCounts();
+    saveText();
+    document.getElementById('undoButton').style.display = 'block';
+    document.getElementById('output').focus();
+}
+
 function cutParagraph(paragraph) {
     if (cutCooldown) return;
     cutCooldown = true;
