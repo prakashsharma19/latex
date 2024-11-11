@@ -1176,33 +1176,37 @@ function deleteUnsubscribedEntries() {
     document.execCommand('copy');
     document.body.removeChild(tempTextarea);
 
-    // Remove paragraph in "Place your cursor here" box
+    // Remove paragraph from "Place your cursor here" box
     paragraph.remove();
     cleanupSpaces();
 
-    // Update the text in the "Paste your text here" box to remove corresponding cut text
+    // Reference "Paste your text here" content
     const inputText = document.getElementById('inputText').value;
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Adjust text to cut based on whether "With 'To'" is selected
-    let textToCut = textToCopy.trim(); // Ensure trimmed text
+    // Determine cut text format based on "With 'To'" selection
+    let textToCut;
     if (toOption === 'withTo') {
-        textToCut = `To\n${textToCopy.trim()}`;
+        textToCut = `To\n${textToCopy}`; // Include "To" prefix for this option
+    } else {
+        textToCut = textToCopy; // Direct copy for "Without 'To'"
     }
 
-    // Remove the corresponding text in the input box
-    const remainingText = inputText.replace(textToCut, '').trim();
-    document.getElementById('inputText').value = remainingText;
+    // Ensure text is removed consistently
+    const startIdx = inputText.indexOf(textToCut);
+    if (startIdx !== -1) {
+        const updatedText = inputText.slice(0, startIdx) + inputText.slice(startIdx + textToCut.length);
+        document.getElementById('inputText').value = updatedText.trim();
+    }
 
-    // Increment the count, update display, and save changes
+    // Update counts, save, and show undo button
     dailyAdCount++;
     updateCounts();
     saveText();
-
-    // Show the undo button
     document.getElementById('undoButton').style.display = 'block';
     document.getElementById('output').focus();
 }
+
 
 
         function undoLastCut() {
