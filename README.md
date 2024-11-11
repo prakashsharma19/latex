@@ -1010,18 +1010,21 @@ function deleteUnsubscribedEntries() {
         }
 
         function updateCounts() {
-            const outputContainer = document.getElementById('output');
-            const paragraphs = outputContainer.querySelectorAll('p');
-            let adCount = 0;
+    const outputContainer = document.getElementById('output');
+    const paragraphs = outputContainer.querySelectorAll('p');
+    let adCount = 0;
 
-            paragraphs.forEach(paragraph => {
-                if (paragraph.innerText.split('\n')[0].startsWith('Professor')) {
-                    adCount += 1;
-                }
-            });
+    // Increment count based on the start of each paragraph ("To" or "Professor")
+    paragraphs.forEach(paragraph => {
+        const firstLine = paragraph.innerText.split('\n')[0];
+        if (firstLine.startsWith('To') || firstLine.startsWith('Professor')) {
+            adCount += 1;
+        }
+    });
 
-            document.getElementById('totalAds').innerText = adCount;
-document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
+    document.getElementById('totalAds').innerText = adCount;
+    document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
+}
 
             const text = outputContainer.innerText;
             const countryCounts = countCountryOccurrences(text);
@@ -1185,8 +1188,18 @@ document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdC
     paragraph.remove();
     cleanupSpaces();
 
+    // Update the input box based on the current `toOption`
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
     const inputText = document.getElementById('inputText').value;
-    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+
+    // Match and delete the corresponding text from input
+    let remainingText;
+    if (toOption === 'withTo') {
+        // Add "To\n" prefix for accurate matching
+        remainingText = inputText.replace(`To\n${textToCopy.split('\nDear Professor')[0]}`, '').trim();
+    } else {
+        remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+    }
     document.getElementById('inputText').value = remainingText;
 
     dailyAdCount++;
@@ -1195,9 +1208,9 @@ document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdC
     saveText();
 
     document.getElementById('undoButton').style.display = 'block';
-
     document.getElementById('output').focus();
 }
+
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
