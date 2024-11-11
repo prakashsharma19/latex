@@ -1143,46 +1143,58 @@ function deleteUnsubscribedEntries() {
 }
 
 
-        function cutParagraph(paragraph) {
-    if (cutCooldown) return;
-    cutCooldown = true;
+        function cutParagraph(paragraph, targetElementId) {
+  if (cutCooldown) return;
+  cutCooldown = true;
 
-    const textToCopy = paragraph.innerText;
-    cutHistory.push(textToCopy);
+  const textToCopy = paragraph.innerText;
+  cutHistory.push(textToCopy);
 
-    const effectType = document.getElementById('effectType').value;
-    const effectsEnabled = document.getElementById('effectsToggle').checked;
+  const effectType = document.getElementById('effectType').value;
+  const effectsEnabled = document.getElementById('effectsToggle').checked;
 
-    if (effectsEnabled && effectType !== 'none') {
-        paragraph.classList.add(effectType);
-        paragraph.addEventListener('animationend', () => {
-            copyAndRemoveParagraph(paragraph, textToCopy);
-        });
-    } else {
-        copyAndRemoveParagraph(paragraph, textToCopy);
-    }
+  if (effectsEnabled && effectType !== 'none') {
+    paragraph.classList.add(effectType);
+    paragraph.addEventListener('animationend', () => {
+      copyAndRemoveParagraph(paragraph, textToCopy, targetElementId);
+    });
+  } else {
+    copyAndRemoveParagraph(paragraph, textToCopy, targetElementId);
+  }
 
-    // Always remove text from "Paste Your Text Here" after cut
-    setTimeout(() => {
-        cutCooldown = false;
-    }, 500);
-
-    // Updated deletion logic for "Paste Your Text Here"
-    const inputText = document.getElementById('inputText').value;
-
-    // Modify this line to ensure it removes the text even with "With To" selected
-    const remainingText = inputText.replace(textToCopy, '').trim();
-    document.getElementById('inputText').value = remainingText;
-
-    dailyAdCount++;
-
-    updateCounts();
-    saveText();
-
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
+  setTimeout(() => {
+    cutCooldown = false;
+  }, 500);
 }
 
+function copyAndRemoveParagraph(paragraph, textToCopy, targetElementId) {
+  const tempTextarea = document.createElement('textarea');
+  tempTextarea.style.position = 'fixed';
+  tempTextarea.style.opacity = '0';
+  tempTextarea.value   
+ = textToCopy;
+  document.body.appendChild(tempTextarea);
+  tempTextarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(tempTextarea);   
+
+
+  paragraph.remove();
+  cleanupSpaces();
+
+  const inputText = document.getElementById('inputText').value;
+  const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+  document.getElementById('inputText').value = remainingText;
+
+  dailyAdCount++;
+
+  updateCounts();
+  saveText();
+
+  document.getElementById('undoButton').style.display = 'block';
+
+  document.getElementById('output').focus();
+  }
         function undoLastCut() {
             if (cutHistory.length > 0) {
                 const lastCutText = cutHistory.pop();
