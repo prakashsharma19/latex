@@ -1166,7 +1166,6 @@ function deleteUnsubscribedEntries() {
                 cutCooldown = false;
             }, 500);
         }
-
         function copyAndRemoveParagraph(paragraph, textToCopy) {
             const tempTextarea = document.createElement('textarea');
             tempTextarea.style.position = 'fixed';
