@@ -1069,8 +1069,8 @@ function deleteUnsubscribedEntries() {
     isProcessing = true;
     document.getElementById('loadingIndicator').style.display = 'inline';
 
-    const inputTextArea = document.getElementById('inputText');
-    const paragraphs = inputTextArea.value.split(/\n\s*\n/);
+    const inputText = document.getElementById('inputText').value;
+    const paragraphs = inputText.split(/\n\s*\n/);
     totalParagraphs = paragraphs.length;
     const outputContainer = document.getElementById('output');
     const incompleteContainer = document.getElementById('incompleteText');
@@ -1124,12 +1124,8 @@ function deleteUnsubscribedEntries() {
                         nonRussiaEntries.push(p);
                     }
                 }
-
-                // Remove processed paragraph from inputText area
-                inputTextArea.value = inputTextArea.value.replace(paragraph, '').trim();
             }
         }
-
         if (index < paragraphs.length) {
             requestAnimationFrame(processChunk);
         } else {
@@ -1143,7 +1139,6 @@ function deleteUnsubscribedEntries() {
             isProcessing = false;
         }
     }
-
     requestAnimationFrame(processChunk);
 }
 
@@ -1167,23 +1162,16 @@ function deleteUnsubscribedEntries() {
         copyAndRemoveParagraph(paragraph, textToCopy);
     }
 
+    // Always remove text from "Paste Your Text Here" after cut
     setTimeout(() => {
         cutCooldown = false;
     }, 500);
 
-    // Determine if "With To" or "Without To" is selected and handle accordingly
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
+    // Updated deletion logic for "Paste Your Text Here"
     const inputText = document.getElementById('inputText').value;
 
-    let remainingText;
-    if (toOption === 'withTo') {
-        // If "With To" is selected, text starts with "To"
-        remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
-    } else {
-        // If "Without To" is selected, text starts directly with "Professor"
-        remainingText = inputText.replace(textToCopy.split('\nProfessor')[0], '').trim();
-    }
-
+    // Modify this line to ensure it removes the text even with "With To" selected
+    const remainingText = inputText.replace(textToCopy, '').trim();
     document.getElementById('inputText').value = remainingText;
 
     dailyAdCount++;
@@ -1192,7 +1180,6 @@ function deleteUnsubscribedEntries() {
     saveText();
 
     document.getElementById('undoButton').style.display = 'block';
-
     document.getElementById('output').focus();
 }
 
