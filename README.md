@@ -1176,23 +1176,22 @@ function deleteUnsubscribedEntries() {
     document.execCommand('copy');
     document.body.removeChild(tempTextarea);
 
-    // Remove the paragraph from the output box
+    // Remove paragraph in "Place your cursor here" box
     paragraph.remove();
     cleanupSpaces();
 
-    // Update the "Paste your text here" box to remove the corresponding cut text
+    // Update the text in the "Paste your text here" box to remove corresponding cut text
     const inputText = document.getElementById('inputText').value;
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Adjust the text to match "With 'To'" prefix if selected
-    let textToCut = textToCopy;
+    // Adjust text to cut based on whether "With 'To'" is selected
+    let textToCut = textToCopy.trim(); // Ensure trimmed text
     if (toOption === 'withTo') {
-        // Ensure we are adding "To\n" at the beginning of the text we want to cut
-        textToCut = `To\n${textToCopy}`;
+        textToCut = `To\n${textToCopy.trim()}`;
     }
 
-    // Remove the corresponding text, considering "To\n" if needed
-    const remainingText = inputText.replace(new RegExp(`^${textToCut}`), '').trim();
+    // Remove the corresponding text in the input box
+    const remainingText = inputText.replace(textToCut, '').trim();
     document.getElementById('inputText').value = remainingText;
 
     // Increment the count, update display, and save changes
@@ -1204,6 +1203,7 @@ function deleteUnsubscribedEntries() {
     document.getElementById('undoButton').style.display = 'block';
     document.getElementById('output').focus();
 }
+
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
