@@ -1165,8 +1165,41 @@ function deleteUnsubscribedEntries() {
             }, 500);
         }
 
-        function copyAndRemoveParagraph
+        function copyAndRemoveParagraph(paragraph, textToCopy) {
+    const tempTextarea = document.createElement('textarea');
+    tempTextarea.style.position = 'fixed';
+    tempTextarea.style.opacity = '0';
+    tempTextarea.value = textToCopy;
+    document.body.appendChild(tempTextarea);
+    tempTextarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempTextarea);
 
+    paragraph.remove();
+    cleanupSpaces();
+
+    // Clear cut text from "Paste your text here" box, handling both "with To" and "without To"
+    const inputText = document.getElementById('inputText').value;
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
+    let textToRemove = textToCopy.split('\nDear Professor')[0];
+
+    // Add "To" prefix if "With To" is selected
+    if (toOption === 'withTo') {
+        textToRemove = `To\n${textToRemove}`;
+    }
+
+    // Adjust regex to account for any line breaks around the text to remove
+    const regex = new RegExp(`\\s*${textToRemove}\\s*`, 'g');
+    const remainingText = inputText.replace(regex, '').trim();
+    document.getElementById('inputText').value = remainingText;
+
+    dailyAdCount++;
+    updateCounts();
+    saveText();
+
+    document.getElementById('undoButton').style.display = 'block';
+    document.getElementById('output').focus();
+}
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
