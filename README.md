@@ -1168,44 +1168,31 @@ function deleteUnsubscribedEntries() {
         }
 
         function copyAndRemoveParagraph(paragraph, textToCopy) {
-    const tempTextarea = document.createElement('textarea');
-    tempTextarea.style.position = 'fixed';
-    tempTextarea.style.opacity = '0';
-    tempTextarea.value = textToCopy;
-    document.body.appendChild(tempTextarea);
-    tempTextarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.style.position = 'fixed';
+            tempTextarea.style.opacity = '0';
+            tempTextarea.value = textToCopy;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
 
-    paragraph.remove();
-    cleanupSpaces();
+            paragraph.remove();
+            cleanupSpaces();
 
-    // Retrieve the current `toOption` setting
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
-    const inputText = document.getElementById('inputText').value;
+            const inputText = document.getElementById('inputText').value;
+            const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+            document.getElementById('inputText').value = remainingText;
 
-    // Identify the exact text to match and delete based on `toOption`
-    let matchText;
-    if (toOption === 'withTo') {
-        // Prefix "To\n" to the paragraph for the "With To" option
-        matchText = `To\n${textToCopy}`;
-    } else {
-        matchText = textToCopy;
-    }
+            dailyAdCount++;
 
-    // Remove the identified text from input box
-    const remainingText = inputText.replace(matchText, '').trim();
-    document.getElementById('inputText').value = remainingText;
+            updateCounts();
+            saveText();
 
-    // Update counts and save the state
-    dailyAdCount++;
-    updateCounts();
-    saveText();
+            document.getElementById('undoButton').style.display = 'block';
 
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-}
-
+            document.getElementById('output').focus();
+        }
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
