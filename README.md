@@ -746,7 +746,7 @@ body {
     </div>
 
     <div id="reminderPopup" class="popup">
-        <span style="font-size: 50px;">🔔</span>
+        <span style="font-size: 50px;">??</span>
         <p>Send Ads</p>
         <button onclick="dismissPopup()">OK</button>
     </div>
@@ -1178,9 +1178,9 @@ function deleteUnsubscribedEntries() {
             paragraph.remove();
             cleanupSpaces();
 
+            const inputText = document.getElementById('inputText').value;
             const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
-document.getElementById('inputText').value = remainingText;
-
+            document.getElementById('inputText').value = remainingText;
 
             dailyAdCount++;
 
