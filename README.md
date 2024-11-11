@@ -1168,31 +1168,40 @@ function deleteUnsubscribedEntries() {
         }
 
         function copyAndRemoveParagraph(paragraph, textToCopy) {
-            const tempTextarea = document.createElement('textarea');
-            tempTextarea.style.position = 'fixed';
-            tempTextarea.style.opacity = '0';
-            tempTextarea.value = textToCopy;
-            document.body.appendChild(tempTextarea);
-            tempTextarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextarea);
+    const tempTextarea = document.createElement('textarea');
+    tempTextarea.style.position = 'fixed';
+    tempTextarea.style.opacity = '0';
+    tempTextarea.value = textToCopy;
+    document.body.appendChild(tempTextarea);
+    tempTextarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempTextarea);
 
-            paragraph.remove();
-            cleanupSpaces();
+    paragraph.remove();
+    cleanupSpaces();
 
-            const inputText = document.getElementById('inputText').value;
-            const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
-            document.getElementById('inputText').value = remainingText;
+    // Update the input box based on the current `toOption`
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
+    const inputText = document.getElementById('inputText').value;
 
-            dailyAdCount++;
+    // Match and delete the corresponding text from input
+    let remainingText;
+    if (toOption === 'withTo') {
+        // Add "To\n" prefix for accurate matching
+        remainingText = inputText.replace(`To\n${textToCopy.split('\nDear Professor')[0]}`, '').trim();
+    } else {
+        remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+    }
+    document.getElementById('inputText').value = remainingText;
 
-            updateCounts();
-            saveText();
+    dailyAdCount++;
 
-            document.getElementById('undoButton').style.display = 'block';
+    updateCounts();
+    saveText();
 
-            document.getElementById('output').focus();
-        }
+    document.getElementById('undoButton').style.display = 'block';
+    document.getElementById('output').focus();
+}
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
