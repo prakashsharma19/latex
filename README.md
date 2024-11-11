@@ -1094,21 +1094,16 @@ function deleteUnsubscribedEntries() {
                 let firstLine = lines[0].trim();
                 let lastName = firstLine.split(' ').pop();
 
-                if (!firstLine.toLowerCase().startsWith('professor')) {
-                    firstLine = `<span class="highlight-added">Professor</span> ${firstLine}`;
-                    lines[0] = firstLine;
-                }
-
-                let processedParagraph = lines.join('\n');
+                // Add the prefix based on the selected "To" option
                 if (toOption === 'withTo') {
-                    processedParagraph = `To\n${processedParagraph}`; // Add "To" if option is selected
+                    paragraph = `To\nProfessor ${firstLine}\n${lines.slice(1).join('\n')}`;
+                } else {
+                    paragraph = `Professor ${firstLine}\n${lines.slice(1).join('\n')}`;
                 }
 
                 const greeting = `Dear Professor ${lastName},\n`;
-                let fullText = gapOption === 'nil' ?
-                    processedParagraph + '\n' + greeting : processedParagraph + '\n\n' + greeting;
+                const fullText = gapOption === 'nil' ? paragraph + '\n' + greeting : paragraph + '\n\n' + greeting;
 
-                fullText = highlightUnsubscribed(fullText); // Highlight unsubscribed emails
                 const highlightedText = highlightErrors(fullText.replace(/\n/g, '<br>'));
                 const hasError = highlightedText.includes('error');
 
@@ -1142,7 +1137,6 @@ function deleteUnsubscribedEntries() {
     requestAnimationFrame(processChunk);
 }
 
-
         function cutParagraph(paragraph) {
     if (cutCooldown) return;
     cutCooldown = true;
@@ -1150,15 +1144,16 @@ function deleteUnsubscribedEntries() {
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
     if (toOption === 'withTo') {
-        cutParagraphWithTo(paragraph);
+        cutParagraphWithTo(paragraph); // Call the specific function for "With 'To'"
     } else {
-        cutParagraphWithoutTo(paragraph);
+        cutParagraphWithoutTo(paragraph); // Call the specific function for "Without 'To'"
     }
 
     setTimeout(() => {
         cutCooldown = false;
     }, 500);
 }
+
 function cutParagraphWithTo(paragraph) {
     const textToCopy = `To\n${paragraph.innerText}`;  // Prepend "To" for this option
 
@@ -1211,66 +1206,8 @@ function cutParagraphWithoutTo(paragraph) {
     document.getElementById('output').focus();
 }
 
-function cutParagraph(paragraph) {
-    if (cutCooldown) return;
-    cutCooldown = true;
+function cutParagraphWithTo(paragraph) {
 
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
-
-    if (toOption === 'withTo') {
-        cutParagraphWithTo(paragraph); // Call function for "With 'To'"
-    } else {
-        cutParagraphWithoutTo(paragraph); // Call function for "Without 'To'"
-    }
-
-    setTimeout(() => {
-        cutCooldown = false;
-    }, 500);
-}
-
-        function copyAndRemoveParagraph(paragraph, textToCopy) {
-    // Get the "To" option status
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
-    
-    // Adjust textToCopy based on "With 'To'" option
-    let modifiedTextToCopy = textToCopy;
-    if (toOption === 'withTo' && !textToCopy.startsWith('To')) {
-        modifiedTextToCopy = `To\n${textToCopy}`;
-    }
-
-    // Copy text and remove paragraph
-    const tempTextarea = document.createElement('textarea');
-    tempTextarea.style.position = 'fixed';
-    tempTextarea.style.opacity = '0';
-    tempTextarea.value = modifiedTextToCopy;
-    document.body.appendChild(tempTextarea);
-    tempTextarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
-
-    // Remove the paragraph from display
-    paragraph.remove();
-    cleanupSpaces();
-
-    // Update text in the "Paste Your Text Here" box
-    const inputText = document.getElementById('inputText').value;
-
-    // Use regex to handle flexible matching with "To" or without
-    const regexPattern = new RegExp(
-        `${toOption === 'withTo' ? 'To\\n' : ''}${textToCopy.split('\nDear Professor')[0]}`,
-        'gi'
-    );
-
-    const remainingText = inputText.replace(regexPattern, '').trim();
-    document.getElementById('inputText').value = remainingText;
-
-    // Update ad count, save text, and show undo button
-    dailyAdCount++;
-    updateCounts();
-    saveText();
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-}
 function cutParagraphWithTo(paragraph) {
     const textToCopy = `To\n${paragraph.innerText}`;  // Prepend "To" for this option
 
