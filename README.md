@@ -1130,7 +1130,7 @@ function deleteUnsubscribedEntries() {
             nonRussiaEntries.forEach(entry => outputContainer.appendChild(entry));
             russiaEntries.forEach(entry => outputContainer.appendChild(entry));
 
-            updateCounts();  // Update counts after processing
+            updateCounts();
             saveText();
             document.getElementById('lockButton').style.display = 'inline-block';
             document.getElementById('loadingIndicator').style.display = 'none';
@@ -1140,39 +1140,57 @@ function deleteUnsubscribedEntries() {
     requestAnimationFrame(processChunk);
 }
 
-function copyAndRemoveParagraph(paragraph, textToCopy) {
-    const tempTextarea = document.createElement('textarea');
-    tempTextarea.style.position = 'fixed';
-    tempTextarea.style.opacity = '0';
-    tempTextarea.value = textToCopy;
-    document.body.appendChild(tempTextarea);
-    tempTextarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
 
-    paragraph.remove();
-    cleanupSpaces();
+        function cutParagraph(paragraph) {
+            if (cutCooldown) return;
+            cutCooldown = true;
 
-    // Clear cut text from "Paste your text here" box
-    const inputText = document.getElementById('inputText').value;
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
-    let textToRemove = textToCopy.split('\nDear Professor')[0];
+            const textToCopy = paragraph.innerText;
+            cutHistory.push(textToCopy);
 
-    if (toOption === 'withTo') {
-        textToRemove = `To\n${textToRemove}`;
-    }
+            const effectType = document.getElementById('effectType').value;
+            const effectsEnabled = document.getElementById('effectsToggle').checked;
 
-    const regex = new RegExp(`\\s*${textToRemove}\\s*`, 'g');
-    const remainingText = inputText.replace(regex, '').trim();
-    document.getElementById('inputText').value = remainingText;
+            if (effectsEnabled && effectType !== 'none') {
+                paragraph.classList.add(effectType);
+                paragraph.addEventListener('animationend', () => {
+                    copyAndRemoveParagraph(paragraph, textToCopy);
+                });
+            } else {
+                copyAndRemoveParagraph(paragraph, textToCopy);
+            }
 
-    dailyAdCount++;
-    updateCounts();
-    saveText();
+            setTimeout(() => {
+                cutCooldown = false;
+            }, 500);
+        }
 
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-}
+        function copyAndRemoveParagraph(paragraph, textToCopy) {
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.style.position = 'fixed';
+            tempTextarea.style.opacity = '0';
+            tempTextarea.value = textToCopy;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
+
+            paragraph.remove();
+            cleanupSpaces();
+
+            const inputText = document.getElementById('inputText').value;
+            const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+            document.getElementById('inputText').value = remainingText;
+
+            dailyAdCount++;
+
+            updateCounts();
+            saveText();
+
+            document.getElementById('undoButton').style.display = 'block';
+
+            document.getElementById('output').focus();
+        }
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
@@ -1208,40 +1226,23 @@ function copyAndRemoveParagraph(paragraph, textToCopy) {
         }
 
         function handleCursorMovement(event) {
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        const container = range.commonAncestorContainer;
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                const container = range.commonAncestorContainer;
 
-        let paragraph = container;
-        while (paragraph && paragraph.nodeName !== 'P') {
-            paragraph = paragraph.parentNode;
+                let paragraph = container;
+                while (paragraph && paragraph.nodeName !== 'P') {
+                    paragraph = paragraph.parentNode;
+                }
+
+                if (paragraph && paragraph.textContent.includes('Professor')) {
+                    cutParagraph(paragraph);
+
+                    document.getElementById('output').focus();
+                }
+            }
         }
-
-        if (paragraph && paragraph.textContent.includes('Professor')) {
-            cutParagraph(paragraph);
-
-            document.getElementById('output').focus();
-        }
-    }
-}
-
-function updateCounts() {
-    const outputContainer = document.getElementById('output');
-    const paragraphs = outputContainer.querySelectorAll('p');
-    let adCount = 0;
-
-    paragraphs.forEach(paragraph => {
-        const text = paragraph.innerText.trim();
-        // Count entries correctly for both "With 'To'" and "Without 'To'" options
-        if (text.startsWith('To\nProfessor') || text.startsWith('Professor')) {
-            adCount += 1;
-        }
-    });
-
-    document.getElementById('totalAds').innerText = adCount;
-    document.getElementById('dailyAdCount').innerText = `Total Ads Today: ${dailyAdCount}`;
-}
 
         function handleMouseClick(event) {
             const cutOption = document.querySelector('input[name="cutOption"]:checked').value;
