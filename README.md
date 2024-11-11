@@ -1143,29 +1143,39 @@ function deleteUnsubscribedEntries() {
 }
 
 
-        function cutParagraph(paragraph, targetElementId) {
-  if (cutCooldown) return;
-  cutCooldown = true;
+        function cutParagraph(paragraph) {
+    if (cutCooldown) return;
+    cutCooldown = true;
 
-  const textToCopy = paragraph.innerText;
-  cutHistory.push(textToCopy);
+    const textToCopy = paragraph.innerText;
+    cutHistory.push(textToCopy);
 
-  const effectType = document.getElementById('effectType').value;
-  const effectsEnabled = document.getElementById('effectsToggle').checked;
+    const effectType = document.getElementById('effectType').value;
+    const effectsEnabled = document.getElementById('effectsToggle').checked;
+    
+    // Check the 'toOption' selection to determine prefix handling
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-  if (effectsEnabled && effectType !== 'none') {
-    paragraph.classList.add(effectType);
-    paragraph.addEventListener('animationend', () => {
-      copyAndRemoveParagraph(paragraph, textToCopy, targetElementId);
-    });
-  } else {
-    copyAndRemoveParagraph(paragraph, textToCopy, targetElementId);
-  }
+    // Check and remove 'To\n' if 'With "To"' is selected
+    let textToProcess = textToCopy;
+    if (toOption === 'withTo' && textToCopy.startsWith("To\n")) {
+        textToProcess = textToCopy.replace(/^To\n/, '');  // Remove "To\n" prefix if present
+    }
 
-  setTimeout(() => {
-    cutCooldown = false;
-  }, 500);
+    if (effectsEnabled && effectType !== 'none') {
+        paragraph.classList.add(effectType);
+        paragraph.addEventListener('animationend', () => {
+            copyAndRemoveParagraph(paragraph, textToProcess);
+        });
+    } else {
+        copyAndRemoveParagraph(paragraph, textToProcess);
+    }
+
+    setTimeout(() => {
+        cutCooldown = false;
+    }, 500);
 }
+
 
 function copyAndRemoveParagraph(paragraph, textToCopy, targetElementId) {
   const tempTextarea = document.createElement('textarea');
