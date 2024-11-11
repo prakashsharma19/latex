@@ -1180,28 +1180,32 @@ function deleteUnsubscribedEntries() {
     paragraph.remove();
     cleanupSpaces();
 
-    // Update the input box based on the current `toOption`
+    // Retrieve the current `toOption` setting
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
     const inputText = document.getElementById('inputText').value;
 
-    // Match and delete the corresponding text from input
-    let remainingText;
+    // Identify the exact text to match and delete based on `toOption`
+    let matchText;
     if (toOption === 'withTo') {
-        // Add "To\n" prefix for accurate matching
-        remainingText = inputText.replace(`To\n${textToCopy.split('\nDear Professor')[0]}`, '').trim();
+        // Prefix "To\n" to the paragraph for the "With To" option
+        matchText = `To\n${textToCopy}`;
     } else {
-        remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+        matchText = textToCopy;
     }
+
+    // Remove the identified text from input box
+    const remainingText = inputText.replace(matchText, '').trim();
     document.getElementById('inputText').value = remainingText;
 
+    // Update counts and save the state
     dailyAdCount++;
-
     updateCounts();
     saveText();
 
     document.getElementById('undoButton').style.display = 'block';
     document.getElementById('output').focus();
 }
+
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
