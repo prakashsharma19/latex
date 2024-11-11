@@ -1144,28 +1144,38 @@ function deleteUnsubscribedEntries() {
 
 
         function cutParagraph(paragraph) {
-            if (cutCooldown) return;
-            cutCooldown = true;
+    if (cutCooldown) return;
+    cutCooldown = true;
 
-            const textToCopy = paragraph.innerText;
-            cutHistory.push(textToCopy);
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-            const effectType = document.getElementById('effectType').value;
-            const effectsEnabled = document.getElementById('effectsToggle').checked;
+    if (toOption === 'withTo') {
+        cutParagraphWithTo(paragraph); // Call function for "With 'To'"
+    } else {
+        cutParagraphWithoutTo(paragraph); // Call function for "Without 'To'"
+    }
 
-            if (effectsEnabled && effectType !== 'none') {
-                paragraph.classList.add(effectType);
-                paragraph.addEventListener('animationend', () => {
-                    copyAndRemoveParagraph(paragraph, textToCopy);
-                });
-            } else {
-                copyAndRemoveParagraph(paragraph, textToCopy);
-            }
+    setTimeout(() => {
+        cutCooldown = false;
+    }, 500);
+}
+function cutParagraph(paragraph) {
+    if (cutCooldown) return;
+    cutCooldown = true;
 
-            setTimeout(() => {
-                cutCooldown = false;
-            }, 500);
-        }
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
+
+    if (toOption === 'withTo') {
+        cutParagraphWithTo(paragraph); // Call function for "With 'To'"
+    } else {
+        cutParagraphWithoutTo(paragraph); // Call function for "Without 'To'"
+    }
+
+    setTimeout(() => {
+        cutCooldown = false;
+    }, 500);
+}
+
         function copyAndRemoveParagraph(paragraph, textToCopy) {
     // Get the "To" option status
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
@@ -1203,6 +1213,59 @@ function deleteUnsubscribedEntries() {
     document.getElementById('inputText').value = remainingText;
 
     // Update ad count, save text, and show undo button
+    dailyAdCount++;
+    updateCounts();
+    saveText();
+    document.getElementById('undoButton').style.display = 'block';
+    document.getElementById('output').focus();
+}
+function cutParagraphWithTo(paragraph) {
+    const textToCopy = `To\n${paragraph.innerText}`;  // Prepend "To" for this option
+
+    const tempTextarea = document.createElement('textarea');
+    tempTextarea.style.position = 'fixed';
+    tempTextarea.style.opacity = '0';
+    tempTextarea.value = textToCopy;
+    document.body.appendChild(tempTextarea);
+    tempTextarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempTextarea);
+
+    paragraph.remove();
+    cleanupSpaces();
+
+    // Update the "Paste Your Text Here" box
+    const inputText = document.getElementById('inputText').value;
+    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+    document.getElementById('inputText').value = remainingText;
+
+    dailyAdCount++;
+    updateCounts();
+    saveText();
+    document.getElementById('undoButton').style.display = 'block';
+    document.getElementById('output').focus();
+}
+
+function cutParagraphWithoutTo(paragraph) {
+    const textToCopy = paragraph.innerText;
+
+    const tempTextarea = document.createElement('textarea');
+    tempTextarea.style.position = 'fixed';
+    tempTextarea.style.opacity = '0';
+    tempTextarea.value = textToCopy;
+    document.body.appendChild(tempTextarea);
+    tempTextarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempTextarea);
+
+    paragraph.remove();
+    cleanupSpaces();
+
+    // Update the "Paste Your Text Here" box
+    const inputText = document.getElementById('inputText').value;
+    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+    document.getElementById('inputText').value = remainingText;
+
     dailyAdCount++;
     updateCounts();
     saveText();
