@@ -1143,61 +1143,55 @@ function deleteUnsubscribedEntries() {
 }
 
 
-        // Function for cutting with "To" prefix
-function cutParagraphWithTo(paragraph) {
-    const textToCopy = `To\n${paragraph.innerText}`;
+        function cutParagraph(paragraph) {
+            if (cutCooldown) return;
+            cutCooldown = true;
 
-    const tempTextarea = document.createElement('textarea');
-    tempTextarea.style.position = 'fixed';
-    tempTextarea.style.opacity = '0';
-    tempTextarea.value = textToCopy;
-    document.body.appendChild(tempTextarea);
-    tempTextarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
+            const textToCopy = paragraph.innerText;
+            cutHistory.push(textToCopy);
 
-    paragraph.remove();
-    cleanupSpaces();
+            const effectType = document.getElementById('effectType').value;
+            const effectsEnabled = document.getElementById('effectsToggle').checked;
 
-    // Update "Paste Your Text Here" box
-    const inputText = document.getElementById('inputText').value;
-    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
-    document.getElementById('inputText').value = remainingText;
+            if (effectsEnabled && effectType !== 'none') {
+                paragraph.classList.add(effectType);
+                paragraph.addEventListener('animationend', () => {
+                    copyAndRemoveParagraph(paragraph, textToCopy);
+                });
+            } else {
+                copyAndRemoveParagraph(paragraph, textToCopy);
+            }
 
-    dailyAdCount++;
-    updateCounts();
-    saveText();
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-}
-// Function for cutting without "To" prefix
-function cutParagraphWithoutTo(paragraph) {
-    const textToCopy = paragraph.innerText;
+            setTimeout(() => {
+                cutCooldown = false;
+            }, 500);
+        }
+        function copyAndRemoveParagraph(paragraph, textToCopy) {
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.style.position = 'fixed';
+            tempTextarea.style.opacity = '0';
+            tempTextarea.value = textToCopy;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
 
-    const tempTextarea = document.createElement('textarea');
-    tempTextarea.style.position = 'fixed';
-    tempTextarea.style.opacity = '0';
-    tempTextarea.value = textToCopy;
-    document.body.appendChild(tempTextarea);
-    tempTextarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
+            paragraph.remove();
+            cleanupSpaces();
 
-    paragraph.remove();
-    cleanupSpaces();
+            const inputText = document.getElementById('inputText').value;
+            const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
+            document.getElementById('inputText').value = remainingText;
 
-    // Update "Paste Your Text Here" box
-    const inputText = document.getElementById('inputText').value;
-    const remainingText = inputText.replace(textToCopy.split('\nDear Professor')[0], '').trim();
-    document.getElementById('inputText').value = remainingText;
+            dailyAdCount++;
 
-    dailyAdCount++;
-    updateCounts();
-    saveText();
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-}
-	}
+            updateCounts();
+            saveText();
+
+            document.getElementById('undoButton').style.display = 'block';
+
+            document.getElementById('output').focus();
+        }
 
         function undoLastCut() {
             if (cutHistory.length > 0) {
