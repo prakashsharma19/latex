@@ -1165,39 +1165,7 @@ function deleteUnsubscribedEntries() {
             }, 500);
         }
 
-        function copyAndRemoveParagraph(paragraph, textToCopy) {
-    const tempTextarea = document.createElement('textarea');
-    tempTextarea.style.position = 'fixed';
-    tempTextarea.style.opacity = '0';
-    tempTextarea.value = textToCopy;
-    document.body.appendChild(tempTextarea);
-    tempTextarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
-
-    paragraph.remove();
-    cleanupSpaces();
-
-    // Clear cut text from "Paste your text here" box, handling both "with To" and "without To"
-    const inputText = document.getElementById('inputText').value;
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
-    let textToRemove = textToCopy.split('\nDear Professor')[0];
-
-    // Add "To" prefix if the selected option includes it
-    if (toOption === 'withTo') {
-        textToRemove = `To\n${textToRemove}`;
-    }
-
-    const remainingText = inputText.replace(textToRemove, '').trim();
-    document.getElementById('inputText').value = remainingText;
-
-    dailyAdCount++;
-    updateCounts();
-    saveText();
-
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-}
+        function copyAndRemoveParagraph
 
 
         function undoLastCut() {
