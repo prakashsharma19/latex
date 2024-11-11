@@ -1130,7 +1130,7 @@ function deleteUnsubscribedEntries() {
             nonRussiaEntries.forEach(entry => outputContainer.appendChild(entry));
             russiaEntries.forEach(entry => outputContainer.appendChild(entry));
 
-            updateCounts();
+            updateCounts();  // Update counts after processing
             saveText();
             document.getElementById('lockButton').style.display = 'inline-block';
             document.getElementById('loadingIndicator').style.display = 'none';
@@ -1140,32 +1140,7 @@ function deleteUnsubscribedEntries() {
     requestAnimationFrame(processChunk);
 }
 
-
-        function cutParagraph(paragraph) {
-            if (cutCooldown) return;
-            cutCooldown = true;
-
-            const textToCopy = paragraph.innerText;
-            cutHistory.push(textToCopy);
-
-            const effectType = document.getElementById('effectType').value;
-            const effectsEnabled = document.getElementById('effectsToggle').checked;
-
-            if (effectsEnabled && effectType !== 'none') {
-                paragraph.classList.add(effectType);
-                paragraph.addEventListener('animationend', () => {
-                    copyAndRemoveParagraph(paragraph, textToCopy);
-                });
-            } else {
-                copyAndRemoveParagraph(paragraph, textToCopy);
-            }
-
-            setTimeout(() => {
-                cutCooldown = false;
-            }, 500);
-        }
-
-        function copyAndRemoveParagraph(paragraph, textToCopy) {
+function copyAndRemoveParagraph(paragraph, textToCopy) {
     const tempTextarea = document.createElement('textarea');
     tempTextarea.style.position = 'fixed';
     tempTextarea.style.opacity = '0';
@@ -1183,16 +1158,12 @@ function deleteUnsubscribedEntries() {
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
     let textToRemove = textToCopy.split('\nDear Professor')[0];
 
-    // Add "To\n" prefix if the "With 'To'" option is selected
     if (toOption === 'withTo') {
         textToRemove = `To\n${textToRemove}`;
     }
 
-    // Use a strict matching approach to find and remove the text
-    const remainingText = inputText.includes(textToRemove)
-        ? inputText.replace(textToRemove, '').trim()
-        : inputText;
-
+    const regex = new RegExp(`\\s*${textToRemove}\\s*`, 'g');
+    const remainingText = inputText.replace(regex, '').trim();
     document.getElementById('inputText').value = remainingText;
 
     dailyAdCount++;
