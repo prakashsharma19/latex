@@ -1094,21 +1094,23 @@ function deleteUnsubscribedEntries() {
                 let firstLine = lines[0].trim();
                 let lastName = firstLine.split(' ').pop();
 
-                if (!firstLine.toLowerCase().startsWith('professor')) {
-                    firstLine = `<span class="highlight-added">Professor</span> ${firstLine}`;
+                // Conditionally prepend "To" or "Professor" for identification
+                if (toOption === 'withTo') {
+                    if (!firstLine.startsWith('To')) {
+                        firstLine = `To\n${firstLine}`;
+                        lines[0] = firstLine;
+                    }
+                } else if (!firstLine.toLowerCase().startsWith('professor')) {
+                    firstLine = `Professor ${firstLine}`;
                     lines[0] = firstLine;
                 }
 
                 let processedParagraph = lines.join('\n');
-                if (toOption === 'withTo') {
-                    processedParagraph = `To\n${processedParagraph}`;
-                }
-
                 const greeting = `Dear Professor ${lastName},\n`;
                 let fullText = gapOption === 'nil' ?
                     processedParagraph + '\n' + greeting : processedParagraph + '\n\n' + greeting;
 
-                fullText = highlightUnsubscribed(fullText); // Highlight unsubscribed emails
+                fullText = highlightUnsubscribed(fullText);
                 const highlightedText = highlightErrors(fullText.replace(/\n/g, '<br>'));
                 const hasError = highlightedText.includes('error');
 
@@ -1142,7 +1144,6 @@ function deleteUnsubscribedEntries() {
     requestAnimationFrame(processChunk);
 }
 
-
         function cutParagraph(paragraph) {
     if (cutCooldown) return;
     cutCooldown = true;
@@ -1152,20 +1153,23 @@ function deleteUnsubscribedEntries() {
 
     const effectType = document.getElementById('effectType').value;
     const effectsEnabled = document.getElementById('effectsToggle').checked;
-
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Determine the text to copy to the clipboard based on the 'toOption' setting
-    const clipboardText = toOption === 'withTo' ? textToCopy : textToCopy.replace(/^To\n/, '');
+    // Determine correct starting identifier for the clipboard text
+    const isWithTo = toOption === 'withTo';
+    const startsCorrectly = isWithTo ? textToCopy.startsWith("To") : textToCopy.startsWith("Professor");
 
-    // Apply effects if enabled, then copy and remove the paragraph
-    if (effectsEnabled && effectType !== 'none') {
-        paragraph.classList.add(effectType);
-        paragraph.addEventListener('animationend', () => {
+    if (startsCorrectly) {
+        const clipboardText = textToCopy;
+
+        if (effectsEnabled && effectType !== 'none') {
+            paragraph.classList.add(effectType);
+            paragraph.addEventListener('animationend', () => {
+                copyAndRemoveParagraph(paragraph, clipboardText);
+            });
+        } else {
             copyAndRemoveParagraph(paragraph, clipboardText);
-        });
-    } else {
-        copyAndRemoveParagraph(paragraph, clipboardText);
+        }
     }
 
     setTimeout(() => {
