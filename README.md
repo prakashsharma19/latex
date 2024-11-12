@@ -1148,34 +1148,54 @@ function deleteUnsubscribedEntries() {
     if (cutCooldown) return;
     cutCooldown = true;
 
-    const textToCopy = paragraph.innerText;
+    const textToCopy = paragraph.innerText;  // Always get the full text for clipboard
     cutHistory.push(textToCopy);
 
     const effectType = document.getElementById('effectType').value;
     const effectsEnabled = document.getElementById('effectsToggle').checked;
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Determine correct starting identifier for the clipboard text
-    const isWithTo = toOption === 'withTo';
-    const startsCorrectly = isWithTo ? textToCopy.startsWith("To") : textToCopy.startsWith("Professor");
+    // Determine correct identifier for each option
+    const startsCorrectly = toOption === 'withTo' ? textToCopy.startsWith("To") : textToCopy.startsWith("Professor");
 
+    // If paragraph has correct starting identifier, proceed to copy and remove
     if (startsCorrectly) {
-        const clipboardText = textToCopy;
+        // Copy to clipboard
+        const tempTextarea = document.createElement('textarea');
+        tempTextarea.style.position = 'fixed';
+        tempTextarea.style.opacity = '0';
+        tempTextarea.value = textToCopy;
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextarea);
 
+        // Apply effect if enabled and then remove paragraph
         if (effectsEnabled && effectType !== 'none') {
             paragraph.classList.add(effectType);
             paragraph.addEventListener('animationend', () => {
-                copyAndRemoveParagraph(paragraph, clipboardText);
+                paragraph.remove();  // Remove paragraph after effect
+                finalizeCut();
             });
         } else {
-            copyAndRemoveParagraph(paragraph, clipboardText);
+            paragraph.remove();  // Remove paragraph immediately if no effect
+            finalizeCut();
         }
+    } else {
+        cutCooldown = false;  // Release cooldown if paragraph doesn't match the criteria
     }
-
-    setTimeout(() => {
-        cutCooldown = false;
-    }, 500);
 }
+
+// Helper to finalize cutting process and update counts
+function finalizeCut() {
+    dailyAdCount++;
+    updateCounts();
+    saveText();
+    document.getElementById('undoButton').style.display = 'block';
+    document.getElementById('output').focus();
+    cutCooldown = false;  // Reset cooldown for the next cut
+}
+
 
 // Helper function to copy text to clipboard and remove the paragraph from the DOM
 function copyAndRemoveParagraph(paragraph, textToCopy) {
