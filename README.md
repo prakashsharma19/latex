@@ -581,6 +581,61 @@ body {
         <span id="loggedInUser"></span>
         <button id="logoutButton" onclick="logout()">Logout</button>
     </div>
+    <div class="options-panel">
+    <label>
+        <input type="radio" name="toOption" value="withTo"> With "To"
+    </label>
+    <label>
+        <input type="radio" name="toOption" value="withoutTo"> Without "To"
+    </label>
+    <input type="text" id="unsubscribe-email" placeholder="Enter Unsubscribed Email">
+    <button id="save-button">Save</button>
+    <button id="delete-button">Delete Unsubscribed Address</button>
+    <button id="list-button">Email List</button>
+</div>
+.options-panel {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between each element */
+    padding: 10px;
+    background-color: #f9f9f9; /* Light background for better contrast */
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Soft shadow for styling */
+}
+
+.options-panel label,
+.options-panel input[type="text"],
+.options-panel button {
+    margin: 0;
+}
+
+.options-panel label {
+    font-weight: bold;
+}
+
+#unsubscribe-email {
+    padding: 5px;
+    font-size: 14px;
+    width: 200px; /* Fixed width for consistent design */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.options-panel button {
+    padding: 5px 10px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #007bff; /* Blue background */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.options-panel button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
 
     <div class="login-container">
         <input type="text" id="username" placeholder="Enter your name">
