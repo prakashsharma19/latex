@@ -1148,73 +1148,44 @@ function deleteUnsubscribedEntries() {
     if (cutCooldown) return;
     cutCooldown = true;
 
-    const textToCopy = paragraph.innerText;  // Always get the full text for clipboard
-    cutHistory.push(textToCopy);
+    const textToCopy = paragraph.innerText; // Original paragraph text
+    cutHistory.push(textToCopy); // Add to cut history
 
     const effectType = document.getElementById('effectType').value;
     const effectsEnabled = document.getElementById('effectsToggle').checked;
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Determine correct identifier for each option
-    const startsCorrectly = toOption === 'withTo' ? textToCopy.startsWith("To") : textToCopy.startsWith("Professor");
+    // Set the starting criteria based on 'toOption' setting
+    const startsWithRequiredText = toOption === 'withTo' ? textToCopy.startsWith("To") : textToCopy.startsWith("Professor");
 
-    // If paragraph has correct starting identifier, proceed to copy and remove
-    if (startsCorrectly) {
-        // Copy to clipboard
-        const tempTextarea = document.createElement('textarea');
-        tempTextarea.style.position = 'fixed';
-        tempTextarea.style.opacity = '0';
-        tempTextarea.value = textToCopy;
-        document.body.appendChild(tempTextarea);
-        tempTextarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempTextarea);
+    // Only proceed if the paragraph meets the start criteria
+    if (startsWithRequiredText) {
+        // Determine what to copy to clipboard based on 'toOption'
+        const clipboardText = toOption === 'withTo' ? textToCopy : textToCopy.replace(/^To\n/, '');
 
-        // Apply effect if enabled and then remove paragraph
+        // Copy to clipboard and remove the paragraph from DOM
         if (effectsEnabled && effectType !== 'none') {
             paragraph.classList.add(effectType);
             paragraph.addEventListener('animationend', () => {
-                paragraph.remove();  // Remove paragraph after effect
-                finalizeCut();
+                copyAndRemoveParagraph(paragraph, clipboardText); // Copy and remove paragraph on animation end
             });
         } else {
-            paragraph.remove();  // Remove paragraph immediately if no effect
-            finalizeCut();
+            copyAndRemoveParagraph(paragraph, clipboardText); // Copy and remove immediately if no effect
         }
-    } else {
-        cutCooldown = false;  // Release cooldown if paragraph doesn't match the criteria
     }
+
+    setTimeout(() => {
+        cutCooldown = false;
+    }, 500);
 }
-
-// Helper to finalize cutting process and update counts
-function finalizeCut() {
-    dailyAdCount++;
-    updateCounts();
-    saveText();
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-    cutCooldown = false;  // Reset cooldown for the next cut
-}
-
-
-// Helper to finalize cutting process and update counts
-function finalizeCut() {
-    dailyAdCount++;
-    updateCounts();
-    saveText();
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-    cutCooldown = false;  // Reset cooldown for the next cut
-}
-
 
 // Helper function to copy text to clipboard and remove the paragraph from the DOM
-function copyAndRemoveParagraph(paragraph, textToCopy) {
+function copyAndRemoveParagraph(paragraph, clipboardText) {
     // Copy text to clipboard
     const tempTextarea = document.createElement('textarea');
     tempTextarea.style.position = 'fixed';
     tempTextarea.style.opacity = '0';
-    tempTextarea.value = textToCopy;
+    tempTextarea.value = clipboardText;
     document.body.appendChild(tempTextarea);
     tempTextarea.select();
     document.execCommand('copy');
@@ -1228,6 +1199,7 @@ function copyAndRemoveParagraph(paragraph, textToCopy) {
     updateCounts();
     saveText();
 
+    // Show the undo button and focus back on the output container
     document.getElementById('undoButton').style.display = 'block';
     document.getElementById('output').focus();
 }
