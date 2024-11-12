@@ -1094,7 +1094,7 @@ function deleteUnsubscribedEntries() {
                 let firstLine = lines[0].trim();
                 let lastName = firstLine.split(' ').pop();
 
-                // Conditionally prepend "To" or "Professor" for identification
+                // Conditionally prepend "To" or "Professor" for correct identification
                 if (toOption === 'withTo') {
                     if (!firstLine.startsWith('To')) {
                         firstLine = `To\n${firstLine}`;
