@@ -1167,9 +1167,11 @@ function deleteUnsubscribedEntries() {
     if (effectsEnabled && effectType !== 'none') {
         paragraph.classList.add(effectType);
         paragraph.addEventListener('animationend', () => {
+            // Use the original paragraph for deletion after copying
             copyAndRemoveParagraph(paragraph, clipboardText);
         });
     } else {
+        // Use the original paragraph for deletion after copying
         copyAndRemoveParagraph(paragraph, clipboardText);
     }
 
