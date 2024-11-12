@@ -1197,6 +1197,17 @@ function finalizeCut() {
 }
 
 
+// Helper to finalize cutting process and update counts
+function finalizeCut() {
+    dailyAdCount++;
+    updateCounts();
+    saveText();
+    document.getElementById('undoButton').style.display = 'block';
+    document.getElementById('output').focus();
+    cutCooldown = false;  // Reset cooldown for the next cut
+}
+
+
 // Helper function to copy text to clipboard and remove the paragraph from the DOM
 function copyAndRemoveParagraph(paragraph, textToCopy) {
     // Copy text to clipboard
