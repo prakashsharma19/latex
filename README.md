@@ -1155,29 +1155,46 @@ function deleteUnsubscribedEntries() {
 
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Display without 'To' only, but keep it in clipboard copy if 'With "To"' is selected
-    let textToProcess = textToCopy;
-    if (toOption === 'withTo' && textToCopy.startsWith("To\n")) {
-        textToProcess = textToCopy.replace(/^To\n/, ''); // Display without "To" prefix
-    }
+    // Determine the text to copy to the clipboard based on the 'toOption' setting
+    const clipboardText = toOption === 'withTo' ? textToCopy : textToCopy.replace(/^To\n/, '');
 
-    // Decide what gets copied to clipboard based on 'toOption'
-    const clipboardText = toOption === 'withTo' ? textToCopy : textToProcess;
-
+    // Apply effects if enabled, then copy and remove the paragraph
     if (effectsEnabled && effectType !== 'none') {
         paragraph.classList.add(effectType);
         paragraph.addEventListener('animationend', () => {
-            // Use the original paragraph for deletion after copying
             copyAndRemoveParagraph(paragraph, clipboardText);
         });
     } else {
-        // Use the original paragraph for deletion after copying
         copyAndRemoveParagraph(paragraph, clipboardText);
     }
 
     setTimeout(() => {
         cutCooldown = false;
     }, 500);
+}
+
+// Helper function to copy text to clipboard and remove the paragraph from the DOM
+function copyAndRemoveParagraph(paragraph, textToCopy) {
+    // Copy text to clipboard
+    const tempTextarea = document.createElement('textarea');
+    tempTextarea.style.position = 'fixed';
+    tempTextarea.style.opacity = '0';
+    tempTextarea.value = textToCopy;
+    document.body.appendChild(tempTextarea);
+    tempTextarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempTextarea);
+
+    // Directly remove the paragraph from the output container
+    paragraph.remove();
+
+    // Update counts and save changes
+    dailyAdCount++;
+    updateCounts();
+    saveText();
+
+    document.getElementById('undoButton').style.display = 'block';
+    document.getElementById('output').focus();
 }
 
 function copyAndRemoveParagraph(paragraph, textToCopy, targetElementId) {
