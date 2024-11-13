@@ -1137,19 +1137,26 @@ function deleteUnsubscribedEntries() {
 
     const effectType = document.getElementById('effectType').value;
     const effectsEnabled = document.getElementById('effectsToggle').checked;
-    
-    
-    // Check and remove 'To\n' if 'With "To"' is selected
-    let textToProcess = textToCopy;
-       if (effectsEnabled && effectType !== 'none') {
+
+    // If effects are enabled, apply effect; else, proceed with cutting directly
+    if (effectsEnabled && effectType !== 'none') {
         paragraph.classList.add(effectType);
         paragraph.addEventListener('animationend', () => {
-            copyAndRemoveParagraph(paragraph, textToProcess);
+            copyAndRemoveParagraph(paragraph, textToCopy);
         });
     } else {
-        copyAndRemoveParagraph(paragraph, textToProcess);
+        copyAndRemoveParagraph(paragraph, textToCopy);
     }
 
+    // **New code to remove text from the "Paste your text here" box**
+    const inputTextArea = document.getElementById('inputText');
+    const currentInputText = inputTextArea.value;
+
+    // Remove the specific paragraph text (and any following empty lines) from the input
+    const updatedText = currentInputText.replace(textToCopy + "\n\n", '').trim();
+    inputTextArea.value = updatedText;
+
+    // Reset cut cooldown after a brief delay
     setTimeout(() => {
         cutCooldown = false;
     }, 500);
