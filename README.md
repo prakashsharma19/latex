@@ -1073,9 +1073,6 @@ function deleteUnsubscribedEntries() {
     const nonRussiaEntries = [];
     const russiaEntries = [];
 
-    const gapOption = document.getElementById('gapOption').value;
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
-
     function processChunk() {
         const chunkSize = 10;
         const end = Math.min(index + chunkSize, paragraphs.length);
@@ -1091,11 +1088,7 @@ function deleteUnsubscribedEntries() {
                     lines[0] = firstLine;
                 }
 
-                let processedParagraph = lines.join('\n');
-                if (toOption === 'withTo') {
-                    processedParagraph = `To\n${processedParagraph}`;
-                }
-
+                
                 const greeting = `Dear Professor ${lastName},\n`;
                 let fullText = gapOption === 'nil' ?
                     processedParagraph + '\n' + greeting : processedParagraph + '\n\n' + greeting;
@@ -1145,16 +1138,10 @@ function deleteUnsubscribedEntries() {
     const effectType = document.getElementById('effectType').value;
     const effectsEnabled = document.getElementById('effectsToggle').checked;
     
-    // Check the 'toOption' selection to determine prefix handling
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
-
+    
     // Check and remove 'To\n' if 'With "To"' is selected
     let textToProcess = textToCopy;
-    if (toOption === 'withTo' && textToCopy.startsWith("To\n")) {
-        textToProcess = textToCopy.replace(/^To\n/, '');  // Remove "To\n" prefix if present
-    }
-
-    if (effectsEnabled && effectType !== 'none') {
+       if (effectsEnabled && effectType !== 'none') {
         paragraph.classList.add(effectType);
         paragraph.addEventListener('animationend', () => {
             copyAndRemoveParagraph(paragraph, textToProcess);
