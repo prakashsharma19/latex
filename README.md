@@ -641,15 +641,7 @@ body {
             </div>
         </div>
     </div>
-            <div>
-                <label>
-                    <input type="radio" name="toOption" value="withTo"> With "To"
-                </label>
-                <label>
-                    <input type="radio" name="toOption" value="withoutTo" checked> Without "To"
-                </label>
-            </div>
-			<div style="display: flex; align-items: center; margin-bottom: 20px;">
+            			<div style="display: flex; align-items: center; margin-bottom: 20px;">
     <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
     
     <button onclick="exportUnsubscribedEmails()" 
@@ -1094,23 +1086,21 @@ function deleteUnsubscribedEntries() {
                 let firstLine = lines[0].trim();
                 let lastName = firstLine.split(' ').pop();
 
-                // Conditionally prepend "To" or "Professor" for correct identification
-                if (toOption === 'withTo') {
-                    if (!firstLine.startsWith('To')) {
-                        firstLine = `To\n${firstLine}`;
-                        lines[0] = firstLine;
-                    }
-                } else if (!firstLine.toLowerCase().startsWith('professor')) {
-                    firstLine = `Professor ${firstLine}`;
+                if (!firstLine.toLowerCase().startsWith('professor')) {
+                    firstLine = `<span class="highlight-added">Professor</span> ${firstLine}`;
                     lines[0] = firstLine;
                 }
 
                 let processedParagraph = lines.join('\n');
+                if (toOption === 'withTo') {
+                    processedParagraph = `To\n${processedParagraph}`;
+                }
+
                 const greeting = `Dear Professor ${lastName},\n`;
                 let fullText = gapOption === 'nil' ?
                     processedParagraph + '\n' + greeting : processedParagraph + '\n\n' + greeting;
 
-                fullText = highlightUnsubscribed(fullText);
+                fullText = highlightUnsubscribed(fullText); // Highlight unsubscribed emails
                 const highlightedText = highlightErrors(fullText.replace(/\n/g, '<br>'));
                 const hasError = highlightedText.includes('error');
 
@@ -1144,34 +1134,33 @@ function deleteUnsubscribedEntries() {
     requestAnimationFrame(processChunk);
 }
 
+
         function cutParagraph(paragraph) {
     if (cutCooldown) return;
     cutCooldown = true;
 
-    const textToCopy = paragraph.innerText; // Original paragraph text
-    cutHistory.push(textToCopy); // Add to cut history
+    const textToCopy = paragraph.innerText;
+    cutHistory.push(textToCopy);
 
     const effectType = document.getElementById('effectType').value;
     const effectsEnabled = document.getElementById('effectsToggle').checked;
+    
+    // Check the 'toOption' selection to determine prefix handling
     const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Set the starting criteria based on 'toOption' setting
-    const startsWithRequiredText = toOption === 'withTo' ? textToCopy.startsWith("To") : textToCopy.startsWith("Professor");
+    // Check and remove 'To\n' if 'With "To"' is selected
+    let textToProcess = textToCopy;
+    if (toOption === 'withTo' && textToCopy.startsWith("To\n")) {
+        textToProcess = textToCopy.replace(/^To\n/, '');  // Remove "To\n" prefix if present
+    }
 
-    // Only proceed if the paragraph meets the start criteria
-    if (startsWithRequiredText) {
-        // Determine what to copy to clipboard based on 'toOption'
-        const clipboardText = toOption === 'withTo' ? textToCopy : textToCopy.replace(/^To\n/, '');
-
-        // Copy to clipboard and remove the paragraph from DOM
-        if (effectsEnabled && effectType !== 'none') {
-            paragraph.classList.add(effectType);
-            paragraph.addEventListener('animationend', () => {
-                copyAndRemoveParagraph(paragraph, clipboardText); // Copy and remove paragraph on animation end
-            });
-        } else {
-            copyAndRemoveParagraph(paragraph, clipboardText); // Copy and remove immediately if no effect
-        }
+    if (effectsEnabled && effectType !== 'none') {
+        paragraph.classList.add(effectType);
+        paragraph.addEventListener('animationend', () => {
+            copyAndRemoveParagraph(paragraph, textToProcess);
+        });
+    } else {
+        copyAndRemoveParagraph(paragraph, textToProcess);
     }
 
     setTimeout(() => {
@@ -1179,30 +1168,6 @@ function deleteUnsubscribedEntries() {
     }, 500);
 }
 
-// Helper function to copy text to clipboard and remove the paragraph from the DOM
-function copyAndRemoveParagraph(paragraph, clipboardText) {
-    // Copy text to clipboard
-    const tempTextarea = document.createElement('textarea');
-    tempTextarea.style.position = 'fixed';
-    tempTextarea.style.opacity = '0';
-    tempTextarea.value = clipboardText;
-    document.body.appendChild(tempTextarea);
-    tempTextarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
-
-    // Directly remove the paragraph from the output container
-    paragraph.remove();
-
-    // Update counts and save changes
-    dailyAdCount++;
-    updateCounts();
-    saveText();
-
-    // Show the undo button and focus back on the output container
-    document.getElementById('undoButton').style.display = 'block';
-    document.getElementById('output').focus();
-}
 
 function copyAndRemoveParagraph(paragraph, textToCopy, targetElementId) {
   const tempTextarea = document.createElement('textarea');
