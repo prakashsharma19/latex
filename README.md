@@ -850,17 +850,27 @@ function deleteUnsubscribedEntries() {
     const outputContainer = document.getElementById('output');
     const paragraphs = outputContainer.querySelectorAll('p');
     const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+    const inputTextBox = document.getElementById('inputText');
+    let inputText = inputTextBox.value;
     let deletedCount = 0;
 
     paragraphs.forEach(paragraph => {
         unsubscribedEmails.forEach(email => {
             if (paragraph.innerHTML.includes(email)) {
+                // Remove the paragraph from the output container
                 paragraph.remove();
+                // Remove the email from the input text box
+                const paragraphText = paragraph.innerText;
+                inputText = inputText.replace(paragraphText, '').trim();
                 deletedCount++;
             }
         });
     });
 
+    // Update the input text box after processing
+    inputTextBox.value = inputText;
+
+    // Save the changes and show success message
     saveText();
     showSuccessMessage(`Successfully Deleted ${deletedCount} addresses.`);
 }
