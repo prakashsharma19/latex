@@ -641,12 +641,12 @@ body {
             </div>
         </div>
     </div>
-            			<div style="display: flex; align-items: center; margin-bottom: 20px;">
-    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 25px;">
+            			<div style="display: flex; align-items: center; margin-bottom: 10px;">
+    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
     
     <button onclick="exportUnsubscribedEmails()" 
             id="exportButton" 
-            style="margin-left: 5px; background-color: #1171BA; color: white; border: none; cursor: pointer;">
+            style="margin-left: 10px; background-color: #1171BA; color: white; border: none; cursor: pointer;">
         Save
     </button>
     
