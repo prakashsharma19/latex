@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advertisements-PPH</title>
-    <style><style>
+    <style>
 body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-color: #f4f4f4;
@@ -641,38 +641,8 @@ body {
             </div>
         </div>
     </div>
-            			<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-    <input 
-        type="text" 
-        id="unsubscribeEmail" 
-        placeholder="Enter Unsubscribed Email" 
-        style="padding: 10px; width: 300px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;"
-    />
-    <button 
-        id="saveButton" 
-        style="padding: 12px 20px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;"
-    >
-        Save
-    </button>
-    <button 
-        id="deleteButton" 
-        style="padding: 12px 20px; font-size: 16px; background-color: #0056b3; color: white; border: none; border-radius: 5px; cursor: pointer;"
-    >
-        Delete Unsubscribed Address
-    </button>
-    <button 
-        id="emailListButton" 
-        style="padding: 12px 20px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;"
-    >
-        Email List
-    </button>
-    <button 
-        id="updateProgressButton" 
-        style="padding: 12px 20px; font-size: 16px; background-color: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer;"
-    >
-        Update Progress
-    </button>
-</div>
+            			<div style="display: flex; align-items: center; margin-bottom: 20px;">
+    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
     
     <button onclick="exportUnsubscribedEmails()" 
             id="exportButton" 
