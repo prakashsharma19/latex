@@ -68,45 +68,6 @@ body {
         .font-controls input[type="number"] {
             width: 50px;
         }
-		input#unsubscribeEmail {
-    padding: 15px;
-    width: 350px;
-    font-size: 18px;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-button {
-    padding: 15px 25px;
-    font-size: 18px;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-button#saveButton {
-    background-color: #007bff;
-}
-
-button#deleteButton {
-    background-color: #0056b3;
-}
-
-button#emailListButton {
-    background-color: #28a745;
-}
-
-button#updateProgressButton {
-    background-color: #17a2b8;
-}
-
-button:hover {
-    opacity: 0.9;
-}
-
 
         .fullscreen-button {
             background-color: #1171ba;
@@ -620,51 +581,7 @@ button:hover {
         <span id="loggedInUser"></span>
         <button id="logoutButton" onclick="logout()">Logout</button>
     </div>
-<div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-    <!-- Input Box -->
-    <input 
-        type="text" 
-        id="unsubscribeEmail" 
-        placeholder="Enter Unsubscribed Email" 
-        style="padding: 15px; width: 350px; font-size: 18px; border: 2px solid #ccc; border-radius: 5px; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);"
-    />
-    
-    <!-- Buttons -->
-    <button 
-        id="saveButton" 
-        style="padding: 15px 25px; font-size: 18px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);"
-    >
-        Save
-    </button>
-    
-    <button 
-        id="deleteButton" 
-        style="padding: 15px 25px; font-size: 18px; background-color: #0056b3; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);"
-    >
-        Delete Unsubscribed Address
-    </button>
-    
-    <button 
-        id="emailListButton" 
-        style="padding: 15px 25px; font-size: 18px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);"
-    >
-        Email List
-    </button>
-    
-    <!-- New "Update Progress" Button -->
-    <a 
-        href="https://www.google.com" 
-        target="_blank" 
-        style="text-decoration: none;"
-    >
-        <button 
-            id="updateProgressButton" 
-            style="padding: 15px 25px; font-size: 18px; background-color: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer; box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);"
-        >
-            Update Progress
-        </button>
-    </a>
-</div>
+
     <div class="login-container">
         <input type="text" id="username" placeholder="Enter your name">
         <input type="password" id="password" placeholder="Enter your password">
@@ -674,7 +591,6 @@ button:hover {
     <div class="font-controls" style="display:none;">
         <div class="control-group">
 <div>
-
                 <label>
                     <input type="radio" name="cutOption" value="keyboard" checked>
                     Keyboard
@@ -725,7 +641,15 @@ button:hover {
             </div>
         </div>
     </div>
-            			<div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <div>
+                <label>
+                    <input type="radio" name="toOption" value="withTo"> With "To"
+                </label>
+                <label>
+                    <input type="radio" name="toOption" value="withoutTo" checked> Without "To"
+                </label>
+            </div>
+			<div style="display: flex; align-items: center; margin-bottom: 20px;">
     <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
     
     <button onclick="exportUnsubscribedEmails()" 
@@ -1259,6 +1183,7 @@ function displayDeletedAddressesPopup(deletedEmails) {
     const russiaEntries = [];
 
     const gapOption = document.getElementById('gapOption').value;
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
     function processChunk() {
         const chunkSize = 10;
@@ -1276,7 +1201,9 @@ function displayDeletedAddressesPopup(deletedEmails) {
                 }
 
                 let processedParagraph = lines.join('\n');
-                processedParagraph = `To\n${processedParagraph}`; // Always include "To" prefix.
+                if (toOption === 'withTo') {
+                    processedParagraph = `To\n${processedParagraph}`;
+                }
 
                 const greeting = `Dear Professor ${lastName},\n`;
                 let fullText = gapOption === 'nil' ?
@@ -1326,9 +1253,15 @@ function displayDeletedAddressesPopup(deletedEmails) {
 
     const effectType = document.getElementById('effectType').value;
     const effectsEnabled = document.getElementById('effectsToggle').checked;
+    
+    // Check the 'toOption' selection to determine prefix handling
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Always remove "To\n" prefix if present.
-    let textToProcess = textToCopy.replace(/^To\n/, '');
+    // Check and remove 'To\n' if 'With "To"' is selected
+    let textToProcess = textToCopy;
+    if (toOption === 'withTo' && textToCopy.startsWith("To\n")) {
+        textToProcess = textToCopy.replace(/^To\n/, '');  // Remove "To\n" prefix if present
+    }
 
     if (effectsEnabled && effectType !== 'none') {
         paragraph.classList.add(effectType);
