@@ -641,7 +641,7 @@ body {
             </div>
         </div>
     </div>
-            			<div style="display: flex; align-items: center; margin-bottom: 10px;">
+            			<div style="display: flex; align-items: center; margin-bottom: 15px;">
     <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
     
     <button onclick="exportUnsubscribedEmails()" 
@@ -1192,7 +1192,6 @@ function displayDeletedAddressesPopup(deletedEmails) {
                 }
 
                 let processedParagraph = lines.join('\n');
-                processedParagraph = `To\n${processedParagraph}`; // Always include "To" prefix.
 
                 const greeting = `Dear Professor ${lastName},\n`;
                 let fullText = gapOption === 'nil' ?
@@ -1231,7 +1230,6 @@ function displayDeletedAddressesPopup(deletedEmails) {
     }
     requestAnimationFrame(processChunk);
 }
-
 
         function cutParagraph(paragraph) {
     if (cutCooldown) return;
