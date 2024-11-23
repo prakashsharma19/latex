@@ -642,7 +642,7 @@ body {
         </div>
     </div>
             			<div style="display: flex; align-items: center; margin-bottom: 20px;">
-    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
+    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 25px;">
     
     <button onclick="exportUnsubscribedEmails()" 
             id="exportButton" 
