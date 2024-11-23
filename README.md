@@ -646,7 +646,7 @@ body {
     
     <button onclick="exportUnsubscribedEmails()" 
             id="exportButton" 
-            style="margin-left: 10px; background-color: #1171BA; color: white; border: none; cursor: pointer;">
+            style="margin-left: 5px; background-color: #1171BA; color: white; border: none; cursor: pointer;">
         Save
     </button>
     
