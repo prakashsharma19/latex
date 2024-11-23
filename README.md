@@ -641,15 +641,7 @@ body {
             </div>
         </div>
     </div>
-            <div>
-                <label>
-                    <input type="radio" name="toOption" value="withTo"> With "To"
-                </label>
-                <label>
-                    <input type="radio" name="toOption" value="withoutTo" checked> Without "To"
-                </label>
-            </div>
-			<div style="display: flex; align-items: center; margin-bottom: 20px;">
+            			<div style="display: flex; align-items: center; margin-bottom: 20px;">
     <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
     
     <button onclick="exportUnsubscribedEmails()" 
@@ -1183,7 +1175,6 @@ function displayDeletedAddressesPopup(deletedEmails) {
     const russiaEntries = [];
 
     const gapOption = document.getElementById('gapOption').value;
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
     function processChunk() {
         const chunkSize = 10;
@@ -1201,9 +1192,7 @@ function displayDeletedAddressesPopup(deletedEmails) {
                 }
 
                 let processedParagraph = lines.join('\n');
-                if (toOption === 'withTo') {
-                    processedParagraph = `To\n${processedParagraph}`;
-                }
+                processedParagraph = `To\n${processedParagraph}`; // Always include "To" prefix.
 
                 const greeting = `Dear Professor ${lastName},\n`;
                 let fullText = gapOption === 'nil' ?
@@ -1253,15 +1242,9 @@ function displayDeletedAddressesPopup(deletedEmails) {
 
     const effectType = document.getElementById('effectType').value;
     const effectsEnabled = document.getElementById('effectsToggle').checked;
-    
-    // Check the 'toOption' selection to determine prefix handling
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Check and remove 'To\n' if 'With "To"' is selected
-    let textToProcess = textToCopy;
-    if (toOption === 'withTo' && textToCopy.startsWith("To\n")) {
-        textToProcess = textToCopy.replace(/^To\n/, '');  // Remove "To\n" prefix if present
-    }
+    // Always remove "To\n" prefix if present.
+    let textToProcess = textToCopy.replace(/^To\n/, '');
 
     if (effectsEnabled && effectType !== 'none') {
         paragraph.classList.add(effectType);
