@@ -641,7 +641,15 @@ body {
             </div>
         </div>
     </div>
-            			<div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <div>
+                <label>
+                    <input type="radio" name="toOption" value="withTo"> With "To"
+                </label>
+                <label>
+                    <input type="radio" name="toOption" value="withoutTo" checked> Without "To"
+                </label>
+            </div>
+			<div style="display: flex; align-items: center; margin-bottom: 20px;">
     <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
     
     <button onclick="exportUnsubscribedEmails()" 
