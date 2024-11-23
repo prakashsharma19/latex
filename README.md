@@ -641,7 +641,15 @@ body {
             </div>
         </div>
     </div>
-            			<div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <div>
+                <label>
+                    <input type="radio" name="toOption" value="withTo"> With "To"
+                </label>
+                <label>
+                    <input type="radio" name="toOption" value="withoutTo" checked> Without "To"
+                </label>
+            </div>
+			<div style="display: flex; align-items: center; margin-bottom: 20px;">
     <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
     
     <button onclick="exportUnsubscribedEmails()" 
@@ -656,7 +664,7 @@ body {
     </button>
     
     <button onclick="window.open('https://docs.google.com/document/d/14AIqhs3wQ_T0hV7YNH2ToBRBH1MEkzmunw2e9WNgeo8/edit?tab=t.0', '_blank')" 
-            style="margin-left: 10px; background-color: #1171BA; color: white; border: none; cursor: pointer;">
+            style="margin-left: 10px; background-color: #0B6623; color: white; border: none; cursor: pointer;">
         Email List
     </button>
 </div>
@@ -756,7 +764,7 @@ body {
             "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
             "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
             "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
-            "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
+            "Cameroon", "Canada", "Central African Republic", "Chad", "Tchad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
             "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
             "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
             "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
@@ -772,7 +780,7 @@ body {
             "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
             "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
             "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
-            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U. S. A.", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Macau", "Macao", "Macedonia"
+            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U.S.A", "U. S. A.", "U. S. A", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Côte d'Ivoire", "Macau", "Macao", "Macedonia"
         ];
 	function showSuccessMessage(message) {
     const successMessage = document.getElementById('successMessage');
@@ -882,7 +890,108 @@ function deleteUnsubscribedEntries() {
                 alert('Incorrect password. Memory not cleared.');
             }
         }
+function deleteUnsubscribedEntries() {
+    const outputContainer = document.getElementById('output');
+    const paragraphs = outputContainer.querySelectorAll('p');
+    const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+    const deletedEmails = [];
 
+    paragraphs.forEach(paragraph => {
+        unsubscribedEmails.forEach(email => {
+            if (paragraph.innerHTML.includes(email)) {
+                paragraph.remove();
+                deletedEmails.push(email);
+            }
+        });
+    });
+
+    if (deletedEmails.length > 0) {
+        displayDeletedAddressesPopup(deletedEmails);
+    }
+
+    saveText();
+    showSuccessMessage(`Successfully Deleted ${deletedEmails.length} addresses.`);
+}
+
+// Function to display popup for deleted addresses
+function displayDeletedAddressesPopup(deletedEmails) {
+    let currentIndex = 0;
+
+    const popup = document.createElement('div');
+    popup.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #2c3e50;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        text-align: center;
+    `;
+
+    const message = document.createElement('div');
+    message.style.fontSize = '18px';
+    message.innerText = `Deleted Address: ${deletedEmails[currentIndex]}`;
+
+    const navigation = document.createElement('div');
+    navigation.style.margin = '10px 0';
+
+    const prevButton = document.createElement('button');
+    prevButton.innerText = '<';
+    prevButton.disabled = currentIndex === 0;
+    prevButton.style.marginRight = '10px';
+
+    const nextButton = document.createElement('button');
+    nextButton.innerText = '>';
+    nextButton.disabled = currentIndex === deletedEmails.length - 1;
+
+    navigation.appendChild(prevButton);
+    navigation.appendChild(nextButton);
+
+    const okButton = document.createElement('button');
+    okButton.innerText = 'OK';
+    okButton.style.marginTop = '10px';
+    okButton.style.backgroundColor = '#28a745';
+    okButton.style.color = 'white';
+    okButton.style.border = 'none';
+    okButton.style.padding = '10px 20px';
+    okButton.style.cursor = 'pointer';
+    okButton.style.borderRadius = '5px';
+
+    okButton.addEventListener('click', () => {
+        popup.remove();
+    });
+
+    prevButton.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            message.innerText = `Deleted Address: ${deletedEmails[currentIndex]}`;
+            nextButton.disabled = currentIndex === deletedEmails.length - 1;
+            prevButton.disabled = currentIndex === 0;
+        }
+    });
+
+    nextButton.addEventListener('click', () => {
+        if (currentIndex < deletedEmails.length - 1) {
+            currentIndex++;
+            message.innerText = `Deleted Address: ${deletedEmails[currentIndex]}`;
+            prevButton.disabled = currentIndex === 0;
+            nextButton.disabled = currentIndex === deletedEmails.length - 1;
+        }
+    });
+
+    popup.appendChild(message);
+    popup.appendChild(navigation);
+    popup.appendChild(okButton);
+    document.body.appendChild(popup);
+}
         function saveText() {
             const inputText = document.getElementById('inputText').value;
             const roughText = document.getElementById('roughText').value;
@@ -1044,7 +1153,7 @@ function deleteUnsubscribedEntries() {
 
         function updateRemainingTime(dailyAdCount) {
             const remainingEntries = totalParagraphs - dailyAdCount;
-            const remainingTimeInMinutes = remainingEntries / 35;
+            const remainingTimeInMinutes = remainingEntries / 25;
             const remainingTimeInSeconds = remainingTimeInMinutes * 60;
             const hours = Math.floor(remainingTimeInSeconds / 3600);
             const minutes = Math.floor((remainingTimeInSeconds % 3600) / 60);
@@ -1073,6 +1182,9 @@ function deleteUnsubscribedEntries() {
     const nonRussiaEntries = [];
     const russiaEntries = [];
 
+    const gapOption = document.getElementById('gapOption').value;
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
+
     function processChunk() {
         const chunkSize = 10;
         const end = Math.min(index + chunkSize, paragraphs.length);
@@ -1088,7 +1200,11 @@ function deleteUnsubscribedEntries() {
                     lines[0] = firstLine;
                 }
 
-                
+                let processedParagraph = lines.join('\n');
+                if (toOption === 'withTo') {
+                    processedParagraph = `To\n${processedParagraph}`;
+                }
+
                 const greeting = `Dear Professor ${lastName},\n`;
                 let fullText = gapOption === 'nil' ?
                     processedParagraph + '\n' + greeting : processedParagraph + '\n\n' + greeting;
@@ -1137,26 +1253,25 @@ function deleteUnsubscribedEntries() {
 
     const effectType = document.getElementById('effectType').value;
     const effectsEnabled = document.getElementById('effectsToggle').checked;
+    
+    // Check the 'toOption' selection to determine prefix handling
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // If effects are enabled, apply effect; else, proceed with cutting directly
+    // Check and remove 'To\n' if 'With "To"' is selected
+    let textToProcess = textToCopy;
+    if (toOption === 'withTo' && textToCopy.startsWith("To\n")) {
+        textToProcess = textToCopy.replace(/^To\n/, '');  // Remove "To\n" prefix if present
+    }
+
     if (effectsEnabled && effectType !== 'none') {
         paragraph.classList.add(effectType);
         paragraph.addEventListener('animationend', () => {
-            copyAndRemoveParagraph(paragraph, textToCopy);
+            copyAndRemoveParagraph(paragraph, textToProcess);
         });
     } else {
-        copyAndRemoveParagraph(paragraph, textToCopy);
+        copyAndRemoveParagraph(paragraph, textToProcess);
     }
 
-    // **New code to remove text from the "Paste your text here" box**
-    const inputTextArea = document.getElementById('inputText');
-    const currentInputText = inputTextArea.value;
-
-    // Remove the specific paragraph text (and any following empty lines) from the input
-    const updatedText = currentInputText.replace(textToCopy + "\n\n", '').trim();
-    inputTextArea.value = updatedText;
-
-    // Reset cut cooldown after a brief delay
     setTimeout(() => {
         cutCooldown = false;
     }, 500);
