@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advertisements-PPH</title>
-    <style>
+    <style><style>
 body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-color: #f4f4f4;
@@ -641,16 +641,38 @@ body {
             </div>
         </div>
     </div>
-            <div>
-                <label>
-                    <input type="radio" name="toOption" value="withTo"> With "To"
-                </label>
-                <label>
-                    <input type="radio" name="toOption" value="withoutTo" checked> Without "To"
-                </label>
-            </div>
-			<div style="display: flex; align-items: center; margin-bottom: 20px;">
-    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
+            			<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+    <input 
+        type="text" 
+        id="unsubscribeEmail" 
+        placeholder="Enter Unsubscribed Email" 
+        style="padding: 10px; width: 300px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;"
+    />
+    <button 
+        id="saveButton" 
+        style="padding: 12px 20px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;"
+    >
+        Save
+    </button>
+    <button 
+        id="deleteButton" 
+        style="padding: 12px 20px; font-size: 16px; background-color: #0056b3; color: white; border: none; border-radius: 5px; cursor: pointer;"
+    >
+        Delete Unsubscribed Address
+    </button>
+    <button 
+        id="emailListButton" 
+        style="padding: 12px 20px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;"
+    >
+        Email List
+    </button>
+    <button 
+        id="updateProgressButton" 
+        style="padding: 12px 20px; font-size: 16px; background-color: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer;"
+    >
+        Update Progress
+    </button>
+</div>
     
     <button onclick="exportUnsubscribedEmails()" 
             id="exportButton" 
@@ -1183,7 +1205,6 @@ function displayDeletedAddressesPopup(deletedEmails) {
     const russiaEntries = [];
 
     const gapOption = document.getElementById('gapOption').value;
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
     function processChunk() {
         const chunkSize = 10;
@@ -1201,9 +1222,7 @@ function displayDeletedAddressesPopup(deletedEmails) {
                 }
 
                 let processedParagraph = lines.join('\n');
-                if (toOption === 'withTo') {
-                    processedParagraph = `To\n${processedParagraph}`;
-                }
+                processedParagraph = `To\n${processedParagraph}`; // Always include "To" prefix.
 
                 const greeting = `Dear Professor ${lastName},\n`;
                 let fullText = gapOption === 'nil' ?
@@ -1253,15 +1272,9 @@ function displayDeletedAddressesPopup(deletedEmails) {
 
     const effectType = document.getElementById('effectType').value;
     const effectsEnabled = document.getElementById('effectsToggle').checked;
-    
-    // Check the 'toOption' selection to determine prefix handling
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Check and remove 'To\n' if 'With "To"' is selected
-    let textToProcess = textToCopy;
-    if (toOption === 'withTo' && textToCopy.startsWith("To\n")) {
-        textToProcess = textToCopy.replace(/^To\n/, '');  // Remove "To\n" prefix if present
-    }
+    // Always remove "To\n" prefix if present.
+    let textToProcess = textToCopy.replace(/^To\n/, '');
 
     if (effectsEnabled && effectType !== 'none') {
         paragraph.classList.add(effectType);
