@@ -723,7 +723,7 @@ body {
 .btn.email-list:hover {
     background-color: #064417; /* Darker green on hover */
 }
-
+</style>
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('pasteBox')">
             Paste your text here
