@@ -867,14 +867,6 @@ body {
         successMessage.style.display = 'none';
     }, 3000); // Hide the message after 3 seconds
 }
-<script>
-function saveUnsubscribedEmail() {
-    // Perform any save logic here (e.g., API call)
-    document.getElementById("successMessage").style.display = "block"; // Show success message
-    setTimeout(() => {
-        document.getElementById("successMessage").style.display = "none"; // Hide after 3 seconds
-    }, 3000);
-}
 
 // Google Sheets Configuration
 const SHEET_ID = 'SHEET-ID';
@@ -1819,7 +1811,15 @@ function syncEmailWithGoogleSheets(email) {
 }
 
 		}
-    </script>
+    <script>
+function saveUnsubscribedEmail() {
+    // Perform any save logic here (e.g., API call)
+    document.getElementById("successMessage").style.display = "block"; // Show success message
+    setTimeout(() => {
+        document.getElementById("successMessage").style.display = "none"; // Hide after 3 seconds
+    }, 3000);
+}
+</script>
 </body>
 
 </html>
