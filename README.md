@@ -641,26 +641,88 @@ body {
             </div>
         </div>
     </div>
-            			<div style="display: flex; align-items: center; margin-bottom: 15px;">
-    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
+            			<div class="button-container">
+    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" class="input-box">
     
-    <button onclick="exportUnsubscribedEmails()" 
-            id="exportButton" 
-            style="margin-left: 10px; background-color: #1171BA; color: white; border: none; cursor: pointer;">
+    <button onclick="exportUnsubscribedEmails()" id="exportButton" class="btn save">
         Save
     </button>
     
-    <button onclick="deleteUnsubscribedEntries()" 
-            style="margin-left: 10px; background-color: #1171BA; color: white; border: none; cursor: pointer;">
+    <button onclick="deleteUnsubscribedEntries()" class="btn delete">
         Delete Unsubscribed Address
     </button>
     
     <button onclick="window.open('https://docs.google.com/document/d/14AIqhs3wQ_T0hV7YNH2ToBRBH1MEkzmunw2e9WNgeo8/edit?tab=t.0', '_blank')" 
-            style="margin-left: 10px; background-color: #0B6623; color: white; border: none; cursor: pointer;">
+            class="btn email-list">
         Email List
     </button>
 </div>
 <div id="successMessage" style="color: green; font-weight: bold; margin-top: 10px;"></div>
+
+<!-- CSS Section -->
+<style>
+/* Container styling */
+.button-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adds space between the elements */
+    margin-bottom: 15px;
+}
+
+/* Input box styling */
+.input-box {
+    padding: 10px 15px;
+    font-size: 14px;
+    width: 300px; /* Adjust width to make it professional */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.input-box:focus {
+    border-color: #1171BA;
+    box-shadow: 0 0 5px rgba(17, 113, 186, 0.5);
+}
+
+/* Button styling */
+.btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Save button */
+.btn.save {
+    background-color: #1171BA; /* Blue color */
+}
+
+.btn.save:hover {
+    background-color: #0B4F87; /* Darker blue on hover */
+}
+
+/* Delete button */
+.btn.delete {
+    background-color: #DC3545; /* Red color */
+}
+
+.btn.delete:hover {
+    background-color: #A71D2A; /* Darker red on hover */
+}
+
+/* Email list button */
+.btn.email-list {
+    background-color: #0B6623; /* Green color */
+}
+
+.btn.email-list:hover {
+    background-color: #064417; /* Darker green on hover */
+}
 
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('pasteBox')">
