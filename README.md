@@ -1811,7 +1811,19 @@ function syncEmailWithGoogleSheets(email) {
 }
 
 		}
-   </script>
+   <script>
+    function saveUnsubscribedEmail() {
+        const successMessage = document.getElementById("successMessage");
+        if (successMessage) {
+            successMessage.style.display = "block";
+            setTimeout(() => {
+                successMessage.style.display = "none";
+            }, 3000);
+        } else {
+            console.error("Success message element not found!");
+        }
+    }
+</script>
 </body>
 
 </html>
