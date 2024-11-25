@@ -875,7 +875,6 @@ function saveUnsubscribedEmail() {
         document.getElementById("successMessage").style.display = "none"; // Hide after 3 seconds
     }, 3000);
 }
-</script>
 
 // Google Sheets Configuration
 const SHEET_ID = 'SHEET-ID';
