@@ -663,7 +663,19 @@ body {
 </div>
 
 <div id="successMessage" class="success-message" style="display: none;">Email saved successfully!</div>
-
+<script>
+    function saveUnsubscribedEmail() {
+        const successMessage = document.getElementById("successMessage");
+        if (successMessage) {
+            successMessage.style.display = "block";
+            setTimeout(() => {
+                successMessage.style.display = "none";
+            }, 3000);
+        } else {
+            console.error("Success message element not found!");
+        }
+    }
+</script>
 <!-- CSS Section -->
 <style>
 /* Container styling */
@@ -1811,19 +1823,7 @@ function syncEmailWithGoogleSheets(email) {
 }
 
 		}
-   <script>
-    function saveUnsubscribedEmail() {
-        const successMessage = document.getElementById("successMessage");
-        if (successMessage) {
-            successMessage.style.display = "block";
-            setTimeout(() => {
-                successMessage.style.display = "none";
-            }, 3000);
-        } else {
-            console.error("Success message element not found!");
-        }
-    }
-</script>
+ </script>
 </body>
 
 </html>
