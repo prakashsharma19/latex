@@ -1811,15 +1811,7 @@ function syncEmailWithGoogleSheets(email) {
 }
 
 		}
-    <script>
-function saveUnsubscribedEmail() {
-    // Perform any save logic here (e.g., API call)
-    document.getElementById("successMessage").style.display = "block"; // Show success message
-    setTimeout(() => {
-        document.getElementById("successMessage").style.display = "none"; // Hide after 3 seconds
-    }, 3000);
-}
-</script>
+   </script>
 </body>
 
 </html>
