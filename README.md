@@ -657,8 +657,8 @@ body {
         Email List
     </button>
     
-    <button onclick="window.open('https://www.google.com', '_blank')" class="btn google">
-        Google
+    <button onclick="window.open('https://docs.google.com/spreadsheets/d/10OYn06bPKVXmf__3d9Q_7kky8VHRlIKO/edit?gid=1887922208#gid=1887922208', '_blank')" class="btn google">
+        Update Progress
     </button>
 </div>
 
