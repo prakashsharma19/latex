@@ -644,7 +644,7 @@ body {
             			<div class="button-container">
     <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" class="input-box">
     
-    <button onclick="exportUnsubscribedEmails()" id="exportButton" class="btn save">
+    <button onclick="saveUnsubscribedEmail()" id="exportButton" class="btn save">
         Save
     </button>
     
@@ -656,8 +656,13 @@ body {
             class="btn email-list">
         Email List
     </button>
+    
+    <button onclick="window.open('https://www.google.com', '_blank')" class="btn google">
+        Google
+    </button>
 </div>
-<div id="successMessage" style="color: green; font-weight: bold; margin-top: 10px;"></div>
+
+<div id="successMessage" class="success-message" style="display: none;">Email saved successfully!</div>
 
 <!-- CSS Section -->
 <style>
@@ -722,6 +727,23 @@ body {
 
 .btn.email-list:hover {
     background-color: #064417; /* Darker green on hover */
+}
+
+/* Google button */
+.btn.google {
+    background-color: #FF6F00; /* Orange color */
+}
+
+.btn.google:hover {
+    background-color: #C55200; /* Darker orange on hover */
+}
+
+/* Success message styling */
+.success-message {
+    color: green;
+    font-weight: bold;
+    margin-top: 10px;
+    font-size: 16px;
 }
 </style>
     <div class="input-container" style="display:none;">
@@ -845,6 +867,15 @@ body {
         successMessage.style.display = 'none';
     }, 3000); // Hide the message after 3 seconds
 }
+<script>
+function saveUnsubscribedEmail() {
+    // Perform any save logic here (e.g., API call)
+    document.getElementById("successMessage").style.display = "block"; // Show success message
+    setTimeout(() => {
+        document.getElementById("successMessage").style.display = "none"; // Hide after 3 seconds
+    }, 3000);
+}
+</script>
 
 // Google Sheets Configuration
 const SHEET_ID = 'SHEET-ID';
