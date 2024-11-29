@@ -858,7 +858,6 @@ body {
   // Initialize Firebase
   const app = firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
-</script>
 
 	function showSuccessMessage(message) {
     const successMessage = document.getElementById('successMessage');
