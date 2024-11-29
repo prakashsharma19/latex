@@ -660,16 +660,6 @@ body {
     <button onclick="window.open('https://docs.google.com/spreadsheets/d/10OYn06bPKVXmf__3d9Q_7kky8VHRlIKO/edit?gid=1887922208#gid=1887922208', '_blank')" class="btn google">
         Update Progress
     </button>
-
-	 <button onclick="toggleChat()" class="btn chat">
-        Chat
-    </button>
-</div>
-<div id="chat-container" style="display: none; margin-top: 10px;">
-    <h2>Chat Room</h2>
-    <div id="chat-messages" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background-color: #fff;"></div>
-    <input type="text" id="chatInput" placeholder="Type your message..." style="width: 80%; padding: 10px;">
-    <button onclick="sendMessage()" style="padding: 10px; background-color: #1171BA; color: white; border: none; border-radius: 5px;">Send</button>
 </div>
 
 <div id="successMessage" class="success-message" style="display: none;">Email saved successfully!</div>
@@ -681,14 +671,6 @@ body {
     align-items: center;
     gap: 10px; /* Adds space between the elements */
     margin-bottom: 15px;
-}
-/* Chat button styling */
-.btn.chat {
-    background-color: #6A1B9A; /* Purple color */
-}
-
-.btn.chat:hover {
-    background-color: #4A148C; /* Darker purple */
 }
 
 /* Input box styling */
@@ -857,37 +839,26 @@ body {
         "Afghanistan", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia",
         "Bahamas", "Bahrain", "Barbados", "Belarus", "Belize", "Benin", "Bolivia", "Bosnia and Herzegovina", "Brazil", "Brasil", "Brunei", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Canada", "Central African Republic", "Chad", "Tchad", "Chile", "China", "Colombia", "Comoros", "Congo", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Eswatini", "Fiji", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "India", "Indonesia", "Iraq", "Ireland", "Italy", "Jamaica", "Japan", "Jordan", "Kenya", "Kiribati", "Kuwait", "Laos", "Latvia", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Montenegro", "Morocco", "Mozambique", "Namibia", "Nauru", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Oman", "Pakistan", "Palau", "Palestine", "Philippines", "Qatar", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Seychelles", "Sierra Leone", "Solomon Islands", "Somalia", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Switzerland", "Syria", "Taiwan", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "United Arab Emirates", "United States", "Vanuatu", "Vatican City", "Vietnam", "Yemen", "USA", "U.S.A.", "U.S.A", "U. S. A.", "U. S. A", "Korea", "UAE", "U.A.E.", "U. A. E", "U. A. E.", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Côte d'Ivoire", "Cote D'Ivoire", "Macau", "Macao", "Macedonia", "Greece", "South Africa"
     ];
-	// Initialize Ably
-const ably = new Ably.Realtime('Ably'); // Replace with your actual API key
-const channel = ably.channels.get('chat-room');
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js"></script>
 
-// Toggle Chat Visibility
-function toggleChat() {
-    const chatContainer = document.getElementById('chat-container');
-    chatContainer.style.display = chatContainer.style.display === 'none' ? 'block' : 'none';
-}
+<script>
+  // Firebase configuration (from your Firebase console)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCRi4Q-tPZAfO3OmtJfjJcnFcnguAI3LHI",
+    authDomain: "pphadv-ab6da.firebaseapp.com",
+    databaseURL: "https://pphadv-ab6da-default-rtdb.firebaseio.com",
+    projectId: "pphadv-ab6da",
+    storageBucket: "pphadv-ab6da.firebasestorage.app",
+    messagingSenderId: "914062034186",
+    appId: "1:914062034186:web:b5bde36d56873d2206a6f3",
+    measurementId: "G-CLVBJSMQP7"
+  };
 
-// Display incoming messages
-channel.subscribe('message', function (message) {
-    const chatMessages = document.getElementById('chat-messages');
-    const messageDiv = document.createElement('div');
-    messageDiv.textContent = `${message.data.sender}: ${message.data.text}`;
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
-});
-
-// Send a message
-function sendMessage() {
-    const chatInput = document.getElementById('chatInput');
-    const message = chatInput.value.trim();
-
-    if (message) {
-        const userName = currentUser || 'Anonymous'; // Use currentUser if available
-        channel.publish('message', { sender: userName, text: message });
-        chatInput.value = ''; // Clear input field
-    }
-}
-
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
 
 	function showSuccessMessage(message) {
     const successMessage = document.getElementById('successMessage');
@@ -914,6 +885,19 @@ async function fetchUnsubscribedEmails() {
     localStorage.setItem('permanentUnsubscribedEmails', JSON.stringify(allEmails));
     processText();
 }
+
+function addEmailToList(email) {
+    const emailListRef = db.ref('emailList');
+    emailListRef.push(email);
+    console.log('Email added:', email);
+}
+
+const emailListRef = db.ref('emailList');
+emailListRef.on('child_added', (snapshot) => {
+    const newEmail = snapshot.val();
+    alert(`New Email Added: ${newEmail}`);
+});
+
 
 // Fetch from Google Sheets only (used in fetchUnsubscribedEmails)
 async function fetchEmailsFromGoogleSheet() {
