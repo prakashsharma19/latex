@@ -220,6 +220,16 @@ body {
 #okButton:hover {
     background-color: #218838; /* Darker green for hover effect */
 }
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+#deleteButton {
+    animation: none; /* No animation by default */
+}
+
 
         #adCount,
         #dailyAdCount,
@@ -942,30 +952,27 @@ function deleteUnsubscribedEntries() {
     const outputContainer = document.getElementById('output');
     const paragraphs = outputContainer.querySelectorAll('p');
     const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
-    const inputTextBox = document.getElementById('inputText');
-    let inputText = inputTextBox.value;
     let deletedCount = 0;
 
+    // Remove paragraphs containing unsubscribed emails
     paragraphs.forEach(paragraph => {
         unsubscribedEmails.forEach(email => {
-            if (paragraph.innerHTML.includes(email)) {
-                // Remove the paragraph from the output container
+            if (paragraph.innerText.includes(email)) {
                 paragraph.remove();
-                // Remove the email from the input text box
-                const paragraphText = paragraph.innerText;
-                inputText = inputText.replace(paragraphText, '').trim();
                 deletedCount++;
             }
         });
     });
 
-    // Update the input text box after processing
-    inputTextBox.value = inputText;
+    // Show a success message only if something was deleted
+    if (deletedCount > 0) {
+        showSuccessMessage(`Successfully Deleted ${deletedCount} unsubscribed addresses.`);
+    }
 
-    // Save the changes and show success message
-    saveText();
-    showSuccessMessage(`Successfully Deleted ${deletedCount} addresses.`);
+    // Refresh the button count
+    updateUnsubscribedCount();
 }
+
 
         let currentUser = null;
         let dailyAdCount = 0;
@@ -1832,9 +1839,9 @@ function syncEmailWithGoogleSheets(email) {
     const outputContainer = document.getElementById('output');
     const paragraphs = outputContainer.querySelectorAll('p');
     const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
-
-    // Count paragraphs that contain unsubscribed emails
     let count = 0;
+
+    // Count paragraphs containing unsubscribed emails
     paragraphs.forEach(paragraph => {
         unsubscribedEmails.forEach(email => {
             if (paragraph.innerText.includes(email)) {
@@ -1843,9 +1850,18 @@ function syncEmailWithGoogleSheets(email) {
         });
     });
 
-    // Update the button text with the count
+    // Update the button only if there are unsubscribed entries
     const deleteButton = document.getElementById('deleteButton');
-    deleteButton.innerText = `Delete Unsubscribed Address (${count})`;
+    if (count > 0) {
+        deleteButton.innerText = `Delete Unsubscribed Address (${count})`;
+
+        // Add blinking effect
+        deleteButton.style.animation = 'blink 1s infinite';
+    } else {
+        // Reset button text and remove animation
+        deleteButton.innerText = '';
+        deleteButton.style.animation = 'none';
+    }
 }
 
     // Update greeting text inclusion during processing
@@ -1917,7 +1933,9 @@ function syncEmailWithGoogleSheets(email) {
 }
 
     // Initial setup to display unsubscribed count on load
-    document.addEventListener('DOMContentLoaded', updateUnsubscribedCount);
+    document.addEventListener('DOMContentLoaded', () => {
+    updateUnsubscribedCount();
+});
 </script>
 </body>
 
