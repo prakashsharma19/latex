@@ -1842,14 +1842,12 @@ function syncEmailWithGoogleSheets(email) {
             }
         });
     });
-    const deleteButton = document.getElementById('deleteButton');
-    deleteButton.innerText = `Delete Unsubscribed Ad (${count})`;
-}
 
     // Update the button text with the count
     const deleteButton = document.getElementById('deleteButton');
     deleteButton.innerText = `Delete Unsubscribed Ad (${count})`;
 }
+
 
     // Update greeting text inclusion during processing
     function processText() {
@@ -1896,7 +1894,7 @@ function syncEmailWithGoogleSheets(email) {
     }
 
     // Delete unsubscribed entries and update count
-function deleteUnsubscribedEntries() {
+    function deleteUnsubscribedEntries() {
     const outputContainer = document.getElementById('output');
     const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
     const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
@@ -1918,14 +1916,90 @@ function deleteUnsubscribedEntries() {
     updateUnsubscribedCount(); // Update the delete button count
     showSuccessMessage(`Successfully Deleted ${deletedEmails.length} unsubscribed addresses.`);
 }
+// Function to display a popup for deleted addresses
+function displayDeletedAddressesPopup(deletedEmails) {
+    let currentIndex = 0;
 
-    // Update the button text with the new count
-    updateUnsubscribedCount();
+    const popup = document.createElement('div');
+    popup.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #2c3e50;
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        text-align: center;
+    `;
+
+    const message = document.createElement('div');
+    message.style.fontSize = '18px';
+    message.innerText = `Deleted Address: ${deletedEmails[currentIndex]}`;
+
+    const navigation = document.createElement('div');
+    navigation.style.margin = '10px 0';
+
+    const prevButton = document.createElement('button');
+    prevButton.innerText = '<';
+    prevButton.disabled = currentIndex === 0;
+    prevButton.style.marginRight = '10px';
+
+    const nextButton = document.createElement('button');
+    nextButton.innerText = '>';
+    nextButton.disabled = currentIndex === deletedEmails.length - 1;
+
+    navigation.appendChild(prevButton);
+    navigation.appendChild(nextButton);
+
+    const okButton = document.createElement('button');
+    okButton.innerText = 'OK';
+    okButton.style.marginTop = '10px';
+    okButton.style.backgroundColor = '#28a745';
+    okButton.style.color = 'white';
+    okButton.style.border = 'none';
+    okButton.style.padding = '10px 20px';
+    okButton.style.cursor = 'pointer';
+    okButton.style.borderRadius = '5px';
+
+    okButton.addEventListener('click', () => {
+        popup.remove();
+    });
+
+    prevButton.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            message.innerText = `Deleted Address: ${deletedEmails[currentIndex]}`;
+            nextButton.disabled = currentIndex === deletedEmails.length - 1;
+            prevButton.disabled = currentIndex === 0;
+        }
+    });
+
+    nextButton.addEventListener('click', () => {
+        if (currentIndex < deletedEmails.length - 1) {
+            currentIndex++;
+            message.innerText = `Deleted Address: ${deletedEmails[currentIndex]}`;
+            prevButton.disabled = currentIndex === 0;
+            nextButton.disabled = currentIndex === deletedEmails.length - 1;
+        }
+    });
+
+    popup.appendChild(message);
+    popup.appendChild(navigation);
+    popup.appendChild(okButton);
+    document.body.appendChild(popup);
 }
 
 // Update unsubscribed count on page load
 document.addEventListener('DOMContentLoaded', updateUnsubscribedCount);
 
+</script>
 </body>
 
 </html>
