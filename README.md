@@ -1346,37 +1346,6 @@ function processText() {
 
     let index = 0;
 
-    function processChunk() {
-        const chunkSize = 10;
-        const end = Math.min(index + chunkSize, paragraphs.length);
-        for (; index < end; index++) {
-            let paragraph = paragraphs[index].trim();
-            if (paragraph !== '') {
-                const lines = paragraph.split('\n');
-                const firstLine = lines[0].trim();
-                const lastName = firstLine.split(' ').pop();
-
-                // Include or exclude greeting text based on toggle
-                const greeting = includeGreeting ? `Dear Professor ${lastName},\n` : '';
-                const processedParagraph = `${lines.join('\n')}\n\n${greeting}`;
-
-                const p = document.createElement('p');
-                p.innerText = processedParagraph;
-                outputContainer.appendChild(p);
-            }
-        }
-        if (index < paragraphs.length) {
-            requestAnimationFrame(processChunk);
-        } else {
-            updateCounts();
-            saveText();
-            document.getElementById('loadingIndicator').style.display = 'none';
-            isProcessing = false;
-        }
-    }
-    requestAnimationFrame(processChunk);
-}
-
         function cutParagraph(paragraph) {
     if (cutCooldown) return;
     cutCooldown = true;
