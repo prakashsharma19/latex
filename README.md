@@ -875,6 +875,19 @@ body {
     }, 3000); // Hide the message after 3 seconds
 }
 
+// Function to start the blinking effect
+function startButtonBlink() {
+    const deleteButton = document.getElementById('deleteButton');
+    deleteButton.classList.add('blinking');
+}
+
+// Function to stop the blinking effect
+function stopButtonBlink() {
+    const deleteButton = document.getElementById('deleteButton');
+    deleteButton.classList.remove('blinking');
+}
+
+
 
 // Google Sheets Configuration
 const SHEET_ID = 'SHEET-ID';
@@ -1322,11 +1335,13 @@ function displayDeletedAddressesPopup(deletedEmails) {
             russiaEntries.forEach(entry => outputContainer.appendChild(entry));
 
             updateCounts();
-            saveText();
-            document.getElementById('lockButton').style.display = 'inline-block';
-            document.getElementById('loadingIndicator').style.display = 'none';
-            isProcessing = false;
-        }
+    saveText();
+    document.getElementById('loadingIndicator').style.display = 'none';
+    isProcessing = false;
+
+    // Start blinking the delete button
+    startButtonBlink();
+}
     }
     requestAnimationFrame(processChunk);
 }
@@ -1912,7 +1927,11 @@ function syncEmailWithGoogleSheets(email) {
     }
 
     updateUnsubscribedCount(); // Update the delete button count
-    showSuccessMessage(`Successfully Deleted ${deletedEmails.length} unsubscribed addresses.`);
+     showSuccessMessage(`Successfully Deleted ${deletedEmails.length} unsubscribed addresses.`);
+
+    // Stop blinking the delete button
+    stopButtonBlink();
+}
 }
 // Function to display a popup for deleted addresses
 function displayDeletedAddressesPopup(deletedEmails) {
