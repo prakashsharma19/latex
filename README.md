@@ -656,7 +656,7 @@ body {
     
     <label for="greetingToggle" class="btn toggle">
         <input type="checkbox" id="greetingToggle" checked onchange="toggleGreeting()">
-        Dear
+        Dear Professor
     </label>
     
     <button onclick="window.open('https://docs.google.com/spreadsheets/d/10OYn06bPKVXmf__3d9Q_7kky8VHRlIKO/edit?gid=1887922208#gid=1887922208', '_blank')" class="btn google">
