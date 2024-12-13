@@ -646,7 +646,7 @@ body {
     <button onclick="saveUnsubscribedEmail()" id="exportButton" class="btn save">Save</button>
     
     <button onclick="deleteUnsubscribedEntries()" id="deleteButton" class="btn delete">
-        Delete Unsubscribed Address (0)
+        Delete Unsubscribed Ad
     </button>
     
     <button onclick="window.open('https://docs.google.com/document/d/14AIqhs3wQ_T0hV7YNH2ToBRBH1MEkzmunw2e9WNgeo8/edit?tab=t.0', '_blank')" 
