@@ -726,9 +726,6 @@ body {
     background-color: #0B6623; /* Green color */
 }
 
-.btn.email-list:hover {
-    background-color: #064417; /* Darker green on hover */
-}
 .btn.toggle {
     display: flex;
     align-items: center;
@@ -750,6 +747,10 @@ body {
 
 .btn.toggle:hover {
     background-color: #0B4F87;
+}
+
+.btn.email-list:hover {
+    background-color: #064417; /* Darker green on hover */
 }
 
 /* Google button */
@@ -874,6 +875,7 @@ body {
     }, 3000); // Hide the message after 3 seconds
 }
 
+
 // Google Sheets Configuration
 const SHEET_ID = 'SHEET-ID';
 const API_KEY = 'Enter-API';
@@ -940,24 +942,22 @@ function deleteUnsubscribedEntries() {
     const outputContainer = document.getElementById('output');
     const paragraphs = outputContainer.querySelectorAll('p');
     const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+    const inputTextBox = document.getElementById('inputText');
+    let inputText = inputTextBox.value;
     let deletedCount = 0;
 
     paragraphs.forEach(paragraph => {
         unsubscribedEmails.forEach(email => {
             if (paragraph.innerHTML.includes(email)) {
+                // Remove the paragraph from the output container
                 paragraph.remove();
+                // Remove the email from the input text box
+                const paragraphText = paragraph.innerText;
+                inputText = inputText.replace(paragraphText, '').trim();
                 deletedCount++;
             }
         });
     });
-
-    // Update the count dynamically
-    updateUnsubscribedCount();
-
-    // Show success message
-    showSuccessMessage(`Successfully Deleted ${deletedCount} unsubscribed addresses.`);
-}
-
 
     // Update the input text box after processing
     inputTextBox.value = inputText;
@@ -1332,19 +1332,6 @@ function displayDeletedAddressesPopup(deletedEmails) {
     }
     requestAnimationFrame(processChunk);
 }
-
-function processText() {
-    if (isProcessing) return;
-
-    isProcessing = true;
-    document.getElementById('loadingIndicator').style.display = 'inline';
-
-    const inputText = document.getElementById('inputText').value;
-    const paragraphs = inputText.split(/\n\s*\n/);
-    const outputContainer = document.getElementById('output');
-    outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
-
-    let index = 0;
 
         function cutParagraph(paragraph) {
     if (cutCooldown) return;
@@ -1832,7 +1819,90 @@ function syncEmailWithGoogleSheets(email) {
 }
 
 		}
- </script>
+		let includeGreeting = true;
+
+    // Update greeting toggle state
+    function toggleGreeting() {
+        includeGreeting = document.getElementById('greetingToggle').checked;
+        console.log("Greeting Included:", includeGreeting);
+    }
+
+    // Fetch and display unsubscribed email count
+    function updateUnsubscribedCount() {
+        const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+        const deleteButton = document.getElementById('deleteButton');
+        deleteButton.innerText = `Delete Unsubscribed Address (${unsubscribedEmails.length})`;
+    }
+
+    // Update greeting text inclusion during processing
+    function processText() {
+        if (isProcessing) return;
+        isProcessing = true;
+        document.getElementById('loadingIndicator').style.display = 'inline';
+
+        const inputText = document.getElementById('inputText').value;
+        const paragraphs = inputText.split(/\n\s*\n/);
+        const outputContainer = document.getElementById('output');
+        outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+
+        let index = 0;
+
+        function processChunk() {
+            const chunkSize = 10;
+            const end = Math.min(index + chunkSize, paragraphs.length);
+            for (; index < end; index++) {
+                let paragraph = paragraphs[index].trim();
+                if (paragraph !== '') {
+                    const lines = paragraph.split('\n');
+                    const firstLine = lines[0].trim();
+                    const lastName = firstLine.split(' ').pop();
+
+                    // Include or exclude greeting text based on toggle
+                    const greeting = includeGreeting ? `Dear Professor ${lastName},\n` : '';
+                    const processedParagraph = `${lines.join('\n')}\n\n${greeting}`;
+
+                    const p = document.createElement('p');
+                    p.innerText = processedParagraph;
+                    outputContainer.appendChild(p);
+                }
+            }
+            if (index < paragraphs.length) {
+                requestAnimationFrame(processChunk);
+            } else {
+                updateCounts();
+                saveText();
+                document.getElementById('loadingIndicator').style.display = 'none';
+                isProcessing = false;
+            }
+        }
+        requestAnimationFrame(processChunk);
+    }
+
+    // Delete unsubscribed entries and update count
+    function deleteUnsubscribedEntries() {
+        const outputContainer = document.getElementById('output');
+        const paragraphs = outputContainer.querySelectorAll('p');
+        const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+        let deletedCount = 0;
+
+        paragraphs.forEach(paragraph => {
+            unsubscribedEmails.forEach(email => {
+                if (paragraph.innerHTML.includes(email)) {
+                    paragraph.remove();
+                    deletedCount++;
+                }
+            });
+        });
+
+        // Update count and save changes
+        localStorage.setItem('permanentUnsubscribedEmails', JSON.stringify(unsubscribedEmails));
+        updateUnsubscribedCount();
+        showSuccessMessage(`Deleted ${deletedCount} unsubscribed addresses.`);
+    }
+
+    // Initial setup to display unsubscribed count on load
+    document.addEventListener('DOMContentLoaded', updateUnsubscribedCount);
+</script>
 </body>
 
 </html>
