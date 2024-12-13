@@ -940,31 +940,29 @@ document.addEventListener('DOMContentLoaded', fetchUnsubscribedEmails);
 // Delete paragraphs containing unsubscribed emails
 function deleteUnsubscribedEntries() {
     const outputContainer = document.getElementById('output');
-    const paragraphs = outputContainer.querySelectorAll('p');
+    const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
     const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
-    const inputTextBox = document.getElementById('inputText');
-    let inputText = inputTextBox.value;
-    let deletedCount = 0;
+    const deletedEmails = [];
 
+    // Iterate and remove paragraphs containing unsubscribed emails
     paragraphs.forEach(paragraph => {
         unsubscribedEmails.forEach(email => {
-            if (paragraph.innerHTML.includes(email)) {
-                // Remove the paragraph from the output container
+            if (paragraph.innerText.includes(email)) {
                 paragraph.remove();
-                // Remove the email from the input text box
-                const paragraphText = paragraph.innerText;
-                inputText = inputText.replace(paragraphText, '').trim();
-                deletedCount++;
+                deletedEmails.push(email);
             }
         });
     });
 
-    // Update the input text box after processing
-    inputTextBox.value = inputText;
+    if (deletedEmails.length > 0) {
+        displayDeletedAddressesPopup(deletedEmails); // Show popup for deleted addresses
+    }
 
-    // Save the changes and show success message
-    saveText();
-    showSuccessMessage(`Successfully Deleted ${deletedCount} addresses.`);
+    // Update button count
+    updateUnsubscribedCount();
+
+    // Show success message with the number of deleted addresses
+    showSuccessMessage(`Successfully Deleted ${deletedEmails.length} unsubscribed addresses.`);
 }
 
         let currentUser = null;
