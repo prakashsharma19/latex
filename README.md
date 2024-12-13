@@ -1932,7 +1932,6 @@ function syncEmailWithGoogleSheets(email) {
     // Stop blinking the delete button
     stopButtonBlink();
 }
-}
 // Function to display a popup for deleted addresses
 function displayDeletedAddressesPopup(deletedEmails) {
     let currentIndex = 0;
