@@ -643,19 +643,21 @@ body {
     </div>
             			<div class="button-container">
     <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" class="input-box">
+    <button onclick="saveUnsubscribedEmail()" id="exportButton" class="btn save">Save</button>
     
-    <button onclick="saveUnsubscribedEmail()" id="exportButton" class="btn save">
-        Save
-    </button>
-    
-    <button onclick="deleteUnsubscribedEntries()" class="btn delete">
-        Delete Unsubscribed Address
+    <button onclick="deleteUnsubscribedEntries()" id="deleteButton" class="btn delete">
+        Delete Unsubscribed Address (0)
     </button>
     
     <button onclick="window.open('https://docs.google.com/document/d/14AIqhs3wQ_T0hV7YNH2ToBRBH1MEkzmunw2e9WNgeo8/edit?tab=t.0', '_blank')" 
             class="btn email-list">
         Email List
     </button>
+    
+    <label for="greetingToggle" class="btn toggle">
+        <input type="checkbox" id="greetingToggle" checked onchange="toggleGreeting()">
+        Include Greeting
+    </label>
     
     <button onclick="window.open('https://docs.google.com/spreadsheets/d/10OYn06bPKVXmf__3d9Q_7kky8VHRlIKO/edit?gid=1887922208#gid=1887922208', '_blank')" class="btn google">
         Update Progress
@@ -727,6 +729,28 @@ body {
 .btn.email-list:hover {
     background-color: #064417; /* Darker green on hover */
 }
+.btn.toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: 5px;
+    background-color: #1171BA;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.btn.toggle input {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+.btn.toggle:hover {
+    background-color: #0B4F87;
+}
 
 /* Google button */
 .btn.google {
@@ -759,7 +783,7 @@ body {
     <!-- Incomplete Entries Box -->
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('incompleteBox')">
-            Incomplete Entries
+            Incomplete Entries/Removed Countries
             <span id="incompleteBoxToggle">[+]</span>
         </div>
         <div id="incompleteBox" class="input-boxes">
@@ -837,27 +861,8 @@ body {
     <script>
     const countryList = [
         "Afghanistan", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia",
-        "Bahamas", "Bahrain", "Barbados", "Belarus", "Belize", "Benin", "Bolivia", "Bosnia and Herzegovina", "Brazil", "Brasil", "Brunei", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Canada", "Central African Republic", "Chad", "Tchad", "Chile", "China", "Colombia", "Comoros", "Congo", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Eswatini", "Fiji", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "India", "Indonesia", "Iraq", "Ireland", "Italy", "Jamaica", "Japan", "Jordan", "Kenya", "Kiribati", "Kuwait", "Laos", "Latvia", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Montenegro", "Morocco", "Mozambique", "Namibia", "Nauru", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Oman", "Pakistan", "Palau", "Palestine", "Philippines", "Qatar", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Seychelles", "Sierra Leone", "Solomon Islands", "Somalia", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Switzerland", "Syria", "Taiwan", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "United Arab Emirates", "United States", "Vanuatu", "Vatican City", "Vietnam", "Yemen", "USA", "U.S.A.", "U.S.A", "U. S. A.", "U. S. A", "Korea", "UAE", "U.A.E.", "U. A. E", "U. A. E.", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Côte d'Ivoire", "Cote D'Ivoire", "Macau", "Macao", "Macedonia", "Greece", "South Africa"
+        "Bahamas", "Bahrain", "Barbados", "Belize", "Benin", "Bolivia", "Bosnia and Herzegovina", "Brazil", "Brasil", "Brunei", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Canada", "Central African Republic", "Chad", "Tchad", "Chile", "China", "Colombia", "Comoros", "Congo", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Eswatini", "Fiji", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "India", "Indonesia", "Iraq", "Ireland", "Italy", "Jamaica", "Japan", "Jordan", "Kenya", "Kiribati", "Kuwait", "Laos", "Latvia", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Montenegro", "Morocco", "Mozambique", "Namibia", "Nauru", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Oman", "Pakistan", "Palau", "Palestine", "Philippines", "Qatar", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Seychelles", "Sierra Leone", "Solomon Islands", "Somalia", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Switzerland", "Syria", "Taiwan", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "United Arab Emirates", "United States", "Vanuatu", "Vatican City", "Vietnam", "Yemen", "USA", "U.S.A.", "U.S.A", "U. S. A.", "U. S. A", "Korea", "UAE", "U.A.E.", "U. A. E", "U. A. E.", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Côte d'Ivoire", "Cote D'Ivoire", "Macau", "Macao", "Macedonia", "Greece", "South Africa"
     ];
-<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js"></script>
-
-<script>
-  // Firebase configuration (from your Firebase console)
-  const firebaseConfig = {
-    apiKey: "AIzaSyCRi4Q-tPZAfO3OmtJfjJcnFcnguAI3LHI",
-    authDomain: "pphadv-ab6da.firebaseapp.com",
-    databaseURL: "https://pphadv-ab6da-default-rtdb.firebaseio.com",
-    projectId: "pphadv-ab6da",
-    storageBucket: "pphadv-ab6da.firebasestorage.app",
-    messagingSenderId: "914062034186",
-    appId: "1:914062034186:web:b5bde36d56873d2206a6f3",
-    measurementId: "G-CLVBJSMQP7"
-  };
-
-  // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
 
 	function showSuccessMessage(message) {
     const successMessage = document.getElementById('successMessage');
@@ -884,19 +889,6 @@ async function fetchUnsubscribedEmails() {
     localStorage.setItem('permanentUnsubscribedEmails', JSON.stringify(allEmails));
     processText();
 }
-
-function addEmailToList(email) {
-    const emailListRef = db.ref('emailList');
-    emailListRef.push(email);
-    console.log('Email added:', email);
-}
-
-const emailListRef = db.ref('emailList');
-emailListRef.on('child_added', (snapshot) => {
-    const newEmail = snapshot.val();
-    alert(`New Email Added: ${newEmail}`);
-});
-
 
 // Fetch from Google Sheets only (used in fetchUnsubscribedEmails)
 async function fetchEmailsFromGoogleSheet() {
@@ -948,22 +940,24 @@ function deleteUnsubscribedEntries() {
     const outputContainer = document.getElementById('output');
     const paragraphs = outputContainer.querySelectorAll('p');
     const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
-    const inputTextBox = document.getElementById('inputText');
-    let inputText = inputTextBox.value;
     let deletedCount = 0;
 
     paragraphs.forEach(paragraph => {
         unsubscribedEmails.forEach(email => {
             if (paragraph.innerHTML.includes(email)) {
-                // Remove the paragraph from the output container
                 paragraph.remove();
-                // Remove the email from the input text box
-                const paragraphText = paragraph.innerText;
-                inputText = inputText.replace(paragraphText, '').trim();
                 deletedCount++;
             }
         });
     });
+
+    // Update the count dynamically
+    updateUnsubscribedCount();
+
+    // Show success message
+    showSuccessMessage(`Successfully Deleted ${deletedCount} unsubscribed addresses.`);
+}
+
 
     // Update the input text box after processing
     inputTextBox.value = inputText;
@@ -1332,6 +1326,50 @@ function displayDeletedAddressesPopup(deletedEmails) {
             updateCounts();
             saveText();
             document.getElementById('lockButton').style.display = 'inline-block';
+            document.getElementById('loadingIndicator').style.display = 'none';
+            isProcessing = false;
+        }
+    }
+    requestAnimationFrame(processChunk);
+}
+
+function processText() {
+    if (isProcessing) return;
+
+    isProcessing = true;
+    document.getElementById('loadingIndicator').style.display = 'inline';
+
+    const inputText = document.getElementById('inputText').value;
+    const paragraphs = inputText.split(/\n\s*\n/);
+    const outputContainer = document.getElementById('output');
+    outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
+
+    let index = 0;
+
+    function processChunk() {
+        const chunkSize = 10;
+        const end = Math.min(index + chunkSize, paragraphs.length);
+        for (; index < end; index++) {
+            let paragraph = paragraphs[index].trim();
+            if (paragraph !== '') {
+                const lines = paragraph.split('\n');
+                const firstLine = lines[0].trim();
+                const lastName = firstLine.split(' ').pop();
+
+                // Include or exclude greeting text based on toggle
+                const greeting = includeGreeting ? `Dear Professor ${lastName},\n` : '';
+                const processedParagraph = `${lines.join('\n')}\n\n${greeting}`;
+
+                const p = document.createElement('p');
+                p.innerText = processedParagraph;
+                outputContainer.appendChild(p);
+            }
+        }
+        if (index < paragraphs.length) {
+            requestAnimationFrame(processChunk);
+        } else {
+            updateCounts();
+            saveText();
             document.getElementById('loadingIndicator').style.display = 'none';
             isProcessing = false;
         }
