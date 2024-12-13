@@ -1845,7 +1845,7 @@ function syncEmailWithGoogleSheets(email) {
 
     // Update the button text with the count
     const deleteButton = document.getElementById('deleteButton');
-    deleteButton.innerText = `Delete Unsubscribed Address (${count})`;
+    deleteButton.innerText = `Delete Unsubscribed Ad (${count})`;
 }
 
     // Update greeting text inclusion during processing
