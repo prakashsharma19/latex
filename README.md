@@ -118,12 +118,12 @@ body {
             border-bottom: 1px solid #e0e0e0;
             line-height: 1.5;
         }
-		/* Toggle Switch Style */
+		/* Smaller Toggle Switch Style */
 .switch {
     position: relative;
     display: inline-block;
-    width: 50px;
-    height: 24px;
+    width: 40px; /* Smaller width */
+    height: 20px; /* Smaller height */
 }
 
 .switch input {
@@ -140,19 +140,19 @@ body {
     right: 0;
     bottom: 0;
     background-color: #ccc;
-    transition: 0.4s;
-    border-radius: 24px;
+    transition: 0.3s; /* Adjusted for a quicker transition */
+    border-radius: 20px; /* Matches height for rounded ends */
 }
 
 .slider:before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
+    height: 16px; /* Smaller knob */
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
     background-color: white;
-    transition: 0.4s;
+    transition: 0.3s;
     border-radius: 50%;
 }
 
@@ -161,19 +161,21 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-    transform: translateX(26px);
+    transform: translateX(20px); /* Adjust to match smaller toggle size */
 }
 
 .toggle-container {
     display: flex;
     align-items: center;
-    gap: 10px;
-    }
+    gap: 8px; /* Reduce gap to save space */
+    margin-bottom: 0; /* No margin to align better with the panel */
+}
 
 #dearProfessorLabel {
-    font-size: 14px;
+    font-size: 12px; /* Smaller font size for the label */
     color: #333;
 }
+
 
         #undoButton,
         #lockButton {
@@ -713,16 +715,17 @@ input:checked + .slider:before {
         Email List
     </button>
     
+    <div class="button-container">
     <button onclick="window.open('https://docs.google.com/spreadsheets/d/10OYn06bPKVXmf__3d9Q_7kky8VHRlIKO/edit?gid=1887922208#gid=1887922208', '_blank')" class="btn google">
-        Progress
+        Update Progress
     </button>
-</div>
-<div class="toggle-container">
-    <label class="switch">
-        <input type="checkbox" id="dearProfessorToggle" onchange="toggleDearProfessor()">
-        <span class="slider round"></span>
-    </label>
-    <span id="dearProfessorLabel">Include "Dear Professor"</span>
+    <div class="toggle-container">
+        <label class="switch">
+            <input type="checkbox" id="dearProfessorToggle" onchange="toggleDearProfessor()">
+            <span class="slider round"></span>
+        </label>
+        <span id="dearProfessorLabel">Include "Dear Professor"</span>
+    </div>
 </div>
 
 
