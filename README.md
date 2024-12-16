@@ -168,8 +168,7 @@ input:checked + .slider:before {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 10px;
-}
+    }
 
 #dearProfessorLabel {
     font-size: 14px;
