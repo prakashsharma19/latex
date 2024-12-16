@@ -118,6 +118,63 @@ body {
             border-bottom: 1px solid #e0e0e0;
             line-height: 1.5;
         }
+		/* Toggle Switch Style */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 24px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #1171ba;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+#dearProfessorLabel {
+    font-size: 14px;
+    color: #333;
+}
 
         #undoButton,
         #lockButton {
@@ -661,11 +718,14 @@ body {
         Update Progress
     </button>
 </div>
-<div>
-    <button onclick="toggleDearProfessor()" class="btn toggle-dear-professor">
-        Include "Dear Professor"
-    </button>
+<div class="toggle-container">
+    <label class="switch">
+        <input type="checkbox" id="dearProfessorToggle" onchange="toggleDearProfessor()">
+        <span class="slider round"></span>
+    </label>
+    <span id="dearProfessorLabel">Include "Dear Professor"</span>
 </div>
+
 
 <div id="successMessage" class="success-message" style="display: none;">Email saved successfully!</div>
 <!-- CSS Section -->
@@ -1237,22 +1297,29 @@ function displayDeletedAddressesPopup(deletedEmails) {
             document.getElementById('completionPercentage').innerText = `${percentageCompleted}%`;
         }
 
-        let includeDearProfessor = true; // Default to true
+        let includeDearProfessor = true;
 
 // Initialize the toggle state from localStorage
 document.addEventListener('DOMContentLoaded', () => {
     const savedState = localStorage.getItem('includeDearProfessor');
     if (savedState !== null) {
         includeDearProfessor = savedState === 'true';
-        updateToggleUI();
+        document.getElementById('dearProfessorToggle').checked = includeDearProfessor;
+        updateToggleLabel();
     }
 });
 
 function toggleDearProfessor() {
-    includeDearProfessor = !includeDearProfessor;
+    includeDearProfessor = document.getElementById('dearProfessorToggle').checked;
     localStorage.setItem('includeDearProfessor', includeDearProfessor);
-    updateToggleUI();
+    updateToggleLabel();
 }
+
+function updateToggleLabel() {
+    const label = document.getElementById('dearProfessorLabel');
+    label.innerText = includeDearProfessor ? 'Include "Dear Professor"' : 'Exclude "Dear Professor"';
+}
+
 
 // Update the toggle button text
 function updateToggleUI() {
