@@ -715,7 +715,7 @@ input:checked + .slider:before {
     </button>
     
     <button onclick="window.open('https://docs.google.com/spreadsheets/d/10OYn06bPKVXmf__3d9Q_7kky8VHRlIKO/edit?gid=1887922208#gid=1887922208', '_blank')" class="btn google">
-        Ad Progress
+        Progress
     </button>
 </div>
 <div class="toggle-container">
