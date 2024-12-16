@@ -1284,8 +1284,8 @@ function displayDeletedAddressesPopup(deletedEmails) {
     incompleteContainer.value = '';
 
     let index = 0;
-    const nonRussiaEntries = [];
-    const russiaEntries = [];
+    const validEntries = [];
+    const invalidEntries = [];
 
     const gapOption = document.getElementById('gapOption').value;
 
@@ -1296,52 +1296,38 @@ function displayDeletedAddressesPopup(deletedEmails) {
             let paragraph = paragraphs[index].trim();
             if (paragraph !== '') {
                 const lines = paragraph.split('\n');
-                let firstLine = lines[0].trim();
-                let lastName = firstLine.split(' ').pop();
-
-                if (!firstLine.toLowerCase().startsWith('professor')) {
-                    firstLine = `<span class="highlight-added">Professor</span> ${firstLine}`;
-                    lines[0] = firstLine;
-                }
+                const firstLine = lines[0].trim();
 
                 let processedParagraph = lines.join('\n');
 
-                const greeting = `Dear Professor ${lastName},\n`;
-                let fullText = gapOption === 'nil' ?
-                    processedParagraph + '\n' + greeting : processedParagraph + '\n\n' + greeting;
+                // Check if the paragraph contains a valid country
+                const hasValidCountry = countryList.some(country => processedParagraph.includes(country));
 
-                fullText = highlightUnsubscribed(fullText); // Highlight unsubscribed emails
-                const highlightedText = highlightErrors(fullText.replace(/\n/g, '<br>'));
-                const hasError = highlightedText.includes('error');
-
-                if (hasError) {
-                    incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
+                if (!hasValidCountry) {
+                    // Move unmatched entry to the "Incomplete Entries/Removed Country box"
+                    invalidEntries.push(paragraph);
                 } else {
                     const p = document.createElement('p');
-                    p.innerHTML = highlightedText;
-
-                    if (paragraph.includes('Russia')) {
-                        russiaEntries.push(p);
-                    } else {
-                        nonRussiaEntries.push(p);
-                    }
+                    p.innerHTML = processedParagraph.replace(/\n/g, '<br>');
+                    validEntries.push(p);
                 }
             }
         }
         if (index < paragraphs.length) {
             requestAnimationFrame(processChunk);
         } else {
-            nonRussiaEntries.forEach(entry => outputContainer.appendChild(entry));
-            russiaEntries.forEach(entry => outputContainer.appendChild(entry));
+            // Append valid entries to the output container
+            validEntries.forEach(entry => outputContainer.appendChild(entry));
+            
+            // Update incomplete entries box with unmatched entries
+            incompleteContainer.value = invalidEntries.join('\n\n');
 
             updateCounts();
-    saveText();
-    document.getElementById('loadingIndicator').style.display = 'none';
-    isProcessing = false;
-
-    // Start blinking the delete button
-    startButtonBlink();
-}
+            saveText();
+            document.getElementById('lockButton').style.display = 'inline-block';
+            document.getElementById('loadingIndicator').style.display = 'none';
+            isProcessing = false;
+        }
     }
     requestAnimationFrame(processChunk);
 }
