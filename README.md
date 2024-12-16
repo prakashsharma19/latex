@@ -1358,9 +1358,14 @@ function processText() {
                 let firstLine = lines[0].trim();
                 let lastName = firstLine.split(' ').pop();
 
+                // Check if the toggle is ON and add "Dear Professor" after the email
                 if (includeDearProfessor) {
-                    const greeting = `Dear Professor ${lastName},\n`;
-                    lines[0] = `${lines[0]}\n\n${greeting}`;
+                    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+                    const emailLineIndex = lines.findIndex(line => emailRegex.test(line));
+                    if (emailLineIndex !== -1) {
+                        const greeting = `Dear Professor ${lastName},`;
+                        lines.splice(emailLineIndex + 1, 0, greeting); // Insert greeting after the email
+                    }
                 }
 
                 let processedParagraph = lines.join('\n');
@@ -1396,6 +1401,7 @@ function processText() {
     }
     requestAnimationFrame(processChunk);
 }
+
 
         function cutParagraph(paragraph) {
     if (cutCooldown) return;
