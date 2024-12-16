@@ -641,35 +641,110 @@ body {
             </div>
         </div>
     </div>
-            <div>
-                <label>
-                    <input type="radio" name="toOption" value="withTo"> With "To"
-                </label>
-                <label>
-                    <input type="radio" name="toOption" value="withoutTo" checked> Without "To"
-                </label>
-            </div>
-			<div style="display: flex; align-items: center; margin-bottom: 20px;">
-    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
+            			<div class="button-container">
+    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" class="input-box">
     
-    <button onclick="exportUnsubscribedEmails()" 
-            id="exportButton" 
-            style="margin-left: 10px; background-color: #1171BA; color: white; border: none; cursor: pointer;">
+    <button onclick="saveUnsubscribedEmail()" id="exportButton" class="btn save">
         Save
     </button>
     
-    <button onclick="deleteUnsubscribedEntries()" 
-            style="margin-left: 10px; background-color: #1171BA; color: white; border: none; cursor: pointer;">
+    <button onclick="deleteUnsubscribedEntries()" class="btn delete">
         Delete Unsubscribed Address
     </button>
     
     <button onclick="window.open('https://docs.google.com/document/d/14AIqhs3wQ_T0hV7YNH2ToBRBH1MEkzmunw2e9WNgeo8/edit?tab=t.0', '_blank')" 
-            style="margin-left: 10px; background-color: #0B6623; color: white; border: none; cursor: pointer;">
+            class="btn email-list">
         Email List
     </button>
+    
+    <button onclick="window.open('https://docs.google.com/spreadsheets/d/10OYn06bPKVXmf__3d9Q_7kky8VHRlIKO/edit?gid=1887922208#gid=1887922208', '_blank')" class="btn google">
+        Update Progress
+    </button>
 </div>
-<div id="successMessage" style="color: green; font-weight: bold; margin-top: 10px;"></div>
 
+<div id="successMessage" class="success-message" style="display: none;">Email saved successfully!</div>
+<!-- CSS Section -->
+<style>
+/* Container styling */
+.button-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adds space between the elements */
+    margin-bottom: 15px;
+}
+
+/* Input box styling */
+.input-box {
+    padding: 10px 15px;
+    font-size: 14px;
+    width: 300px; /* Adjust width to make it professional */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.input-box:focus {
+    border-color: #1171BA;
+    box-shadow: 0 0 5px rgba(17, 113, 186, 0.5);
+}
+
+/* Button styling */
+.btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Save button */
+.btn.save {
+    background-color: #1171BA; /* Blue color */
+}
+
+.btn.save:hover {
+    background-color: #0B4F87; /* Darker blue on hover */
+}
+
+/* Delete button */
+.btn.delete {
+    background-color: #DC3545; /* Red color */
+}
+
+.btn.delete:hover {
+    background-color: #A71D2A; /* Darker red on hover */
+}
+
+/* Email list button */
+.btn.email-list {
+    background-color: #0B6623; /* Green color */
+}
+
+.btn.email-list:hover {
+    background-color: #064417; /* Darker green on hover */
+}
+
+/* Google button */
+.btn.google {
+    background-color: #FF6F00; /* Orange color */
+}
+
+.btn.google:hover {
+    background-color: #C55200; /* Darker orange on hover */
+}
+
+/* Success message styling */
+.success-message {
+    color: green;
+    font-weight: bold;
+    margin-top: 10px;
+    font-size: 16px;
+}
+</style>
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('pasteBox')">
             Paste your text here
@@ -684,7 +759,7 @@ body {
     <!-- Incomplete Entries Box -->
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('incompleteBox')">
-            Incomplete Entries
+            Incomplete Entries/Removed Countries
             <span id="incompleteBoxToggle">[+]</span>
         </div>
         <div id="incompleteBox" class="input-boxes">
@@ -760,28 +835,11 @@ body {
     </div>
 	
     <script>
-        const countryList = [
-            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
-            "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
-            "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
-            "Cameroon", "Canada", "Central African Republic", "Chad", "Tchad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
-            "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
-            "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
-            "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
-            "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel",
-            "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos",
-            "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
-            "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
-            "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
-            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
-            "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania",
-            "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal",
-            "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea",
-            "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
-            "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
-            "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
-            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U.S.A", "U. S. A.", "U. S. A", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Côte d'Ivoire", "Macau", "Macao", "Macedonia"
-        ];
+    const countryList = [
+        "Afghanistan", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia",
+        "Bahamas", "Bahrain", "Barbados", "Belize", "Benin", "Bolivia", "Bosnia and Herzegovina", "Brazil", "Brasil", "Brunei", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Canada", "Central African Republic", "Chad", "Tchad", "Chile", "China", "Colombia", "Comoros", "Congo", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Eswatini", "Fiji", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "India", "Indonesia", "Iraq", "Ireland", "Italy", "Jamaica", "Japan", "Jordan", "Kenya", "Kiribati", "Kuwait", "Laos", "Latvia", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Montenegro", "Morocco", "Mozambique", "Namibia", "Nauru", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Oman", "Pakistan", "Palau", "Palestine", "Philippines", "Qatar", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Seychelles", "Sierra Leone", "Solomon Islands", "Somalia", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Switzerland", "Syria", "Taiwan", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "United Arab Emirates", "United States", "Vanuatu", "Vatican City", "Vietnam", "Yemen", "USA", "U.S.A.", "U.S.A", "U. S. A.", "U. S. A", "Korea", "UAE", "U.A.E.", "U. A. E", "U. A. E.", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Côte d'Ivoire", "Cote D'Ivoire", "Macau", "Macao", "Macedonia", "Greece", "South Africa"
+    ];
+
 	function showSuccessMessage(message) {
     const successMessage = document.getElementById('successMessage');
     successMessage.innerText = message;
@@ -858,17 +916,27 @@ function deleteUnsubscribedEntries() {
     const outputContainer = document.getElementById('output');
     const paragraphs = outputContainer.querySelectorAll('p');
     const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
+    const inputTextBox = document.getElementById('inputText');
+    let inputText = inputTextBox.value;
     let deletedCount = 0;
 
     paragraphs.forEach(paragraph => {
         unsubscribedEmails.forEach(email => {
             if (paragraph.innerHTML.includes(email)) {
+                // Remove the paragraph from the output container
                 paragraph.remove();
+                // Remove the email from the input text box
+                const paragraphText = paragraph.innerText;
+                inputText = inputText.replace(paragraphText, '').trim();
                 deletedCount++;
             }
         });
     });
 
+    // Update the input text box after processing
+    inputTextBox.value = inputText;
+
+    // Save the changes and show success message
     saveText();
     showSuccessMessage(`Successfully Deleted ${deletedCount} addresses.`);
 }
@@ -1183,7 +1251,6 @@ function displayDeletedAddressesPopup(deletedEmails) {
     const russiaEntries = [];
 
     const gapOption = document.getElementById('gapOption').value;
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
     function processChunk() {
         const chunkSize = 10;
@@ -1201,9 +1268,6 @@ function displayDeletedAddressesPopup(deletedEmails) {
                 }
 
                 let processedParagraph = lines.join('\n');
-                if (toOption === 'withTo') {
-                    processedParagraph = `To\n${processedParagraph}`;
-                }
 
                 const greeting = `Dear Professor ${lastName},\n`;
                 let fullText = gapOption === 'nil' ?
@@ -1243,7 +1307,6 @@ function displayDeletedAddressesPopup(deletedEmails) {
     requestAnimationFrame(processChunk);
 }
 
-
         function cutParagraph(paragraph) {
     if (cutCooldown) return;
     cutCooldown = true;
@@ -1253,15 +1316,9 @@ function displayDeletedAddressesPopup(deletedEmails) {
 
     const effectType = document.getElementById('effectType').value;
     const effectsEnabled = document.getElementById('effectsToggle').checked;
-    
-    // Check the 'toOption' selection to determine prefix handling
-    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Check and remove 'To\n' if 'With "To"' is selected
-    let textToProcess = textToCopy;
-    if (toOption === 'withTo' && textToCopy.startsWith("To\n")) {
-        textToProcess = textToCopy.replace(/^To\n/, '');  // Remove "To\n" prefix if present
-    }
+    // Always remove "To\n" prefix if present.
+    let textToProcess = textToCopy.replace(/^To\n/, '');
 
     if (effectsEnabled && effectType !== 'none') {
         paragraph.classList.add(effectType);
@@ -1736,7 +1793,7 @@ function syncEmailWithGoogleSheets(email) {
 }
 
 		}
-    </script>
+ </script>
 </body>
 
 </html>
