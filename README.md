@@ -706,7 +706,7 @@ input:checked + .slider:before {
     </button>
     
     <button onclick="deleteUnsubscribedEntries()" class="btn delete">
-        Delete Unsubscribed Address
+        Delete Unsubscribed Ad
     </button>
     
     <button onclick="window.open('https://docs.google.com/document/d/14AIqhs3wQ_T0hV7YNH2ToBRBH1MEkzmunw2e9WNgeo8/edit?tab=t.0', '_blank')" 
@@ -715,7 +715,7 @@ input:checked + .slider:before {
     </button>
     
     <button onclick="window.open('https://docs.google.com/spreadsheets/d/10OYn06bPKVXmf__3d9Q_7kky8VHRlIKO/edit?gid=1887922208#gid=1887922208', '_blank')" class="btn google">
-        Update Progress
+        Ad Progress
     </button>
 </div>
 <div class="toggle-container">
