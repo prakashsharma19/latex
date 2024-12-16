@@ -706,7 +706,7 @@ input:checked + .slider:before {
     </button>
     
     <button onclick="deleteUnsubscribedEntries()" class="btn delete">
-        Delete Unsubscribed Ad
+        ✘ Unsubscribed Ad
     </button>
     
     <button onclick="window.open('https://docs.google.com/document/d/14AIqhs3wQ_T0hV7YNH2ToBRBH1MEkzmunw2e9WNgeo8/edit?tab=t.0', '_blank')" 
