@@ -641,135 +641,35 @@ body {
             </div>
         </div>
     </div>
-            			<div class="button-container">
-    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" class="input-box">
-    <button onclick="saveUnsubscribedEmail()" id="exportButton" class="btn save">Save</button>
+            <div>
+                <label>
+                    <input type="radio" name="toOption" value="withTo"> With "To"
+                </label>
+                <label>
+                    <input type="radio" name="toOption" value="withoutTo" checked> Without "To"
+                </label>
+            </div>
+			<div style="display: flex; align-items: center; margin-bottom: 20px;">
+    <input type="email" id="unsubscribedEmail" placeholder="Enter Unsubscribed Email" style="margin-left: 20px;">
     
-    <button onclick="deleteUnsubscribedEntries()" id="deleteButton" class="btn delete">
-        Delete Unsubscribed Ad
+    <button onclick="exportUnsubscribedEmails()" 
+            id="exportButton" 
+            style="margin-left: 10px; background-color: #1171BA; color: white; border: none; cursor: pointer;">
+        Save
+    </button>
+    
+    <button onclick="deleteUnsubscribedEntries()" 
+            style="margin-left: 10px; background-color: #1171BA; color: white; border: none; cursor: pointer;">
+        Delete Unsubscribed Address
     </button>
     
     <button onclick="window.open('https://docs.google.com/document/d/14AIqhs3wQ_T0hV7YNH2ToBRBH1MEkzmunw2e9WNgeo8/edit?tab=t.0', '_blank')" 
-            class="btn email-list">
+            style="margin-left: 10px; background-color: #0B6623; color: white; border: none; cursor: pointer;">
         Email List
     </button>
-    
-    <label for="greetingToggle" class="btn toggle">
-        <input type="checkbox" id="greetingToggle" checked onchange="toggleGreeting()">
-        Dear Professor
-    </label>
-    
-    <button onclick="window.open('https://docs.google.com/spreadsheets/d/10OYn06bPKVXmf__3d9Q_7kky8VHRlIKO/edit?gid=1887922208#gid=1887922208', '_blank')" class="btn google">
-        Ad Progress
-    </button>
 </div>
+<div id="successMessage" style="color: green; font-weight: bold; margin-top: 10px;"></div>
 
-<div id="successMessage" class="success-message" style="display: none;">Email saved successfully!</div>
-<!-- CSS Section -->
-<style>
-/* Container styling */
-.button-container {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Adds space between the elements */
-    margin-bottom: 15px;
-}
-
-/* Input box styling */
-.input-box {
-    padding: 10px 15px;
-    font-size: 14px;
-    width: 300px; /* Adjust width to make it professional */
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
-}
-
-.input-box:focus {
-    border-color: #1171BA;
-    box-shadow: 0 0 5px rgba(17, 113, 186, 0.5);
-}
-
-/* Button styling */
-.btn {
-    padding: 10px 20px;
-    font-size: 14px;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-/* Save button */
-.btn.save {
-    background-color: #1171BA; /* Blue color */
-}
-
-.btn.save:hover {
-    background-color: #0B4F87; /* Darker blue on hover */
-}
-
-/* Delete button */
-.btn.delete {
-    background-color: #DC3545; /* Red color */
-}
-
-.btn.delete:hover {
-    background-color: #A71D2A; /* Darker red on hover */
-}
-
-/* Email list button */
-.btn.email-list {
-    background-color: #0B6623; /* Green color */
-}
-
-.btn.toggle {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 10px 15px;
-    font-size: 14px;
-    border-radius: 5px;
-    background-color: #1171BA;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-.btn.toggle input {
-    width: 15px;
-    height: 15px;
-    cursor: pointer;
-}
-
-.btn.toggle:hover {
-    background-color: #0B4F87;
-}
-
-.btn.email-list:hover {
-    background-color: #064417; /* Darker green on hover */
-}
-
-/* Google button */
-.btn.google {
-    background-color: #FF6F00; /* Orange color */
-}
-
-.btn.google:hover {
-    background-color: #C55200; /* Darker orange on hover */
-}
-
-/* Success message styling */
-.success-message {
-    color: green;
-    font-weight: bold;
-    margin-top: 10px;
-    font-size: 16px;
-}
-</style>
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('pasteBox')">
             Paste your text here
@@ -784,7 +684,7 @@ body {
     <!-- Incomplete Entries Box -->
     <div class="input-container" style="display:none;">
         <div class="container-header" onclick="toggleBox('incompleteBox')">
-            Incomplete Entries/Removed Countries
+            Incomplete Entries
             <span id="incompleteBoxToggle">[+]</span>
         </div>
         <div id="incompleteBox" class="input-boxes">
@@ -860,11 +760,28 @@ body {
     </div>
 	
     <script>
-    const countryList = [
-        "Afghanistan", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia",
-        "Bahamas", "Bahrain", "Barbados", "Belize", "Benin", "Bolivia", "Bosnia and Herzegovina", "Brazil", "Brasil", "Brunei", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Canada", "Central African Republic", "Chad", "Tchad", "Chile", "China", "Colombia", "Comoros", "Congo", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Eswatini", "Fiji", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "India", "Indonesia", "Iraq", "Ireland", "Italy", "Jamaica", "Japan", "Jordan", "Kenya", "Kiribati", "Kuwait", "Laos", "Latvia", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Montenegro", "Morocco", "Mozambique", "Namibia", "Nauru", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Oman", "Pakistan", "Palau", "Palestine", "Philippines", "Qatar", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Seychelles", "Sierra Leone", "Solomon Islands", "Somalia", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Switzerland", "Syria", "Taiwan", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "United Arab Emirates", "United States", "Vanuatu", "Vatican City", "Vietnam", "Yemen", "USA", "U.S.A.", "U.S.A", "U. S. A.", "U. S. A", "Korea", "UAE", "U.A.E.", "U. A. E", "U. A. E.", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Côte d'Ivoire", "Cote D'Ivoire", "Macau", "Macao", "Macedonia", "Greece", "South Africa"
-    ];
-
+        const countryList = [
+            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
+            "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan",
+            "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia",
+            "Cameroon", "Canada", "Central African Republic", "Chad", "Tchad", "Chile", "China", "Colombia", "Comoros", "Congo", "Costa Rica",
+            "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
+            "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Fiji", "Finland", "France", "Gabon",
+            "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+            "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel",
+            "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos",
+            "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi",
+            "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova",
+            "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands",
+            "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau",
+            "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania",
+            "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal",
+            "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea",
+            "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan",
+            "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+            "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela",
+            "Vietnam", "Yemen", "Zambia", "Zimbabwe", "UK", "USA", "U.S.A.", "U.S.A", "U. S. A.", "U. S. A", "Korea", "UAE", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Côte d'Ivoire", "Macau", "Macao", "Macedonia"
+        ];
 	function showSuccessMessage(message) {
     const successMessage = document.getElementById('successMessage');
     successMessage.innerText = message;
@@ -874,20 +791,6 @@ body {
         successMessage.style.display = 'none';
     }, 3000); // Hide the message after 3 seconds
 }
-
-// Function to start the blinking effect
-function startButtonBlink() {
-    const deleteButton = document.getElementById('deleteButton');
-    deleteButton.classList.add('blinking');
-}
-
-// Function to stop the blinking effect
-function stopButtonBlink() {
-    const deleteButton = document.getElementById('deleteButton');
-    deleteButton.classList.remove('blinking');
-}
-
-
 
 // Google Sheets Configuration
 const SHEET_ID = 'SHEET-ID';
@@ -953,29 +856,21 @@ document.addEventListener('DOMContentLoaded', fetchUnsubscribedEmails);
 // Delete paragraphs containing unsubscribed emails
 function deleteUnsubscribedEntries() {
     const outputContainer = document.getElementById('output');
-    const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
+    const paragraphs = outputContainer.querySelectorAll('p');
     const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
-    const deletedEmails = [];
+    let deletedCount = 0;
 
-    // Iterate and remove paragraphs containing unsubscribed emails
     paragraphs.forEach(paragraph => {
         unsubscribedEmails.forEach(email => {
-            if (paragraph.innerText.includes(email)) {
+            if (paragraph.innerHTML.includes(email)) {
                 paragraph.remove();
-                deletedEmails.push(email);
+                deletedCount++;
             }
         });
     });
 
-    if (deletedEmails.length > 0) {
-        displayDeletedAddressesPopup(deletedEmails); // Show popup for deleted addresses
-    }
-
-    // Update button count
-    updateUnsubscribedCount();
-
-    // Show success message with the number of deleted addresses
-    showSuccessMessage(`Successfully Deleted ${deletedEmails.length} unsubscribed addresses.`);
+    saveText();
+    showSuccessMessage(`Successfully Deleted ${deletedCount} addresses.`);
 }
 
         let currentUser = null;
@@ -1284,10 +1179,11 @@ function displayDeletedAddressesPopup(deletedEmails) {
     incompleteContainer.value = '';
 
     let index = 0;
-    const validEntries = [];
-    const invalidEntries = [];
+    const nonRussiaEntries = [];
+    const russiaEntries = [];
 
     const gapOption = document.getElementById('gapOption').value;
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
     function processChunk() {
         const chunkSize = 10;
@@ -1296,31 +1192,46 @@ function displayDeletedAddressesPopup(deletedEmails) {
             let paragraph = paragraphs[index].trim();
             if (paragraph !== '') {
                 const lines = paragraph.split('\n');
-                const firstLine = lines[0].trim();
+                let firstLine = lines[0].trim();
+                let lastName = firstLine.split(' ').pop();
+
+                if (!firstLine.toLowerCase().startsWith('professor')) {
+                    firstLine = `<span class="highlight-added">Professor</span> ${firstLine}`;
+                    lines[0] = firstLine;
+                }
 
                 let processedParagraph = lines.join('\n');
+                if (toOption === 'withTo') {
+                    processedParagraph = `To\n${processedParagraph}`;
+                }
 
-                // Check if the paragraph contains a valid country
-                const hasValidCountry = countryList.some(country => processedParagraph.includes(country));
+                const greeting = `Dear Professor ${lastName},\n`;
+                let fullText = gapOption === 'nil' ?
+                    processedParagraph + '\n' + greeting : processedParagraph + '\n\n' + greeting;
 
-                if (!hasValidCountry) {
-                    // Move unmatched entry to the "Incomplete Entries/Removed Country box"
-                    invalidEntries.push(paragraph);
+                fullText = highlightUnsubscribed(fullText); // Highlight unsubscribed emails
+                const highlightedText = highlightErrors(fullText.replace(/\n/g, '<br>'));
+                const hasError = highlightedText.includes('error');
+
+                if (hasError) {
+                    incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
                 } else {
                     const p = document.createElement('p');
-                    p.innerHTML = processedParagraph.replace(/\n/g, '<br>');
-                    validEntries.push(p);
+                    p.innerHTML = highlightedText;
+
+                    if (paragraph.includes('Russia')) {
+                        russiaEntries.push(p);
+                    } else {
+                        nonRussiaEntries.push(p);
+                    }
                 }
             }
         }
         if (index < paragraphs.length) {
             requestAnimationFrame(processChunk);
         } else {
-            // Append valid entries to the output container
-            validEntries.forEach(entry => outputContainer.appendChild(entry));
-            
-            // Update incomplete entries box with unmatched entries
-            incompleteContainer.value = invalidEntries.join('\n\n');
+            nonRussiaEntries.forEach(entry => outputContainer.appendChild(entry));
+            russiaEntries.forEach(entry => outputContainer.appendChild(entry));
 
             updateCounts();
             saveText();
@@ -1332,6 +1243,7 @@ function displayDeletedAddressesPopup(deletedEmails) {
     requestAnimationFrame(processChunk);
 }
 
+
         function cutParagraph(paragraph) {
     if (cutCooldown) return;
     cutCooldown = true;
@@ -1341,9 +1253,15 @@ function displayDeletedAddressesPopup(deletedEmails) {
 
     const effectType = document.getElementById('effectType').value;
     const effectsEnabled = document.getElementById('effectsToggle').checked;
+    
+    // Check the 'toOption' selection to determine prefix handling
+    const toOption = document.querySelector('input[name="toOption"]:checked').value;
 
-    // Always remove "To\n" prefix if present.
-    let textToProcess = textToCopy.replace(/^To\n/, '');
+    // Check and remove 'To\n' if 'With "To"' is selected
+    let textToProcess = textToCopy;
+    if (toOption === 'withTo' && textToCopy.startsWith("To\n")) {
+        textToProcess = textToCopy.replace(/^To\n/, '');  // Remove "To\n" prefix if present
+    }
 
     if (effectsEnabled && effectType !== 'none') {
         paragraph.classList.add(effectType);
@@ -1818,190 +1736,7 @@ function syncEmailWithGoogleSheets(email) {
 }
 
 		}
-		let includeGreeting = true;
-
-    // Update greeting toggle state
-    function toggleGreeting() {
-        includeGreeting = document.getElementById('greetingToggle').checked;
-        console.log("Greeting Included:", includeGreeting);
-    }
-
-    // Fetch and display unsubscribed email count
-    function updateUnsubscribedCount() {
-    const outputContainer = document.getElementById('output');
-    const paragraphs = outputContainer.querySelectorAll('p');
-    const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
-
-    // Count paragraphs that contain unsubscribed emails
-    let count = 0;
-    paragraphs.forEach(paragraph => {
-        unsubscribedEmails.forEach(email => {
-            if (paragraph.innerText.includes(email)) {
-                count++;
-            }
-        });
-    });
-
-    // Update the button text with the count
-    const deleteButton = document.getElementById('deleteButton');
-    deleteButton.innerText = `Delete Unsubscribed Ad`;
-}
-
-
-    // Update greeting text inclusion during processing
-    function processText() {
-        if (isProcessing) return;
-        isProcessing = true;
-        document.getElementById('loadingIndicator').style.display = 'inline';
-
-        const inputText = document.getElementById('inputText').value;
-        const paragraphs = inputText.split(/\n\s*\n/);
-        const outputContainer = document.getElementById('output');
-        outputContainer.innerHTML = '<p id="cursorStart">Place your cursor here</p>';
-
-        let index = 0;
-
-        function processChunk() {
-            const chunkSize = 10;
-            const end = Math.min(index + chunkSize, paragraphs.length);
-            for (; index < end; index++) {
-                let paragraph = paragraphs[index].trim();
-                if (paragraph !== '') {
-                    const lines = paragraph.split('\n');
-                    const firstLine = lines[0].trim();
-                    const lastName = firstLine.split(' ').pop();
-
-                    // Include or exclude greeting text based on toggle
-                    const greeting = includeGreeting ? `Dear Professor ${lastName},\n` : '';
-                    const processedParagraph = `${lines.join('\n')}\n\n${greeting}`;
-
-                    const p = document.createElement('p');
-                    p.innerText = processedParagraph;
-                    outputContainer.appendChild(p);
-                }
-            }
-            if (index < paragraphs.length) {
-                requestAnimationFrame(processChunk);
-            } else {
-                updateCounts();
-                saveText();
-                document.getElementById('loadingIndicator').style.display = 'none';
-                isProcessing = false;
-            }
-        }
-        requestAnimationFrame(processChunk);
-    }
-
-    // Delete unsubscribed entries and update count
-    function deleteUnsubscribedEntries() {
-    const outputContainer = document.getElementById('output');
-    const paragraphs = Array.from(outputContainer.querySelectorAll('p'));
-    const unsubscribedEmails = JSON.parse(localStorage.getItem('permanentUnsubscribedEmails')) || [];
-    const deletedEmails = [];
-
-    paragraphs.forEach(paragraph => {
-        unsubscribedEmails.forEach(email => {
-            if (paragraph.innerText.includes(email)) {
-                paragraph.remove();
-                deletedEmails.push(email);
-            }
-        });
-    });
-
-    if (deletedEmails.length > 0) {
-        displayDeletedAddressesPopup(deletedEmails);
-    }
-
-    updateUnsubscribedCount(); // Update the delete button count
-     showSuccessMessage(`Successfully Deleted ${deletedEmails.length} unsubscribed addresses.`);
-
-    // Stop blinking the delete button
-    stopButtonBlink();
-}
-// Function to display a popup for deleted addresses
-function displayDeletedAddressesPopup(deletedEmails) {
-    let currentIndex = 0;
-
-    const popup = document.createElement('div');
-    popup.style.cssText = `
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #2c3e50;
-        color: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        z-index: 1000;
-        text-align: center;
-    `;
-
-    const message = document.createElement('div');
-    message.style.fontSize = '18px';
-    message.innerText = `Deleted Address: ${deletedEmails[currentIndex]}`;
-
-    const navigation = document.createElement('div');
-    navigation.style.margin = '10px 0';
-
-    const prevButton = document.createElement('button');
-    prevButton.innerText = '<';
-    prevButton.disabled = currentIndex === 0;
-    prevButton.style.marginRight = '10px';
-
-    const nextButton = document.createElement('button');
-    nextButton.innerText = '>';
-    nextButton.disabled = currentIndex === deletedEmails.length - 1;
-
-    navigation.appendChild(prevButton);
-    navigation.appendChild(nextButton);
-
-    const okButton = document.createElement('button');
-    okButton.innerText = 'OK';
-    okButton.style.marginTop = '10px';
-    okButton.style.backgroundColor = '#28a745';
-    okButton.style.color = 'white';
-    okButton.style.border = 'none';
-    okButton.style.padding = '10px 20px';
-    okButton.style.cursor = 'pointer';
-    okButton.style.borderRadius = '5px';
-
-    okButton.addEventListener('click', () => {
-        popup.remove();
-    });
-
-    prevButton.addEventListener('click', () => {
-        if (currentIndex > 0) {
-            currentIndex--;
-            message.innerText = `Deleted Address: ${deletedEmails[currentIndex]}`;
-            nextButton.disabled = currentIndex === deletedEmails.length - 1;
-            prevButton.disabled = currentIndex === 0;
-        }
-    });
-
-    nextButton.addEventListener('click', () => {
-        if (currentIndex < deletedEmails.length - 1) {
-            currentIndex++;
-            message.innerText = `Deleted Address: ${deletedEmails[currentIndex]}`;
-            prevButton.disabled = currentIndex === 0;
-            nextButton.disabled = currentIndex === deletedEmails.length - 1;
-        }
-    });
-
-    popup.appendChild(message);
-    popup.appendChild(navigation);
-    popup.appendChild(okButton);
-    document.body.appendChild(popup);
-}
-
-// Update unsubscribed count on page load
-document.addEventListener('DOMContentLoaded', updateUnsubscribedCount);
-
-</script>
+    </script>
 </body>
 
 </html>
