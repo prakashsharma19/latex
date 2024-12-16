@@ -1317,7 +1317,7 @@ function toggleDearProfessor() {
 
 function updateToggleLabel() {
     const label = document.getElementById('dearProfessorLabel');
-    label.innerText = includeDearProfessor ? 'Include "Dear Professor"' : '✘ "Dear Professor"';
+    label.innerText = includeDearProfessor ? '✔ "Dear Professor"' : '✘ "Dear Professor"';
 }
 
 
