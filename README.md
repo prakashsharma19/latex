@@ -661,6 +661,11 @@ body {
         Update Progress
     </button>
 </div>
+<div>
+    <button onclick="toggleDearProfessor()" class="btn toggle-dear-professor">
+        Include "Dear Professor"
+    </button>
+</div>
 
 <div id="successMessage" class="success-message" style="display: none;">Email saved successfully!</div>
 <!-- CSS Section -->
@@ -1232,7 +1237,31 @@ function displayDeletedAddressesPopup(deletedEmails) {
             document.getElementById('completionPercentage').innerText = `${percentageCompleted}%`;
         }
 
-        function processText() {
+        let includeDearProfessor = true; // Default to true
+
+// Initialize the toggle state from localStorage
+document.addEventListener('DOMContentLoaded', () => {
+    const savedState = localStorage.getItem('includeDearProfessor');
+    if (savedState !== null) {
+        includeDearProfessor = savedState === 'true';
+        updateToggleUI();
+    }
+});
+
+function toggleDearProfessor() {
+    includeDearProfessor = !includeDearProfessor;
+    localStorage.setItem('includeDearProfessor', includeDearProfessor);
+    updateToggleUI();
+}
+
+// Update the toggle button text
+function updateToggleUI() {
+    const toggleButton = document.querySelector('.btn.toggle-dear-professor');
+    toggleButton.innerText = includeDearProfessor ? 'Exclude "Dear Professor"' : 'Include "Dear Professor"';
+}
+
+// Update processText function to include/exclude "Dear Professor"
+function processText() {
     if (isProcessing) return;
 
     isProcessing = true;
@@ -1262,19 +1291,13 @@ function displayDeletedAddressesPopup(deletedEmails) {
                 let firstLine = lines[0].trim();
                 let lastName = firstLine.split(' ').pop();
 
-                if (!firstLine.toLowerCase().startsWith('professor')) {
-                    firstLine = `<span class="highlight-added">Professor</span> ${firstLine}`;
-                    lines[0] = firstLine;
+                if (includeDearProfessor) {
+                    const greeting = `Dear Professor ${lastName},\n`;
+                    lines[0] = `${lines[0]}\n\n${greeting}`;
                 }
 
                 let processedParagraph = lines.join('\n');
-
-                const greeting = `Dear Professor ${lastName},\n`;
-                let fullText = gapOption === 'nil' ?
-                    processedParagraph + '\n' + greeting : processedParagraph + '\n\n' + greeting;
-
-                fullText = highlightUnsubscribed(fullText); // Highlight unsubscribed emails
-                const highlightedText = highlightErrors(fullText.replace(/\n/g, '<br>'));
+                const highlightedText = highlightErrors(processedParagraph.replace(/\n/g, '<br>'));
                 const hasError = highlightedText.includes('error');
 
                 if (hasError) {
