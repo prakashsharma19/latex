@@ -1449,13 +1449,7 @@ function processText() {
         isProcessing = false;
     }
 }
-    requestAnimationFrame(processChunk);
-}
-
-
-
-
-
+    
         function cutParagraph(paragraph) {
     if (cutCooldown) return;
     cutCooldown = true;
