@@ -886,7 +886,7 @@ input:checked + .slider:before {
     </div>
 
     <div id="reminderPopup" class="popup">
-        <span style="font-size: 50px;">??</span>
+        <span style="font-size: 50px;">⏰</span>
         <p>Send Ads</p>
         <button onclick="dismissPopup()">OK</button>
     </div>
@@ -901,8 +901,8 @@ input:checked + .slider:before {
 	
     <script>
     const countryList = [
-        "Afghanistan", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia",
-        "Bahamas", "Bahrain", "Barbados", "Belize", "Benin", "Bolivia", "Bosnia and Herzegovina", "Brazil", "Brasil", "Brunei", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Canada", "Central African Republic", "Chad", "Tchad", "Chile", "China", "Colombia", "Comoros", "Congo", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Eswatini", "Fiji", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "India", "Indonesia", "Iraq", "Ireland", "Italy", "Jamaica", "Japan", "Jordan", "Kenya", "Kiribati", "Kuwait", "Laos", "Latvia", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Montenegro", "Morocco", "Mozambique", "Namibia", "Nauru", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Oman", "Pakistan", "Palau", "Palestine", "Philippines", "Qatar", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Seychelles", "Sierra Leone", "Solomon Islands", "Somalia", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Switzerland", "Syria", "Taiwan", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu", "Uganda", "United Arab Emirates", "United States", "Vanuatu", "Vatican City", "Vietnam", "Yemen", "USA", "U.S.A.", "U.S.A", "U. S. A.", "U. S. A", "Korea", "UAE", "U.A.E.", "U. A. E", "U. A. E.", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Côte d'Ivoire", "Cote D'Ivoire", "Macau", "Macao", "Macedonia", "Greece", "South Africa"
+        "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia",
+        "Bahamas", "Barbados", "Belize", "Benin", "Bolivia", "Bosnia and Herzegovina", "Brazil", "Brasil", "Brunei", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Canada", "Central African Republic", "Chad", "Tchad", "Chile", "China", "Colombia", "Comoros", "Congo", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "El Salvador", "Equatorial Guinea", "Eritrea", "Eswatini", "Fiji", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "India", "Ireland", "Italy", "Jamaica", "Japan", "Kenya", "Kiribati", "Laos", "Latvia", "Lesotho", "Liberia", "Liechtenstein", "Luxembourg", "Madagascar", "Malawi", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Montenegro", "Mozambique", "Namibia", "Nauru", "Nicaragua", "Niger", "Nigeria", "North Macedonia", "Palau", "Philippines", "Russia", "Rwanda", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Senegal", "Seychelles", "Sierra Leone", "Solomon Islands", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Switzerland", "Taiwan", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Turkmenistan", "Tuvalu", "Uganda", "United States", "Vanuatu", "Vatican City", "Vietnam", "USA", "U.S.A.", "U.S.A", "U. S. A.", "U. S. A", "Korea", "Hong Kong", "Ivory Coast", "Cote d'Ivoire", "Côte d'Ivoire", "Cote D'Ivoire", "Macau", "Macao", "Macedonia", "Greece", "South Africa"
     ];
 
 	function showSuccessMessage(message) {
@@ -1006,8 +1006,8 @@ function deleteUnsubscribedEntries() {
         let cutCooldown = false;
 
         function clearMemory() {
-            const password = prompt('Please enter the password to clear memory:');
-            if (password === 'cleanall') {
+            const password = prompt('Please enter the password to clear memory, unsubscribed email data will also be deleted:');
+            if (password === 'cleanall0') {
                 localStorage.clear();
                 alert('Memory cleared!');
             } else {
@@ -1386,6 +1386,13 @@ function processText() {
             if (paragraph !== '') {
                 const lines = paragraph.split('\n');
                 let firstLine = lines[0].trim();
+
+                // Ensure the first line starts with "Professor"
+                if (!firstLine.startsWith('Professor')) {
+                    firstLine = `Professor ${firstLine}`;
+                    lines[0] = firstLine;
+                }
+
                 let lastName = firstLine.split(' ').pop();
 
                 if (includeDearProfessor) {
@@ -1443,6 +1450,7 @@ function processText() {
     }
     requestAnimationFrame(processChunk);
 }
+
 
 
 
