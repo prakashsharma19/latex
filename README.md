@@ -1449,7 +1449,6 @@ function processText() {
         isProcessing = false;
     }
 }
-
     requestAnimationFrame(processChunk);
 }
 
