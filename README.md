@@ -1379,75 +1379,77 @@ function processText() {
     const gapOption = document.getElementById('gapOption').value;
 
     function processChunk() {
-        const chunkSize = 10;
-        const end = Math.min(index + chunkSize, paragraphs.length);
-        for (; index < end; index++) {
-            let paragraph = paragraphs[index].trim();
-            if (paragraph !== '') {
-                const lines = paragraph.split('\n');
-                let firstLine = lines[0].trim();
+    const chunkSize = 10;
+    const end = Math.min(index + chunkSize, paragraphs.length);
+    for (; index < end; index++) {
+        let paragraph = paragraphs[index].trim();
+        if (paragraph !== '') {
+            const lines = paragraph.split('\n');
+            let firstLine = lines[0].trim();
 
-                // Ensure the first line starts with "Professor"
-                if (!firstLine.startsWith('Professor')) {
-                    firstLine = `Professor ${firstLine}`;
-                    lines[0] = firstLine;
-                }
+            // Ensure the first line starts with "Professor"
+            if (!firstLine.startsWith('Professor')) {
+                firstLine = `Professor ${firstLine}`;
+                lines[0] = firstLine;
+            }
 
-                let lastName = firstLine.split(' ').pop();
+            let lastName = firstLine.split(' ').pop();
 
-                if (includeDearProfessor) {
-                    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
-                    const emailLineIndex = lines.findIndex(line => emailRegex.test(line));
-                    if (emailLineIndex !== -1) {
-                        const greeting = `Dear Professor ${lastName},`;
-                        if (gapOption === 'nil') {
-                            lines.splice(emailLineIndex + 1, 0, greeting);
-                        } else {
-                            lines.splice(emailLineIndex + 1, 0, '', greeting);
-                        }
-                    }
-                }
-
-                let processedParagraph = lines.join('\n');
-                const highlightedText = highlightErrors(processedParagraph.replace(/\n/g, '<br>'));
-                const hasError = highlightedText.includes('error');
-
-                if (hasError) {
-                    incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
-                } else {
-                    const p = document.createElement('p');
-                    p.innerHTML = highlightedText;
-
-                    if (paragraph.includes('Russia')) {
-                        russiaEntries.push(p);
+            if (includeDearProfessor) {
+                const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+                const emailLineIndex = lines.findIndex(line => emailRegex.test(line));
+                if (emailLineIndex !== -1) {
+                    const greeting = `Dear Professor ${lastName},`;
+                    if (gapOption === 'nil') {
+                        lines.splice(emailLineIndex + 1, 0, greeting);
                     } else {
-                        nonRussiaEntries.push(p);
+                        lines.splice(emailLineIndex + 1, 0, '', greeting);
                     }
                 }
             }
-        }
-        if (index < paragraphs.length) {
-            requestAnimationFrame(processChunk);
-        } else {
-            nonRussiaEntries.forEach(entry => outputContainer.appendChild(entry));
-            russiaEntries.forEach(entry => outputContainer.appendChild(entry));
 
-            updateCounts();
-            saveText();
-            document.getElementById('lockButton').style.display = 'inline-block';
-            document.getElementById('loadingIndicator').style.display = 'none';
+            let processedParagraph = lines.join('\n');
+            const highlightedText = highlightErrors(processedParagraph.replace(/\n/g, '<br>'));
+            const hasError = highlightedText.includes('error');
 
-            // Automatically delete unsubscribed entries
-            const deletedCount = deleteUnsubscribedEntries();
+            if (hasError) {
+                incompleteContainer.value += `${highlightedText.replace(/<br>/g, '\n').replace(/<[^>]+>/g, '')}\n\n`;
+                updateIncompleteEntriesCount(); // Update the count after adding an entry
+            } else {
+                const p = document.createElement('p');
+                p.innerHTML = highlightedText;
 
-            // Show a popup notification if unsubscribed entries were deleted
-            if (deletedCount > 0) {
-                showPopupNotification(`Deleted ${deletedCount} unsubscribed entries.`);
+                if (paragraph.includes('Russia')) {
+                    russiaEntries.push(p);
+                } else {
+                    nonRussiaEntries.push(p);
+                }
             }
-
-            isProcessing = false;
         }
     }
+    if (index < paragraphs.length) {
+        requestAnimationFrame(processChunk);
+    } else {
+        nonRussiaEntries.forEach(entry => outputContainer.appendChild(entry));
+        russiaEntries.forEach(entry => outputContainer.appendChild(entry));
+
+        updateCounts();
+        saveText();
+        document.getElementById('lockButton').style.display = 'inline-block';
+        document.getElementById('loadingIndicator').style.display = 'none';
+
+        // Automatically delete unsubscribed entries
+        const deletedCount = deleteUnsubscribedEntries();
+
+        // Show a popup notification if unsubscribed entries were deleted
+        if (deletedCount > 0) {
+            showPopupNotification(`Deleted ${deletedCount} unsubscribed entries.`);
+        }
+
+        isProcessing = false;
+    }
+}
+
     requestAnimationFrame(processChunk);
 }
 
@@ -1920,6 +1922,7 @@ function exportUnsubscribedEmails() {
     downloadAnchor.click();
     document.body.removeChild(downloadAnchor);
 }
+
 // Function to sync email with Google Sheets using the Google Apps Script web app
 function syncEmailWithGoogleSheets(email) {
     const webAppUrl = 'https://script.google.com/macros/s/AKfycbz3yehn7Fc6bDqqcEVptxwrUtl9XzFeAYM1iEte_4MBxZMPFI2D0vPfSYuMjkVb2iJg/exec'; // Replace with the URL from the deployment step
