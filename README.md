@@ -54,11 +54,10 @@
   <button onclick="scrapeData()">Scrape</button>
 
   <div id="results">
-    <h2>Extracted Data</h2>
+    <h2>Extracted Emails</h2>
     <table id="dataTable">
       <thead>
         <tr>
-          <th>Name</th>
           <th>Email</th>
         </tr>
       </thead>
@@ -80,27 +79,22 @@
         const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
         const data = await response.json();
 
-        // Parse the HTML response
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data.contents, 'text/html');
+        // Use regex to extract email addresses from the HTML content
+        const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+        const emails = data.contents.match(emailRegex) || [];
 
-        // Extract email addresses
-        const rows = [];
-        doc.querySelectorAll('a[href^="mailto:"]').forEach((emailLink) => {
-          const email = emailLink.getAttribute('href').replace('mailto:', '');
-          const name = emailLink.textContent.trim() || 'N/A';
-          rows.push({ name, email });
-        });
+        // Remove duplicates
+        const uniqueEmails = [...new Set(emails)];
 
         // Display the results in the table
         const tableBody = document.querySelector('#dataTable tbody');
         tableBody.innerHTML = ''; // Clear any previous results
-        rows.forEach(({ name, email }) => {
-          const row = `<tr><td>${name}</td><td>${email}</td></tr>`;
+        uniqueEmails.forEach((email) => {
+          const row = `<tr><td>${email}</td></tr>`;
           tableBody.innerHTML += row;
         });
 
-        if (rows.length === 0) {
+        if (uniqueEmails.length === 0) {
           alert('No emails found on this page.');
         }
       } catch (error) {
