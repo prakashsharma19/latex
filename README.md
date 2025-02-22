@@ -62,44 +62,53 @@
         }
 
         function loadQuestion() {
-            document.getElementById("result").textContent = "";
-            document.getElementById("nextBtn").style.display = "none";
-
-            let wordObj = words[getRandomIndex(words)];
-            let correctAnswer = wordObj.synonyms[0];
-            let wrongAnswers = [];
-
-            while (wrongAnswers.length < 3) {
-                let randomWord = words[getRandomIndex(words)];
-                let randomSynonym = randomWord.synonyms[getRandomIndex(randomWord.synonyms)];
-                if (randomSynonym !== correctAnswer && !wrongAnswers.includes(randomSynonym)) {
-                    wrongAnswers.push(randomSynonym);
+            try {
+                document.getElementById("result").textContent = "";
+                document.getElementById("nextBtn").style.display = "none";
+                
+                if (words.length === 0) {
+                    document.getElementById("question").textContent = "कोई प्रश्न उपलब्ध नहीं है।";
+                    return;
                 }
+
+                let wordObj = words[getRandomIndex(words)];
+                let correctAnswer = wordObj.synonyms[0];
+                let wrongAnswers = [];
+
+                while (wrongAnswers.length < 3) {
+                    let randomWord = words[getRandomIndex(words)];
+                    let randomSynonym = randomWord.synonyms[getRandomIndex(randomWord.synonyms)];
+                    if (randomSynonym !== correctAnswer && !wrongAnswers.includes(randomSynonym)) {
+                        wrongAnswers.push(randomSynonym);
+                    }
+                }
+
+                let options = shuffleArray([correctAnswer, ...wrongAnswers]);
+
+                document.getElementById("question").textContent = `"${wordObj.word}" का पर्यायवाची क्या है?`;
+                let optionsHTML = options.map(option => 
+                    `<button class="option" onclick="checkAnswer('${option}', '${correctAnswer}')">${option}</button>`
+                ).join("");
+
+                document.getElementById("options").innerHTML = optionsHTML;
+            } catch (error) {
+                console.error("Error in loadQuestion:", error);
+                document.getElementById("question").textContent = "कोई त्रुटि हुई, कृपया पेज को पुनः लोड करें।";
             }
-
-            let options = shuffleArray([correctAnswer, ...wrongAnswers]);
-
-            document.getElementById("question").textContent = "${wordObj.word}" का पर्यायवाची क्या है?;
-            let optionsHTML = "";
-            options.forEach(option => {
-                optionsHTML += <button class="option" onclick="checkAnswer('${option}', '${correctAnswer}')">${option}</button>;
-            });
-
-            document.getElementById("options").innerHTML = optionsHTML;
         }
 
         function checkAnswer(selected, correct) {
             if (selected === correct) {
-                document.getElementById("result").textContent = "सही उत्तर!";
+                document.getElementById("result").textContent = "✅ सही उत्तर!";
                 document.getElementById("result").style.color = "green";
             } else {
-                document.getElementById("result").textContent = "गलत! सही उत्तर: " + correct;
+                document.getElementById("result").textContent = `❌ गलत! सही उत्तर: ${correct}`;
                 document.getElementById("result").style.color = "red";
             }
             document.getElementById("nextBtn").style.display = "block";
         }
 
-        loadQuestion();
+        window.onload = loadQuestion;
     </script>
 
 </body>
