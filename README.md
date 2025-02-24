@@ -25,7 +25,7 @@
 </head>
 <body>
     <h1>पर्यायवाची शब्द अभ्यास</h1>
-    <div id="progress">0/0</div>
+    <div id="progress">Your Progress: 0/0</div>
     <div id="modeSelection">
         <button class="button practice-mode" onclick="startPractice()">प्रैक्टिस मोड</button>
         <button class="button quiz-mode" onclick="startQuiz()">टेस्ट मोड</button>
@@ -52,7 +52,7 @@
         ];
         let practiceWords = JSON.parse(localStorage.getItem("practiceWords")) || [...words];
         let rememberedCount = parseInt(localStorage.getItem("rememberedCount")) || 0;
-        document.getElementById("progress").textContent = `${rememberedCount}/${words.length}`;
+        document.getElementById("progress").textContent = `Your Progress: ${rememberedCount}/${words.length}`;
         let currentFlashcard = null;
         let showSynonyms = false;
 
@@ -89,12 +89,26 @@
             rememberedCount++;
             localStorage.setItem("practiceWords", JSON.stringify(practiceWords));
             localStorage.setItem("rememberedCount", rememberedCount);
-            document.getElementById("progress").textContent = `${rememberedCount}/${words.length}`;
+            document.getElementById("progress").textContent = `Your Progress: ${rememberedCount}/${words.length}`;
             loadFlashcard();
         }
         
         function markUnknown() {
             loadFlashcard();
+        }
+        
+        function loadQuestion() {
+            let wordObj = words[Math.floor(Math.random() * words.length)];
+            let correctAnswer = wordObj.synonyms[0];
+            let wrongAnswers = words.filter(w => w.word !== wordObj.word).slice(0, 3).map(w => w.synonyms[0]);
+            let options = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+            document.getElementById("question").textContent = `"${wordObj.word}" का पर्यायवाची क्या है?`;
+            document.getElementById("options").innerHTML = options.map(option => `<button class="option" onclick="checkAnswer('${option}', '${correctAnswer}')">${option}</button>`).join('');
+        }
+        
+        function checkAnswer(selected, correct) {
+            document.getElementById("result").textContent = selected === correct ? "सही उत्तर!" : "गलत! सही उत्तर: " + correct;
+            document.getElementById("nextBtn").style.display = "block";
         }
     </script>
 </body>
