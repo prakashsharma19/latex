@@ -7,109 +7,115 @@
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f8f8f8; }
         h1 { color: #333; }
-        #question { font-size: 22px; margin: 20px 0; }
-        .option { 
-            display: block; margin: 10px auto; padding: 10px; width: 300px; 
-            font-size: 18px; cursor: pointer; background: #fff; border: 1px solid #ccc; border-radius: 5px;
-        }
+        #modeSelection { margin-bottom: 20px; }
+        .button { padding: 10px 20px; margin: 5px; font-size: 18px; cursor: pointer; border: none; border-radius: 5px; }
+        .quiz-mode { background: #007bff; color: white; }
+        .practice-mode { background: #28a745; color: white; }
+        .flashcard { width: 300px; height: 200px; margin: 20px auto; display: flex; align-items: center; justify-content: center; font-size: 22px; background: white; border: 1px solid #ccc; border-radius: 10px; cursor: pointer; transition: transform 0.3s; }
+        .hidden { display: none; }
+        #flashcardContainer button { display: block; margin: 10px auto; padding: 10px 20px; font-size: 18px; border-radius: 5px; border: none; cursor: pointer; }
+        .known { background: #28a745; color: white; }
+        .unknown { background: #dc3545; color: white; }
+        .option { display: block; margin: 10px auto; padding: 10px; width: 300px; font-size: 18px; cursor: pointer; background: #fff; border: 1px solid #ccc; border-radius: 5px; }
         .option:hover { background: #e0e0e0; }
         #result { font-size: 20px; margin-top: 20px; font-weight: bold; }
-        #nextBtn { 
-            display: none; margin-top: 20px; padding: 10px 20px; font-size: 18px; 
-            background: #28a745; color: white; border: none; cursor: pointer; border-radius: 5px; 
-        }
+        #nextBtn { display: none; margin-top: 20px; padding: 10px 20px; font-size: 18px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 5px; }
     </style>
 </head>
 <body>
-
     <h1>पर्यायवाची शब्द अभ्यास</h1>
-    <p id="question">Loading...</p>
-    <div id="options"></div>
-    <p id="result"></p>
-    <button id="nextBtn" onclick="loadQuestion()">अगला प्रश्न</button>
-
+    <div id="modeSelection">
+        <button class="button practice-mode" onclick="startPractice()">प्रैक्टिस मोड</button>
+        <button class="button quiz-mode" onclick="startQuiz()">टेस्ट मोड</button>
+    </div>
+    
+    <div id="flashcardContainer" class="hidden">
+        <div class="flashcard" onclick="flipCard()" id="flashcard">Loading...</div>
+        <button class="known" onclick="markKnown()">✅ ज्ञात</button>
+        <button class="unknown" onclick="markUnknown()">❌ अज्ञात</button>
+    </div>
+    
+    <div id="quizContainer" class="hidden">
+        <p id="question">Loading...</p>
+        <div id="options"></div>
+        <p id="result"></p>
+        <button id="nextBtn" onclick="loadQuestion()">अगला प्रश्न</button>
+    </div>
+    
     <script>
         const words = [
             { word: "सूर्य", synonyms: ["भानु", "रवि", "दिनकर", "अर्क"] },
             { word: "चंद्र", synonyms: ["सोम", "शशि", "निशाकर", "इंदु"] },
-            { word: "अग्नि", synonyms: ["पावक", "वह्नि", "अनल", "दहन"] },
-            { word: "जल", synonyms: ["नीर", "वारि", "तोय", "पय"] },
-            { word: "पृथ्वी", synonyms: ["धरा", "भूमि", "वसुधा", "मही"] },
-            { word: "हवा", synonyms: ["पवन", "वायु", "अनिल", "समीर"] },
-            { word: "कमल", synonyms: ["पद्म", "अम्बुज", "सरोज", "नीरज"] },
-            { word: "सिंह", synonyms: ["केशरी", "मृगेंद्र", "शेर", "व्याघ्र"] },
-            { word: "हाथी", synonyms: ["गज", "द्विप", "मतंग", "हस्ति"] },
-            { word: "सागर", synonyms: ["समुद्र", "अर्णव", "जलधि", "रत्नाकर"] },
-            { word: "गंगा", synonyms: ["भागीरथी", "जाह्नवी", "पयस्विनी", "मंदाकिनी"] },
-            { word: "अंधकार", synonyms: ["तम", "ध्वांत", "अवसान", "तिमिर"] },
-            { word: "असुर", synonyms: ["दानव", "राक्षस", "निशाचर", "दैत्य"] },
-            { word: "विद्या", synonyms: ["ज्ञान", "बुद्धि", "शिक्षा", "पाण्डित्य"] },
-            { word: "स्वर्ग", synonyms: ["देवलोक", "सुरलोक", "बैखुंठ", "अमरावती"] },
-            { word: "रात", synonyms: ["निशा", "रजनी", "यामिनी", "शर्वरी"] },
-            { word: "अश्व", synonyms: ["घोड़ा", "हय", "तुरंग", "सप्ताश्व"] },
-            { word: "नेत्र", synonyms: ["चक्षु", "नयन", "लोचन", "आंख"] },
-            { word: "मृत्यु", synonyms: ["काल", "यम", "अंत", "मर"] },
-            { word: "अन्न", synonyms: ["भोजन", "खाद्य", "धान्य", "शाक"] },
-            { word: "हंस", synonyms: ["राजहंस", "कलहंस", "मराल", "पंक्षीराज"] }
+            { word: "अग्नि", synonyms: ["पावक", "वह्नि", "अनल", "दहन"] }
         ];
+        let practiceWords = [...words];
+        let currentFlashcard = null;
+        let showSynonyms = false;
 
-        function getRandomIndex(array) {
-            return Math.floor(Math.random() * array.length);
+        function startPractice() {
+            document.getElementById("modeSelection").classList.add("hidden");
+            document.getElementById("flashcardContainer").classList.remove("hidden");
+            loadFlashcard();
         }
-
-        function shuffleArray(array) {
-            return array.sort(() => Math.random() - 0.5);
+        
+        function startQuiz() {
+            document.getElementById("modeSelection").classList.add("hidden");
+            document.getElementById("quizContainer").classList.remove("hidden");
+            loadQuestion();
         }
-
-        function loadQuestion() {
-            try {
-                document.getElementById("result").textContent = "";
-                document.getElementById("nextBtn").style.display = "none";
-                
-                if (words.length === 0) {
-                    document.getElementById("question").textContent = "कोई प्रश्न उपलब्ध नहीं है।";
-                    return;
-                }
-
-                let wordObj = words[getRandomIndex(words)];
-                let correctAnswer = wordObj.synonyms[0];
-                let wrongAnswers = [];
-
-                while (wrongAnswers.length < 3) {
-                    let randomWord = words[getRandomIndex(words)];
-                    let randomSynonym = randomWord.synonyms[getRandomIndex(randomWord.synonyms)];
-                    if (randomSynonym !== correctAnswer && !wrongAnswers.includes(randomSynonym)) {
-                        wrongAnswers.push(randomSynonym);
-                    }
-                }
-
-                let options = shuffleArray([correctAnswer, ...wrongAnswers]);
-
-                document.getElementById("question").textContent = `"${wordObj.word}" का पर्यायवाची क्या है?`;
-                let optionsHTML = options.map(option => 
-                    `<button class="option" onclick="checkAnswer('${option}', '${correctAnswer}')">${option}</button>`
-                ).join("");
-
-                document.getElementById("options").innerHTML = optionsHTML;
-            } catch (error) {
-                console.error("Error in loadQuestion:", error);
-                document.getElementById("question").textContent = "कोई त्रुटि हुई, कृपया पेज को पुनः लोड करें।";
+        
+        function loadFlashcard() {
+            if (practiceWords.length === 0) {
+                document.getElementById("flashcard").textContent = "सभी शब्द सीख लिए गए!";
+                return;
             }
+            currentFlashcard = practiceWords[Math.floor(Math.random() * practiceWords.length)];
+            document.getElementById("flashcard").textContent = currentFlashcard.word;
+            showSynonyms = false;
         }
-
-        function checkAnswer(selected, correct) {
-            if (selected === correct) {
-                document.getElementById("result").textContent = "✅ सही उत्तर!";
-                document.getElementById("result").style.color = "green";
+        
+        function flipCard() {
+            if (!currentFlashcard) return;
+            if (showSynonyms) {
+                document.getElementById("flashcard").textContent = currentFlashcard.word;
             } else {
-                document.getElementById("result").textContent = `❌ गलत! सही उत्तर: ${correct}`;
-                document.getElementById("result").style.color = "red";
+                document.getElementById("flashcard").textContent = currentFlashcard.synonyms.join(", ");
             }
+            showSynonyms = !showSynonyms;
+        }
+        
+        function markKnown() {
+            practiceWords = practiceWords.filter(w => w.word !== currentFlashcard.word);
+            loadFlashcard();
+        }
+        
+        function markUnknown() {
+            loadFlashcard();
+        }
+        
+        function loadQuestion() {
+            document.getElementById("result").textContent = "";
+            document.getElementById("nextBtn").style.display = "none";
+            let wordObj = words[Math.floor(Math.random() * words.length)];
+            let correctAnswer = wordObj.synonyms[0];
+            let wrongAnswers = [];
+            while (wrongAnswers.length < 3) {
+                let randomWord = words[Math.floor(Math.random() * words.length)];
+                let randomSynonym = randomWord.synonyms[Math.floor(Math.random() * randomWord.synonyms.length)];
+                if (randomSynonym !== correctAnswer && !wrongAnswers.includes(randomSynonym)) {
+                    wrongAnswers.push(randomSynonym);
+                }
+            }
+            let options = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+            document.getElementById("question").textContent = `"${wordObj.word}" का पर्यायवाची क्या है?`;
+            document.getElementById("options").innerHTML = options.map(option => `<button class="option" onclick="checkAnswer('${option}', '${correctAnswer}')">${option}</button>`).join("\n");
+        }
+        
+        function checkAnswer(selected, correct) {
+            document.getElementById("result").textContent = selected === correct ? "✅ सही उत्तर!" : `❌ गलत! सही उत्तर: ${correct}`;
+            document.getElementById("result").style.color = selected === correct ? "green" : "red";
             document.getElementById("nextBtn").style.display = "block";
         }
-
-        window.onload = loadQuestion;
     </script>
-
 </body>
 </html>
