@@ -20,10 +20,12 @@
         .option:hover { background: #e0e0e0; }
         #result { font-size: 20px; margin-top: 20px; font-weight: bold; }
         #nextBtn { display: none; margin-top: 20px; padding: 10px 20px; font-size: 18px; background: #28a745; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        #progress { position: absolute; top: 10px; right: 10px; font-size: 18px; font-weight: bold; }
     </style>
 </head>
 <body>
     <h1>पर्यायवाची शब्द अभ्यास</h1>
+    <div id="progress">0/0</div>
     <div id="modeSelection">
         <button class="button practice-mode" onclick="startPractice()">प्रैक्टिस मोड</button>
         <button class="button quiz-mode" onclick="startQuiz()">टेस्ट मोड</button>
@@ -48,7 +50,9 @@
             { word: "चंद्र", synonyms: ["सोम", "शशि", "निशाकर", "इंदु"] },
             { word: "अग्नि", synonyms: ["पावक", "वह्नि", "अनल", "दहन"] }
         ];
-        let practiceWords = [...words];
+        let practiceWords = JSON.parse(localStorage.getItem("practiceWords")) || [...words];
+        let rememberedCount = parseInt(localStorage.getItem("rememberedCount")) || 0;
+        document.getElementById("progress").textContent = `${rememberedCount}/${words.length}`;
         let currentFlashcard = null;
         let showSynonyms = false;
 
@@ -76,45 +80,21 @@
         
         function flipCard() {
             if (!currentFlashcard) return;
-            if (showSynonyms) {
-                document.getElementById("flashcard").textContent = currentFlashcard.word;
-            } else {
-                document.getElementById("flashcard").textContent = currentFlashcard.synonyms.join(", ");
-            }
+            document.getElementById("flashcard").textContent = showSynonyms ? currentFlashcard.word : currentFlashcard.synonyms.join(", ");
             showSynonyms = !showSynonyms;
         }
         
         function markKnown() {
             practiceWords = practiceWords.filter(w => w.word !== currentFlashcard.word);
+            rememberedCount++;
+            localStorage.setItem("practiceWords", JSON.stringify(practiceWords));
+            localStorage.setItem("rememberedCount", rememberedCount);
+            document.getElementById("progress").textContent = `${rememberedCount}/${words.length}`;
             loadFlashcard();
         }
         
         function markUnknown() {
             loadFlashcard();
-        }
-        
-        function loadQuestion() {
-            document.getElementById("result").textContent = "";
-            document.getElementById("nextBtn").style.display = "none";
-            let wordObj = words[Math.floor(Math.random() * words.length)];
-            let correctAnswer = wordObj.synonyms[0];
-            let wrongAnswers = [];
-            while (wrongAnswers.length < 3) {
-                let randomWord = words[Math.floor(Math.random() * words.length)];
-                let randomSynonym = randomWord.synonyms[Math.floor(Math.random() * randomWord.synonyms.length)];
-                if (randomSynonym !== correctAnswer && !wrongAnswers.includes(randomSynonym)) {
-                    wrongAnswers.push(randomSynonym);
-                }
-            }
-            let options = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
-            document.getElementById("question").textContent = `"${wordObj.word}" का पर्यायवाची क्या है?`;
-            document.getElementById("options").innerHTML = options.map(option => `<button class="option" onclick="checkAnswer('${option}', '${correctAnswer}')">${option}</button>`).join("\n");
-        }
-        
-        function checkAnswer(selected, correct) {
-            document.getElementById("result").textContent = selected === correct ? "✅ सही उत्तर!" : `❌ गलत! सही उत्तर: ${correct}`;
-            document.getElementById("result").style.color = selected === correct ? "green" : "red";
-            document.getElementById("nextBtn").style.display = "block";
         }
     </script>
 </body>
